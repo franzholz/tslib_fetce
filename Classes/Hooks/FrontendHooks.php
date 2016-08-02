@@ -8,7 +8,7 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 /***************************************************************
 *  Copyright notice
 *
-*  (c) 1999-2014 Kasper Skårhøj (kasperYYYY@typo3.com)
+*  (c) 1999-2016 Kasper Skårhøj (kasperYYYY@typo3.com)
 *  All rights reserved
 *
 *  This script is part of the TYPO3 project. The TYPO3 project is
@@ -32,10 +32,8 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
  * Frontend hooks used by the tslib_fetce extension.
  *
  * @author	Franz Holzinger <franz@ttproducts.de>
- * $Id$
  */
 class FrontendHooks {
-
 
 	/**
 	 * Checks if config-array exists already but if not, gets it
@@ -50,4 +48,3 @@ class FrontendHooks {
 	}
 }
 
-?>

@@ -1,2 +1,7 @@
+2016-08-02 Franz Holzinger <franz@fholzinger.com>
+	* support for TYPO3 7.6.10
+	* remove MAIL feature
+	* use much code from TYPO3 7.6.10 system extension compatibility6
+
 2014-10-21 Franz Holzinger <franz@fholzinger.com>
 	* Initial TER upload

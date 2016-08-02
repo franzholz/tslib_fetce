@@ -7,9 +7,8 @@
 
 $extensionPath = t3lib_extMgm::extPath('tslib_fetce');
 return array(
-	'TypoScriptFrontendTceController'     => $extensionPath . 'Classes/Controller/TypoScriptFrontendTceController.php',
+	'TypoScriptFrontendDataController'     => $extensionPath . 'Classes/Controller/TypoScriptFrontendDataController.php',
 	'FrontendHooks'     => $extensionPath . 'Classes/Hooks/FrontendHooks.php',
 	'TypoScriptFrontendTceController'     => $extensionPath . 'Classes/Hooks/TypoScriptFrontendTceController.php',
 );
 
-?>
