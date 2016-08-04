@@ -80,11 +80,15 @@ class TypoScriptFrontendDataController {
 	 */
 	public function start ($data, $FEData) {
 		foreach ($data as $table => $id_arr) {
-			if (is_array($id_arr)) {
+			if (
+				is_array($id_arr) &&
+				isset($FEData[$table . '.']) &&
+				is_array($FEData[$table . '.'])
+			) {
 				$sep = $FEData[$table . '.']['separator'] ? $FEData[$table . '.']['separator'] : LF;
 				foreach ($id_arr as $id => $field_arr) {
-					$this->newData[$table][$id] = Array();
-					if (strstr($id,'NEW')) {		// NEW
+					$this->newData[$table][$id] = array();
+					if (strstr($id, 'NEW')) {		// NEW
 							// Defaults:
 						if ($FEData[$table . '.']['default.']) {
 							$this->newData[$table][$id] = $FEData[$table . '.']['default.'];
@@ -162,11 +166,12 @@ class TypoScriptFrontendDataController {
 	 * @access private
 	 */
 	public function checkDoublePostExist ($table, $doublePostField, $key) {
-		return $GLOBALS['TYPO3_DB']->exec_SELECTcountRows(
+		$result = $GLOBALS['TYPO3_DB']->exec_SELECTcountRows(
 			'*',
 			$table,
 			$doublePostField . '=' . intval($key)
 		);
+		return $result;
 	}
 
 	/**
@@ -193,7 +198,9 @@ class TypoScriptFrontendDataController {
 			if (@is_file($incFile) && $GLOBALS['TSFE']->checkFileInclude($incFile)) {
 				include($incFile);	// Always start the incFiles with a check of the object fe_tce.  is_object($this);
 				$GLOBALS['TT']->setTSlogMessage('Included ' . $incFile, 0);
-			} else $GLOBALS['TT']->setTSlogMessage('"' . $incFile . '" was not found!',2);
+			} else {
+				$GLOBALS['TT']->setTSlogMessage('"' . $incFile . '" was not found!',2);
+			}
 		}
 	}
 
@@ -204,7 +211,7 @@ class TypoScriptFrontendDataController {
 	 * Executes an insert query!
 	 *
 	 * @param	string		The table name for which to create the insert statement
-	 * @param	array		Array with key/value pairs being field/values (already escaped)
+	 * @param	array		array with key/value pairs being field/values (already escaped)
 	 * @return	void
 	 */
 	public function execNEWinsert ($table, $dataArr) {
@@ -229,7 +236,10 @@ class TypoScriptFrontendDataController {
 		$insertFields = array();
 
 		foreach($dataArr as $f => $v) {
-			if (GeneralUtility::inList($extraList, $f) || isset($GLOBALS['TCA'][$table]['columns'][$f])) {
+			if (
+				GeneralUtility::inList($extraList, $f) ||
+				isset($GLOBALS['TCA'][$table]['columns'][$f])
+			) {
 				$insertFields[$f] = $v;
 			}
 		}
@@ -261,9 +271,14 @@ class TypoScriptFrontendDataController {
 	 *
 	 * @param	string		The table name for which to return TypoScript configuration (From TS: FEData.[table])
 	 * @return	array		TypoScript properties from FEData.[table] - if exists.
+	 *               		empty if nothing has been defined
 	 */
 	public function getConf ($table) {
-		return $this->extScriptsConf[$table];
+		$result = array();
+		if (isset($this->extScriptsConf[$table])) {
+			$result = $this->extScriptsConf[$table];
+		}
+		return $result;
 	}
 }
 
