@@ -8,7 +8,7 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 /***************************************************************
 *  Copyright notice
 *
-*  (c) 1999-2016 Kasper Skårhøj (kasperYYYY@typo3.com)
+*  (c) 1999-2017 Kasper Skårhøj (kasperYYYY@typo3.com)
 *  All rights reserved
 *
 *  This script is part of the TYPO3 project. The TYPO3 project is
@@ -35,16 +35,22 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
  */
 class FrontendHooks {
 
-	/**
-	 * Checks if config-array exists already but if not, gets it
-	 *
-	 * @return void
-	 * @todo Define visibility
-	 */
-	public function getFeDataConfigArray(&$params, $pObj) {
+    /**
+    * Checks if config-array exists already but if not, gets it
+    *
+    * @param array $parameters
+    * @param \TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController $parentObject
+    * @return void
+    * @todo Define visibility
+    */
+    public function getFeDataConfigArray (&$params, $parentObject) {
 
-		$pObj->config['FEData'] = $pObj->tmpl->setup['FEData'];
-		$pObj->config['FEData.'] = $pObj->tmpl->setup['FEData.'];
-	}
+        if (isset($parentObject->tmpl->setup['FEData'])) {
+            $parentObject->config['FEData'] = $parentObject->tmpl->setup['FEData'];
+        }
+        if (isset($parentObject->tmpl->setup['FEData.'])) {
+            $parentObject->config['FEData.'] = $parentObject->tmpl->setup['FEData.'];
+        }
+    }
 }
 

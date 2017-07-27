@@ -1,8 +1,10 @@
 <?php
 
 if (!defined ('TYPO3_MODE')) {
-	die ('Access denied.');
+    die ('Access denied.');
 }
+
+define('TSLIB_FETCE_EXT', $_EXTKEY);
 
 $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['tslib/class.tslib_fe.php']['checkDataSubmission'][] = 'EXT:' . $_EXTKEY . '/Classes/Controller/TypoScriptFrontendTceController.php:JambageCom\\TslibFetce\\Controller\\TypoScriptFrontendTceController';
 
@@ -32,6 +34,5 @@ if (!\TYPO3\CMS\Core\Utility\ExtensionManagementUtility::isLoaded('compatibility
 	// Add Default TypoScript for CType "search" after default content rendering
 	\TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addTypoScript('tslib_fetce', 'constants', '<INCLUDE_TYPOSCRIPT: source="FILE:EXT:tslib_fetce/Configuration/TypoScript/Search/constants.txt">', 'defaultContentRendering');
 	\TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addTypoScript('tslib_fetce', 'setup', '<INCLUDE_TYPOSCRIPT: source="FILE:EXT:tslib_fetce/Configuration/TypoScript/Search/setup.txt">', 'defaultContentRendering');
-
 }
 

@@ -23,34 +23,25 @@ use TYPO3\CMS\Core\Html\HtmlParser;
 class ContentPostProcHook
 {
     /**
-     * @var \TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController
-     */
-    protected $pObj;
-
-    /**
      * XHTML-clean the code, if flag config.xhtml_cleaning is set
      * to "all", same goes for config.prefixLocalAnchors
      *
      * @param array $parameters
      * @param \TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController $parentObject
      */
-    public function contentPostProcAll(&$parameters, $parentObject)
+    public function contentPostProcAll (&$parameters, $parentObject)
     {
-        $this->pObj = $parentObject;
         // Fix local anchors in links, if flag set
-        if ($this->doLocalAnchorFix() === 'all') {
-            $GLOBALS['TT']->push('Local anchor fix, all', '');
-            $this->prefixLocalAnchorsWithScript();
-            $GLOBALS['TT']->pull();
+        if ($this->doLocalAnchorFix($parentObject) == 'all') {
+            $this->prefixLocalAnchorsWithScript($parentObject);
         }
         // XHTML-clean the code, if flag set
-        if ($this->doXHTML_cleaning() === 'all') {
-            $GLOBALS['TT']->push('XHTML clean, all', '');
+        if ($this->doXHTML_cleaning() == 'all') {
             $XHTML_clean = GeneralUtility::makeInstance(HtmlParser::class);
-            $this->pObj->content = $XHTML_clean->XHTML_clean($this->pObj->content);
-            $GLOBALS['TT']->pull();
+            $parentObject->content = $XHTML_clean->XHTML_clean($parentObject->content);
         }
     }
+
 
     /**
      * XHTML-clean the code, if flag config.xhtml_cleaning is set
@@ -59,23 +50,19 @@ class ContentPostProcHook
      * @param array $parameters
      * @param \TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController $parentObject
      */
-    public function contentPostProcCached(&$parameters, $parentObject)
+    public function contentPostProcCached (&$parameters, $parentObject)
     {
-        $this->pObj = $parentObject;
         // Fix local anchors in links, if flag set
-        if ($this->doLocalAnchorFix() === 'cached') {
-            $GLOBALS['TT']->push('Local anchor fix, cached', '');
-            $this->prefixLocalAnchorsWithScript();
-            $GLOBALS['TT']->pull();
+        if ($this->doLocalAnchorFix($parentObject) == 'cached') {
+            $this->prefixLocalAnchorsWithScript($parentObject);
         }
         // XHTML-clean the code, if flag set
-        if ($this->doXHTML_cleaning() === 'cached') {
-            $GLOBALS['TT']->push('XHTML clean, cached', '');
+        if ($this->doXHTML_cleaning() == 'cached') {
             $XHTML_clean = GeneralUtility::makeInstance(HtmlParser::class);
-            $this->pObj->content = $XHTML_clean->XHTML_clean($this->pObj->content);
-            $GLOBALS['TT']->pull();
+            $parentObject->content = $XHTML_clean->XHTML_clean($parentObject->content);
         }
     }
+
 
     /**
      * XHTML-clean the code, if flag config.xhtml_cleaning is set
@@ -84,72 +71,72 @@ class ContentPostProcHook
      * @param array $parameters
      * @param \TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController $parentObject
      */
-    public function contentPostProcOutput(&$parameters, $parentObject)
+    public function contentPostProcOutput (&$parameters, $parentObject)
     {
-        $this->pObj = $parentObject;
         // Fix local anchors in links, if flag set
-        if ($this->doLocalAnchorFix() === 'output') {
-            $GLOBALS['TT']->push('Local anchor fix, output', '');
-            $this->prefixLocalAnchorsWithScript();
-            $GLOBALS['TT']->pull();
+        if ($this->doLocalAnchorFix($parentObject) == 'output') {
+            $this->prefixLocalAnchorsWithScript($parentObject);
         }
         // XHTML-clean the code, if flag set
-        if ($this->doXHTML_cleaning() === 'output') {
-            $GLOBALS['TT']->push('XHTML clean, output', '');
+        if ($this->doXHTML_cleaning() == 'output') {
             $XHTML_clean = GeneralUtility::makeInstance(HtmlParser::class);
-            $this->pObj->content = $XHTML_clean->XHTML_clean($this->pObj->content);
-            $GLOBALS['TT']->pull();
+            $parentObject->content = $XHTML_clean->XHTML_clean($parentObject->content);
         }
     }
+
 
     /**
      * Returns the mode of XHTML cleaning
      *
+     * @param \TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController $parentObject
      * @return string Keyword: "all", "cached", "none" or "output"
      */
-    protected function doXHTML_cleaning()
+    protected function doXHTML_cleaning ($parentObject)
     {
-        if ($this->pObj->config['config']['xmlprologue'] === 'none') {
+        if ($parentObject->config['config']['xmlprologue'] == 'none') {
             return 'none';
         }
-        return $this->pObj->config['config']['xhtml_cleaning'];
+        return $parentObject->config['config']['xhtml_cleaning'];
     }
 
 
     /**
      * Returns the mode of Local Anchor prefixing
      *
+     * @param \TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController $parentObject
      * @return string Keyword: "all", "cached" or "output"
      */
-    public function doLocalAnchorFix()
+    public function doLocalAnchorFix ($parentObject)
     {
-        return isset($this->pObj->config['config']['prefixLocalAnchors']) ? $this->pObj->config['config']['prefixLocalAnchors'] : null;
+        return isset($parentObject->config['config']['prefixLocalAnchors']) ? $parentObject->config['config']['prefixLocalAnchors'] : null;
     }
+
 
     /**
      * Substitutes all occurrences of <a href="#"... in $this->content with <a href="[path-to-url]#"...
      *
+     * @param \TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController $parentObject
      * @return void Works directly on $this->content
      */
-    protected function prefixLocalAnchorsWithScript()
+    protected function prefixLocalAnchorsWithScript ($parentObject)
     {
-        if (!$this->pObj->beUserLogin) {
-            if (!is_object($this->pObj->cObj)) {
-                $this->pObj->newCObj();
+        if (!$parentObject->beUserLogin) {
+            if (!is_object($parentObject->cObj)) {
+                $parentObject->newCObj();
             }
-            $scriptPath = $this->pObj->cObj->getUrlToCurrentLocation();
+            $scriptPath = $parentObject->cObj->getUrlToCurrentLocation();
         } else {
             // To break less existing sites, we allow the REQUEST_URI to be used for the prefix
             $scriptPath = GeneralUtility::getIndpEnv('REQUEST_URI');
             // Disable the cache so that these URI will not be the ones to be cached
-            $this->pObj->no_cache = true;
+            $parentObject->no_cache = true;
         }
-        $originalContent = $this->pObj->content;
-        $this->pObj->content = preg_replace('/(<(?:a|area).*?href=")(#[^"]*")/i', '${1}' . htmlspecialchars($scriptPath) . '${2}', $originalContent);
+        $originalContent = $parentObject->content;
+        $parentObject->content = preg_replace('/(<(?:a|area).*?href=")(#[^"]*")/i', '${1}' . htmlspecialchars($scriptPath) . '${2}', $originalContent);
         // There was an error in the call to preg_replace, so keep the original content (behavior prior to PHP 5.2)
         if (preg_last_error() > 0) {
             GeneralUtility::sysLog('preg_replace returned error-code: ' . preg_last_error() . ' in function prefixLocalAnchorsWithScript. Replacement not done!', 'cms', GeneralUtility::SYSLOG_SEVERITY_FATAL);
-            $this->pObj->content = $originalContent;
+            $parentObject->content = $originalContent;
         }
     }
 }

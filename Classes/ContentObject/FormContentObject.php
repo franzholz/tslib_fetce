@@ -16,6 +16,7 @@ namespace JambageCom\TslibFetce\ContentObject;
  */
 
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Core\Utility\MathUtility;
 
 /**
  * Contains FORM class object.
@@ -41,7 +42,7 @@ class FormContentObject extends \TYPO3\CMS\Frontend\ContentObject\AbstractConten
      * @param array $formData Alternative formdata overriding whatever comes from TypoScript
      * @return string Output
      */
-    public function render($conf = array(), $formData = '')
+    public function render ($conf = array(), $formData = '')
     {
         $content = '';
         if (is_array($formData)) {
@@ -205,8 +206,8 @@ class FormContentObject extends \TYPO3\CMS\Frontend\ContentObject\AbstractConten
                         $compensateFieldWidth = isset($conf['compensateFieldWidth.']) ? $this->cObj->stdWrap($conf['compensateFieldWidth'], $conf['compensateFieldWidth.']) : $conf['compensateFieldWidth'];
                         $compWidth = doubleval($compensateFieldWidth ? $compensateFieldWidth : $GLOBALS['TSFE']->compensateFieldWidth);
                         $compWidth = $compWidth ? $compWidth : 1;
-                        $cols = \TYPO3\CMS\Core\Utility\MathUtility::forceIntegerInRange($cols * $compWidth, 1, 120);
-                        $rows = trim($fParts[2]) ? \TYPO3\CMS\Core\Utility\MathUtility::forceIntegerInRange($fParts[2], 1, 30) : 5;
+                        $cols = MathUtility::forceIntegerInRange($cols * $compWidth, 1, 120);
+                        $rows = trim($fParts[2]) ? MathUtility::forceIntegerInRange($fParts[2], 1, 30) : 5;
                         $wrap = trim($fParts[3]);
                         $noWrapAttr = isset($conf['noWrapAttr.']) ? $this->cObj->stdWrap($conf['noWrapAttr'], $conf['noWrapAttr.']) : $conf['noWrapAttr'];
                         if ($noWrapAttr || $wrap === 'disabled') {
@@ -225,18 +226,18 @@ class FormContentObject extends \TYPO3\CMS\Frontend\ContentObject\AbstractConten
                         $compensateFieldWidth = isset($conf['compensateFieldWidth.']) ? $this->cObj->stdWrap($conf['compensateFieldWidth'], $conf['compensateFieldWidth.']) : $conf['compensateFieldWidth'];
                         $compWidth = doubleval($compensateFieldWidth ? $compensateFieldWidth : $GLOBALS['TSFE']->compensateFieldWidth);
                         $compWidth = $compWidth ? $compWidth : 1;
-                        $size = \TYPO3\CMS\Core\Utility\MathUtility::forceIntegerInRange($size * $compWidth, 1, 120);
+                        $size = MathUtility::forceIntegerInRange($size * $compWidth, 1, 120);
                         $noValueInsert = isset($conf['noValueInsert.']) ? $this->cObj->stdWrap($conf['noValueInsert'], $conf['noValueInsert.']) : $conf['noValueInsert'];
                         $default = $this->getFieldDefaultValue($noValueInsert, $confData['fieldname'], trim($parts[2]));
                         if ($confData['type'] == 'password') {
                             $default = '';
                         }
-                        $max = trim($fParts[2]) ? ' maxlength="' . \TYPO3\CMS\Core\Utility\MathUtility::forceIntegerInRange($fParts[2], 1, 1000) . '"' : '';
+                        $max = trim($fParts[2]) ? ' maxlength="' . MathUtility::forceIntegerInRange($fParts[2], 1, 1000) . '"' : '';
                         $theType = $confData['type'] == 'input' ? 'text' : 'password';
                         $fieldCode = sprintf('<input type="%s" name="%s"%s size="%s"%s value="%s"%s />', $theType, $confData['fieldname'], $elementIdAttribute, $size, $max, htmlspecialchars($default), $addParams);
                         break;
                     case 'file':
-                        $size = trim($fParts[1]) ? \TYPO3\CMS\Core\Utility\MathUtility::forceIntegerInRange($fParts[1], 1, 60) : 20;
+                        $size = trim($fParts[1]) ? MathUtility::forceIntegerInRange($fParts[1], 1, 60) : 20;
                         $fieldCode = sprintf('<input type="file" name="%s"%s size="%s"%s />', $confData['fieldname'], $elementIdAttribute, $size, $addParams);
                         break;
                     case 'check':
@@ -254,7 +255,7 @@ class FormContentObject extends \TYPO3\CMS\Frontend\ContentObject\AbstractConten
                             $fParts[1] = count($valueParts);
                         }
                         // Auto size set here. Max 20
-                        $size = trim($fParts[1]) ? \TYPO3\CMS\Core\Utility\MathUtility::forceIntegerInRange($fParts[1], 1, 20) : 1;
+                        $size = trim($fParts[1]) ? MathUtility::forceIntegerInRange($fParts[1], 1, 20) : 1;
                         // multiple
                         $multiple = strtolower(trim($fParts[2])) == 'm' ? ' multiple="multiple"' : '';
                         // Where the items will be
@@ -536,7 +537,7 @@ class FormContentObject extends \TYPO3\CMS\Frontend\ContentObject\AbstractConten
         // Internal: Just submit to current page
         if (!$theRedirect) {
             $LD = $GLOBALS['TSFE']->tmpl->linkData($page, $target, $noCache, 'index.php', '', $this->cObj->getClosestMPvalueForPage($page['uid']));
-        } elseif (\TYPO3\CMS\Core\Utility\MathUtility::canBeInterpretedAsInteger($theRedirect)) {
+        } elseif (MathUtility::canBeInterpretedAsInteger($theRedirect)) {
             // Internal: Submit to page with ID $theRedirect
             $page = $GLOBALS['TSFE']->sys_page->getPage_noCheck($theRedirect);
             $LD = $GLOBALS['TSFE']->tmpl->linkData($page, $target, $noCache, 'index.php', '', $this->cObj->getClosestMPvalueForPage($page['uid']));
@@ -553,7 +554,7 @@ class FormContentObject extends \TYPO3\CMS\Frontend\ContentObject\AbstractConten
             $formtype = isset($conf['type.']) ? $this->cObj->stdWrap($conf['type'], $conf['type.']) : $conf['type'];
         }
         // Submit to a specific page
-        if (\TYPO3\CMS\Core\Utility\MathUtility::canBeInterpretedAsInteger($formtype)) {
+        if (MathUtility::canBeInterpretedAsInteger($formtype)) {
             $page = $GLOBALS['TSFE']->sys_page->getPage_noCheck($formtype);
             $LD_A = $GLOBALS['TSFE']->tmpl->linkData($page, $target, $noCache, '', '', $this->cObj->getClosestMPvalueForPage($page['uid']));
             $action = $LD_A['totalURL'];
@@ -561,7 +562,7 @@ class FormContentObject extends \TYPO3\CMS\Frontend\ContentObject\AbstractConten
             // Submit to external script
             $LD_A = $LD;
             $action = $formtype;
-        } elseif (\TYPO3\CMS\Core\Utility\MathUtility::canBeInterpretedAsInteger($theRedirect)) {
+        } elseif (MathUtility::canBeInterpretedAsInteger($theRedirect)) {
             $LD_A = $LD;
             $action = $LD_A['totalURL'];
         } else {
@@ -645,7 +646,7 @@ class FormContentObject extends \TYPO3\CMS\Frontend\ContentObject\AbstractConten
      * @param string $defaultVal The current default value
      * @return string The default value, either from INPUT var or the current default, based on whether caching is enabled or not.
      */
-    protected function getFieldDefaultValue($noValueInsert, $fieldName, $defaultVal)
+    protected function getFieldDefaultValue ($noValueInsert, $fieldName, $defaultVal)
     {
         if (!$GLOBALS['TSFE']->no_cache || !isset($_POST[$fieldName]) && !isset($_GET[$fieldName]) || $noValueInsert) {
             return $defaultVal;
@@ -660,7 +661,7 @@ class FormContentObject extends \TYPO3\CMS\Frontend\ContentObject\AbstractConten
      * @param string $name Input string
      * @return string the cleaned string
      */
-    protected function cleanFormName($name)
+    protected function cleanFormName ($name)
     {
         // Turn data[x][y] into data:x:y:
         $name = preg_replace('/\\[|\\]\\[?/', ':', trim($name));
