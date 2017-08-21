@@ -1,3 +1,6 @@
+2017-08-21 Franz Holzinger <franz@fholzinger.com>
+    * new feature: processScript can be a namespace classname of a class joined with a method function
+
 2017-07-27 Franz Holzinger <franz@fholzinger.com>
     * support for TYPO3 8.7.4
     * remove in TYPO3 8 deprecated check for checkFileInclude in order to allow php files outside of the TYPO3 directories ext and sysext, typo3conf/ext

@@ -131,8 +131,7 @@ class TypoScriptFrontendTceController {
             $this->frontendController->config['FEData.']
         );
         $fe_tce->includeScripts();
+        $fe_tce->executeFunctions();
     }
 }
-
-
 

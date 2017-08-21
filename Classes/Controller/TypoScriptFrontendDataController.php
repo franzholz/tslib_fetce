@@ -2,8 +2,6 @@
 
 namespace JambageCom\TslibFetce\Controller;
 
-
-
 /***************************************************************
  *  Copyright notice
  *
@@ -47,7 +45,6 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Cache\CacheManager;
 
 
-
 /**
  * Form-data processing class.
  * Used by the FE_DATA object found in TSref. Quite old fashioned and used only by a few extensions, like good old 'tt_guest' and 'tt_board'
@@ -60,6 +57,8 @@ class TypoScriptFrontendDataController {
 
     public $extScripts = array();
     public $extScriptsConf = array();
+    public $extUserFuncs = array();
+    public $extUserFuncsConf = array();
     public $newData = array();
     public $extraList = 'pid';
 
@@ -70,7 +69,8 @@ class TypoScriptFrontendDataController {
 
     /**
     * Starting the processing of user input.
-    * Traverses the input data and fills in the array, $this->extScripts with references to files which are then included by includeScripts() (called AFTER start() in tslib_fe)
+    * Traverses the input data and fills in the array, $this->extScripts with references to files which are then included by includeScripts() (called AFTER start() in tslib_fe) or
+    * the $this->extUserFuncs with the user functions
     * These scripts will then put the content into the database.
     *
     * @param	array		Input data coming from typ. $_POST['data'] vars
@@ -112,15 +112,23 @@ class TypoScriptFrontendDataController {
                         $dPC_field = $FEData[$table . '.']['doublePostCheck'];
                         if (is_array($this->newData[$table][$id]) && $dPC_field) {
                             $doublePostCheckKey = $this->calcDoublePostKey($this->newData[$table][$id]);
-                            if ($this->checkDoublePostExist($table, $dPC_field, $doublePostCheckKey)) {
+                            if (
+                                $this->checkDoublePostExist(
+                                    $table,
+                                    $dPC_field,
+                                    $doublePostCheckKey
+                                )
+                            ) {
                                 unset($this->newData[$table][$id]);	// Unsetting the whole thing, because it's not going to be saved.
-                                $GLOBALS['TT']->setTSlogMessage('"FEData": Submitted record to table $table was doublePosted (key: $doublePostCheckKey). Nothing saved.', 2);
+                                if (TYPO3_DLOG) {
+                                    GeneralUtility::devLog('"FEData": Submitted record to table ' .  $table . ' was doublePosted (key: ' . $doublePostCheckKey . '). Nothing saved.', TSLIB_FETCE_EXT);
+                                }
                             } else {
                                 $this->newData[$table][$id][$dPC_field] = $doublePostCheckKey;	// Setting key value
                                 $this->extraList .= ',' . $dPC_field;
                             }
                         }
-                    } else {		// EDIT
+                    } else {    // EDIT
                             // Insert external data:
                         if (is_array($field_arr)) {
                             foreach ($field_arr as $field => $value) {
@@ -145,11 +153,22 @@ class TypoScriptFrontendDataController {
                         $this->newData[$table][$id][$FEData[$table . '.']['userIdColumn']] = intval($GLOBALS['TSFE']->fe_user->user['uid']);
                     }
                 }
-                $incFile = $GLOBALS['TSFE']->tmpl->getFileName($FEData[$table . '.']['processScript']);
 
-                if ($incFile) {
-                    $this->extScripts[$table] = $incFile;
-                    $this->extScriptsConf[$table] = $FEData[$table.'.']['processScript.'];
+                $processScript = $FEData[$table . '.']['processScript'];
+                if ($processScript) {
+                    if (substr($processScript, -4) == '.php') {
+
+                        $incFile =
+                            $GLOBALS['TSFE']->tmpl->getFileName($processScript);
+
+                        if ($incFile) {
+                            $this->extScripts[$table] = $incFile;
+                            $this->extScriptsConf[$table] = $FEData[$table . '.']['processScript.'];
+                        }
+                    } else if (strpos($processScript, '->')) {
+                        $this->extUserFuncs[$table] = $processScript;
+                        $this->extUserFuncsConf[$table] = $FEData[$table . '.']['conf.'];
+                    }
                 }
             }
         }
@@ -201,9 +220,39 @@ class TypoScriptFrontendDataController {
             if (@is_file($incFile)) {
                 include($incFile);	// Always start the incFiles with a check of the object fe_tce.  is_object($this);
             } else {
-                if (TYPO3_DLOG) {
-                    GeneralUtility::devLog('"' . $incFile . '" file not found!', TSLIB_FETCE_EXT);
+                GeneralUtility::sysLog('"' . $incFile . '" file not found!', TSLIB_FETCE_EXT);
+            }
+        }
+    }
+
+
+    /**
+    * Executes the submit user functions found in ->extUserFuncs (filled in by the start() function)
+    *
+    * @return   void
+    * @see tslib_fe::fe_tce(), executeFunctions()
+    */
+    public function executeFunctions () {
+        // Instantiate \TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer to execute the user function
+        /** @var $cObj ContentObjectRenderer */
+        $cObj = GeneralUtility::makeInstance(\TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer::class);
+        foreach ($this->extUserFuncs as $table => $userFunc) {
+            $setup = $this->extUserFuncsConf[$table];
+            $parts = explode('->', $userFunc);
+            $error = true;
+            if (count($parts) == 2) {
+                $className = '\\' . $parts[0];
+                $functionName = $parts[1];
+
+                if (method_exists($className, $functionName)) {
+                    $result =
+                        call_user_func($className . '::' . $functionName, $this, $setup);
+                    $error = false;
                 }
+            }
+
+            if ($error) {
+                GeneralUtility::sysLog('"' . $userFunc . '" user function cannot be found.', TSLIB_FETCE_EXT);
             }
         }
     }
