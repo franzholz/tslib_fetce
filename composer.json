@@ -26,8 +26,8 @@
   },
   "autoload": {
     "psr-4": {
-      "JambageCom\\TtBoard\\": "Classes"
-    },
+      "JambageCom\\TslibFetce\\": "Classes"
+    }
   },
   "replace": {
     "tslib_fetce": "self.version",
