@@ -155,6 +155,8 @@ class TypoScriptFrontendDataController {
                 }
 
                 $processScript = $FEData[$table . '.']['processScript'];
+                $processScriptConf = $FEData[$table . '.']['processScript.'];
+
                 if ($processScript) {
                     if (substr($processScript, -4) == '.php') {
 
@@ -163,11 +165,11 @@ class TypoScriptFrontendDataController {
 
                         if ($incFile) {
                             $this->extScripts[$table] = $incFile;
-                            $this->extScriptsConf[$table] = $FEData[$table . '.']['processScript.'];
+                            $this->extScriptsConf[$table] = $processScriptConf;
                         }
                     } else if (strpos($processScript, '->')) {
                         $this->extUserFuncs[$table] = $processScript;
-                        $this->extUserFuncsConf[$table] = $FEData[$table . '.']['conf.'];
+                        $this->extUserFuncsConf[$table] = $processScriptConf;
                     }
                 }
             }
