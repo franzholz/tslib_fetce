@@ -53,7 +53,6 @@ class TypoScriptFrontendTceController {
     * @return string "fe_tce" if TCE FE data have been processed "" if none.
     */
     public function checkDataSubmission ($frontendController) {
-
         $this->frontendController = $frontendController;
 
         $ret = '';
@@ -125,6 +124,7 @@ class TypoScriptFrontendTceController {
     * @see tslib_feTCE
     */
     protected function fe_tce () {
+
         $fe_tce = GeneralUtility::makeInstance(TypoScriptFrontendDataController::class);
         $fe_tce->start(
             GeneralUtility::_POST('data'),

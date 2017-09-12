@@ -88,7 +88,7 @@ class TypoScriptFrontendDataController {
                 $sep = $FEData[$table . '.']['separator'] ? $FEData[$table . '.']['separator'] : LF;
                 foreach ($id_arr as $id => $field_arr) {
                     $this->newData[$table][$id] = array();
-                    if (strstr($id, 'NEW')) {		// NEW
+                    if (strstr($id, 'NEW')) {   // NEW
                             // Defaults:
                         if ($FEData[$table . '.']['default.']) {
                             $this->newData[$table][$id] = $FEData[$table . '.']['default.'];
@@ -108,9 +108,13 @@ class TypoScriptFrontendDataController {
                                 }
                             }
                         }
+
                             // Double post check
                         $dPC_field = $FEData[$table . '.']['doublePostCheck'];
-                        if (is_array($this->newData[$table][$id]) && $dPC_field) {
+                        if (
+                            is_array($this->newData[$table][$id]) &&
+                            $dPC_field
+                        ) {
                             $doublePostCheckKey = $this->calcDoublePostKey($this->newData[$table][$id]);
                             if (
                                 $this->checkDoublePostExist(
@@ -121,7 +125,10 @@ class TypoScriptFrontendDataController {
                             ) {
                                 unset($this->newData[$table][$id]);	// Unsetting the whole thing, because it's not going to be saved.
                                 if (TYPO3_DLOG) {
-                                    GeneralUtility::devLog('"FEData": Submitted record to table ' .  $table . ' was doublePosted (key: ' . $doublePostCheckKey . '). Nothing saved.', TSLIB_FETCE_EXT);
+                                    GeneralUtility::devLog(
+                                        '"FEData": Submitted record to table ' .  $table . ' was doublePosted (key: ' . $doublePostCheckKey . '). Nothing saved.',
+                                        TSLIB_FETCE_EXT
+                                    );
                                 }
                             } else {
                                 $this->newData[$table][$id][$dPC_field] = $doublePostCheckKey;	// Setting key value
@@ -204,9 +211,9 @@ class TypoScriptFrontendDataController {
     * @return	integer		And unsigned 32bit integer hash
     * @access private
     */
-    public function calcDoublePostKey ($array) {
-        ksort($array);	// Sorting by key
-        $doublePostCheckKey = hexdec(substr(md5(serialize($array)), 0, 8));	// Making key
+    public function calcDoublePostKey (array $parameter) {
+        ksort($parameter);      // Sorting by key
+        $doublePostCheckKey = hexdec(substr(md5(serialize($parameter)), 0, 8));	// Making key
         return $doublePostCheckKey;
     }
 
