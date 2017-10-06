@@ -1,3 +1,6 @@
+2017-10-06 Franz Holzinger <franz@fholzinger.com>
+    * bugfix: method ContentPostProcHook::doXHTML_cleaning needs a parameter $parentObject
+
 2017-08-21 Franz Holzinger <franz@fholzinger.com>
     * new feature: processScript can be a namespace classname of a class joined with a method function
 

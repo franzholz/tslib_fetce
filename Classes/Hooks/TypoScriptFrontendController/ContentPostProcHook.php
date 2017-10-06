@@ -36,7 +36,7 @@ class ContentPostProcHook
             $this->prefixLocalAnchorsWithScript($parentObject);
         }
         // XHTML-clean the code, if flag set
-        if ($this->doXHTML_cleaning() == 'all') {
+        if ($this->doXHTML_cleaning($parentObject) == 'all') {
             $XHTML_clean = GeneralUtility::makeInstance(HtmlParser::class);
             $parentObject->content = $XHTML_clean->XHTML_clean($parentObject->content);
         }
@@ -57,7 +57,7 @@ class ContentPostProcHook
             $this->prefixLocalAnchorsWithScript($parentObject);
         }
         // XHTML-clean the code, if flag set
-        if ($this->doXHTML_cleaning() == 'cached') {
+        if ($this->doXHTML_cleaning($parentObject) == 'cached') {
             $XHTML_clean = GeneralUtility::makeInstance(HtmlParser::class);
             $parentObject->content = $XHTML_clean->XHTML_clean($parentObject->content);
         }
@@ -78,7 +78,7 @@ class ContentPostProcHook
             $this->prefixLocalAnchorsWithScript($parentObject);
         }
         // XHTML-clean the code, if flag set
-        if ($this->doXHTML_cleaning() == 'output') {
+        if ($this->doXHTML_cleaning($parentObject) == 'output') {
             $XHTML_clean = GeneralUtility::makeInstance(HtmlParser::class);
             $parentObject->content = $XHTML_clean->XHTML_clean($parentObject->content);
         }
