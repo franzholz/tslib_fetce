@@ -47,6 +47,7 @@ class FormContentObject extends \TYPO3\CMS\Frontend\ContentObject\AbstractConten
         $content = '';
         if (is_array($formData)) {
             $dataArray = $formData;
+            $labelArray = array();
         } else {
             $data = isset($conf['data.']) ? $this->cObj->stdWrap($conf['data'], $conf['data.']) : $conf['data'];
             // Clearing dataArr
@@ -64,6 +65,11 @@ class FormContentObject extends \TYPO3\CMS\Frontend\ContentObject\AbstractConten
                     $singleKeyArray = $conf['dataArray.'][$theKey . '.'];
                     if (is_array($singleKeyArray)) {
                         $temp = array();
+                        $label = '';
+                        if (isset($singleKeyArray['label'])) {
+                            $label = str_replace(':', '', $singleKeyArray['label']);
+                        }
+                        $labelArray[] = $label;
                         $label = isset($singleKeyArray['label.']) ? $this->cObj->stdWrap($singleKeyArray['label'], $singleKeyArray['label.']) : $singleKeyArray['label'];
                         list($temp[0]) = explode('|', $label);
                         $type = isset($singleKeyArray['type.']) ? $this->cObj->stdWrap($singleKeyArray['type'], $singleKeyArray['type.']) : $singleKeyArray['type'];
@@ -112,7 +118,10 @@ class FormContentObject extends \TYPO3\CMS\Frontend\ContentObject\AbstractConten
         $formName = isset($conf['formName.']) ? $this->cObj->stdWrap($conf['formName'], $conf['formName.']) : $conf['formName'];
         $formName = $this->cleanFormName($formName);
         $formName = $GLOBALS['TSFE']->getUniqueId($formName);
-
+        $dontXssArray = array();
+        if ($conf['dontXssFieldNames'] != '') {
+            $dontXssArray = GeneralUtility::trimExplode(',', $conf['dontXssFieldNames']);
+        }
         $fieldPrefix = isset($conf['fieldPrefix.']) ? $this->cObj->stdWrap($conf['fieldPrefix'], $conf['fieldPrefix.']) : $conf['fieldPrefix'];
         if (isset($conf['fieldPrefix']) || isset($conf['fieldPrefix.'])) {
             if ($fieldPrefix) {
@@ -123,7 +132,8 @@ class FormContentObject extends \TYPO3\CMS\Frontend\ContentObject\AbstractConten
         } else {
             $prefix = $formName;
         }
-        foreach ($dataArray as $dataValue) {
+
+        foreach ($dataArray as $dataKey => $dataValue) {
             $counter++;
             $confData = array();
             if (is_array($formData)) {
@@ -136,8 +146,24 @@ class FormContentObject extends \TYPO3\CMS\Frontend\ContentObject\AbstractConten
             }
 
             if ($dataValue && strcspn($dataValue, '#/')) {
+                $removeXss = true;
+                if (!empty($dontXssArray)) {
+                    // do not remove the XSS in some cases like captcha insertions as labels
+                    foreach ($dontXssArray as $fieldname) {
+                        $search = '[' . $fieldname . ']';
+                        $pos = strpos($parts[1], $search);
+                        if ($pos !== false) {
+                            $removeXss = false;
+                            break;
+                        }
+                    }
+                }
                 // label:
-                $confData['label'] = GeneralUtility::removeXSS(trim($parts[0]));
+                if ($removeXss) {
+                    $confData['label'] = GeneralUtility::removeXSS(trim($parts[0]));
+                } else {
+                    $confData['label'] = trim($parts[0]);
+                }
                 // field:
                 $fParts = explode(',', $parts[1]);
                 $fParts[0] = trim($fParts[0]);
@@ -147,6 +173,7 @@ class FormContentObject extends \TYPO3\CMS\Frontend\ContentObject\AbstractConten
                 }
                 $typeParts = explode('=', $fParts[0]);
                 $confData['type'] = trim(strtolower(end($typeParts)));
+
                 if (count($typeParts) === 1) {
                     $confData['fieldname'] = $this->cleanFormName($parts[0]);
                     if (strtolower(preg_replace('/[^[:alnum:]]/', '', $confData['fieldname'])) == 'email') {
@@ -187,6 +214,7 @@ class FormContentObject extends \TYPO3\CMS\Frontend\ContentObject\AbstractConten
                     $addParams = '';
                 }
                 $dontMd5FieldNames = isset($conf['dontMd5FieldNames.']) ? $this->cObj->stdWrap($conf['dontMd5FieldNames'], $conf['dontMd5FieldNames.']) : $conf['dontMd5FieldNames'];
+                
                 if ($dontMd5FieldNames) {
                     $fName = $confData['fieldname'];
                 } else {
@@ -423,6 +451,7 @@ class FormContentObject extends \TYPO3\CMS\Frontend\ContentObject\AbstractConten
                         $confData['type'] = 'comment';
                         $fieldCode = trim($parts[2]) . '&nbsp;';
                 }
+
                 if ($fieldCode) {
                     // Checking for special evaluation modes:
                     if (trim($parts[3]) !== '' && GeneralUtility::inList('textarea,input,password', $confData['type'])) {
@@ -436,34 +465,34 @@ class FormContentObject extends \TYPO3\CMS\Frontend\ContentObject\AbstractConten
                             $fieldlist[] = '_EREG';
                             $fieldlist[] = $modeParameters[1];
                             $fieldlist[] = $modeParameters[2];
-                            $fieldlist[] = $confData['fieldname'];
-                            $fieldlist[] = $confData['label'];
                             // Setting this so "required" layout is used.
                             $confData['required'] = 1;
                             break;
                         case 'EMAIL':
                             $fieldlist[] = '_EMAIL';
-                            $fieldlist[] = $confData['fieldname'];
-                            $fieldlist[] = $confData['label'];
                             // Setting this so "required" layout is used.
                             $confData['required'] = 1;
                             break;
-                        default:
-                            if ($confData['required']) {
-                                $fieldlist[] = $confData['fieldname'];
-                                $fieldlist[] = $confData['label'];
-                            }
+                    }
+
+                    if ($confData['required']) {
+                        if ($labelArray[$dataKey] != '') { 
+                            $fieldlist[] = $confData['fieldname'];
+                            $fieldlist[] = $labelArray[$dataKey];
+                        }
                     }
                     // Field:
                     $fieldLabel = $confData['label'];
                     if ($accessibility && trim($fieldLabel) && !preg_match('/^(label|hidden|comment)$/', $confData['type'])) {
                         $fieldLabel = '<label for="' . $prefix . $fName . '">' . $fieldLabel . '</label>';
                     }
+
                     // Getting template code:
                     if (isset($conf['fieldWrap.'])) {
                         $fieldCode = $this->cObj->stdWrap($fieldCode, $conf['fieldWrap.']);
                     }
                     $labelCode = isset($conf['labelWrap.']) ? $this->cObj->stdWrap($fieldLabel, $conf['labelWrap.']) : $fieldLabel;
+
                     $commentCode = isset($conf['commentWrap.']) ? $this->cObj->stdWrap($confData['label'], $conf['commentWrap.']) : $confData['label'];
                     $result = $conf['layout'];
                     $req = isset($conf['REQ.']) ? $this->cObj->stdWrap($conf['REQ'], $conf['REQ.']) : $conf['REQ'];

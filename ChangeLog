@@ -1,3 +1,8 @@
+2018-03-19 Franz Holzinger <franz@fholzinger.com>
+    * new feature: dontXssFieldNames for all field names where no XSS removal must take place, e.g. for html coming from a captcha extension
+    * new feature: add a parameter for the fields to check within calcDoublePostKey
+    * new feature: collect the labels without additional long texts. Remove the colon at the end. Programmers must use the labelWrap and stdWrap for larger texts.
+
 2017-10-06 Franz Holzinger <franz@fholzinger.com>
     * bugfix: method ContentPostProcHook::doXHTML_cleaning needs a parameter $parentObject
 

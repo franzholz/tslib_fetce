@@ -111,11 +111,23 @@ class TypoScriptFrontendDataController {
 
                             // Double post check
                         $dPC_field = $FEData[$table . '.']['doublePostCheck'];
+                        $doublePostCheckFields = '';
+                        if (
+                            isset($FEData[$table . '.']['doublePostCheck.']) &&
+                            isset($FEData[$table . '.']['doublePostCheck.']['fields'])
+                        ) {
+                            $doublePostCheckFields = $FEData[$table . '.']['doublePostCheck.']['fields'];
+                        }
+
                         if (
                             is_array($this->newData[$table][$id]) &&
                             $dPC_field
                         ) {
-                            $doublePostCheckKey = $this->calcDoublePostKey($this->newData[$table][$id]);
+                            $doublePostCheckKey =
+                                $this->calcDoublePostKey(
+                                    $this->newData[$table][$id],
+                                    $doublePostCheckFields
+                                );
                             if (
                                 $this->checkDoublePostExist(
                                     $table,
@@ -208,13 +220,25 @@ class TypoScriptFrontendDataController {
     * Creates the double-post hash value from the input array
     *
     * @param	array		The array with key/values to hash
+    * @param    string      The fields which are used to compare for a double post
     * @return	integer		And unsigned 32bit integer hash
     * @access private
     */
-    public function calcDoublePostKey (array $parameter) {
-        ksort($parameter);      // Sorting by key
-        $doublePostCheckKey = hexdec(substr(md5(serialize($parameter)), 0, 8));	// Making key
-        return $doublePostCheckKey;
+    public function calcDoublePostKey (array $parameter, $doublePostCheckFields) {
+        if ($doublePostCheckFields != '') {
+            $fieldArray = GeneralUtility::trimExplode(',', $doublePostCheckFields);
+            $checkArray = array();
+            foreach ($fieldArray as $field) {
+                if (isset($parameter[$field])) {
+                    $checkArray[$field] = $parameter[$field];
+                }
+            }
+        } else {
+            $checkArray = $parameter;
+        }
+        ksort($checkArray);      // Sorting by key
+        $result = hexdec(substr(md5(serialize($checkArray)), 0, 8));	// Making key
+        return $result;
     }
 
 
