@@ -262,18 +262,18 @@ class FormContentObject extends \TYPO3\CMS\Frontend\ContentObject\AbstractConten
                         }
                         $max = trim($fParts[2]) ? ' maxlength="' . MathUtility::forceIntegerInRange($fParts[2], 1, 1000) . '"' : '';
                         $theType = $confData['type'] == 'input' ? 'text' : 'password';
-                        $fieldCode = sprintf('<input type="%s" name="%s"%s size="%s"%s value="%s"%s />', $theType, $confData['fieldname'], $elementIdAttribute, $size, $max, htmlspecialchars($default), $addParams);
+                        $fieldCode = sprintf('<input type="%s" name="%s"%s size="%s"%s value="%s"%s/>', $theType, $confData['fieldname'], $elementIdAttribute, $size, $max, htmlspecialchars($default), $addParams);
                         break;
                     case 'file':
                         $size = trim($fParts[1]) ? MathUtility::forceIntegerInRange($fParts[1], 1, 60) : 20;
-                        $fieldCode = sprintf('<input type="file" name="%s"%s size="%s"%s />', $confData['fieldname'], $elementIdAttribute, $size, $addParams);
+                        $fieldCode = sprintf('<input type="file" name="%s"%s size="%s"%s/>', $confData['fieldname'], $elementIdAttribute, $size, $addParams);
                         break;
                     case 'check':
                         // alternative default value:
                         $noValueInsert = isset($conf['noValueInsert.']) ? $this->cObj->stdWrap($conf['noValueInsert'], $conf['noValueInsert.']) : $conf['noValueInsert'];
                         $default = $this->getFieldDefaultValue($noValueInsert, $confData['fieldname'], trim($parts[2]));
                         $checked = $default ? ' checked="checked"' : '';
-                        $fieldCode = sprintf('<input type="checkbox" value="%s" name="%s"%s%s%s />', 1, $confData['fieldname'], $elementIdAttribute, $checked, $addParams);
+                        $fieldCode = sprintf('<input type="checkbox" value="%s" name="%s"%s%s%s/>', 1, $confData['fieldname'], $elementIdAttribute, $checked, $addParams);
                         break;
                     case 'select':
                         $option = '';
@@ -372,7 +372,7 @@ class FormContentObject extends \TYPO3\CMS\Frontend\ContentObject\AbstractConten
                             } else {
                                 $radioLabelIdAttribute = '';
                             }
-                            $optionParts .= '<input type="radio" name="' . $confData['fieldname'] . '"' . $radioLabelIdAttribute . ' value="' . htmlspecialchars($items[$a][1]) . '"' . ((string)$items[$a][1] === (string)$default ? ' checked="checked"' : '') . $addParams . ' />';
+                            $optionParts .= '<input type="radio" name="' . $confData['fieldname'] . '"' . $radioLabelIdAttribute . ' value="' . htmlspecialchars($items[$a][1]) . '"' . ((string)$items[$a][1] === (string)$default ? ' checked="checked"' : '') . $addParams . '/>';
                             if ($accessibility) {
                                 $label = isset($conf['radioWrap.']) ? $this->cObj->stdWrap(trim($items[$a][0]), $conf['radioWrap.']) : trim($items[$a][0]);
                                 $optionParts .= '<label for="' . $radioId . '">' . $label . '</label>';
@@ -405,7 +405,7 @@ class FormContentObject extends \TYPO3\CMS\Frontend\ContentObject\AbstractConten
                         if ($value !== '') {
                             if (GeneralUtility::inList($confData['fieldname'], 'auto_respond_msg')) {
                                 $hmacChecksum = GeneralUtility::hmac($value, 'content_form');
-                                $hiddenfields .= sprintf('<input type="hidden" name="auto_respond_checksum" id="%sauto_respond_checksum" value="%s" />', $prefix, $hmacChecksum);
+                                $hiddenfields .= sprintf('<input type="hidden" name="auto_respond_checksum" id="%sauto_respond_checksum" value="%s"/>', $prefix, $hmacChecksum);
                             }
                             if (GeneralUtility::inList('recipient_copy,recipient', $confData['fieldname']) && $GLOBALS['TYPO3_CONF_VARS']['FE']['secureFormmail']) {
                                 break;
@@ -414,7 +414,7 @@ class FormContentObject extends \TYPO3\CMS\Frontend\ContentObject\AbstractConten
                                 $value = \JambageCom\TslibFetce\Utility\FormUtility::codeString($value);
                             }
                         }
-                        $hiddenfields .= sprintf('<input type="hidden" name="%s"%s value="%s" />', $confData['fieldname'], $elementIdAttribute, htmlspecialchars($value));
+                        $hiddenfields .= sprintf('<input type="hidden" name="%s"%s value="%s"/>', $confData['fieldname'], $elementIdAttribute, htmlspecialchars($value));
                         break;
                     case 'property':
                         if (GeneralUtility::inList('type,locationData,goodMess,badMess,emailMess', $confData['fieldname'])) {
@@ -435,14 +435,14 @@ class FormContentObject extends \TYPO3\CMS\Frontend\ContentObject\AbstractConten
                             $image = '';
                         }
                         if ($image) {
-                            $fieldCode = sprintf('<input type="image" name="%s"%s src="%s"%s />', $confData['fieldname'], $elementIdAttribute, $image, $params);
+                            $fieldCode = sprintf('<input type="image" name="%s"%s src="%s"%s/>', $confData['fieldname'], $elementIdAttribute, $image, $params);
                         } else {
-                            $fieldCode = sprintf('<input type="submit" name="%s"%s value="%s"%s />', $confData['fieldname'], $elementIdAttribute, htmlspecialchars($value, ENT_COMPAT, 'UTF-8', false), $addParams);
+                            $fieldCode = sprintf('<input type="submit" name="%s"%s value="%s"%s/>', $confData['fieldname'], $elementIdAttribute, htmlspecialchars($value, ENT_COMPAT, 'UTF-8', false), $addParams);
                         }
                         break;
                     case 'reset':
                         $value = trim($parts[2]);
-                        $fieldCode = sprintf('<input type="reset" name="%s"%s value="%s"%s />', $confData['fieldname'], $elementIdAttribute, htmlspecialchars($value, ENT_COMPAT, 'UTF-8', false), $addParams);
+                        $fieldCode = sprintf('<input type="reset" name="%s"%s value="%s"%s/>', $confData['fieldname'], $elementIdAttribute, htmlspecialchars($value, ENT_COMPAT, 'UTF-8', false), $addParams);
                         break;
                     case 'label':
                         $fieldCode = nl2br(htmlspecialchars(trim($parts[2])));
@@ -574,7 +574,7 @@ class FormContentObject extends \TYPO3\CMS\Frontend\ContentObject\AbstractConten
             // External URL, redirect-hidden field is rendered!
             $LD = $GLOBALS['TSFE']->tmpl->linkData($page, $target, $noCache, '', '', $this->cObj->getClosestMPvalueForPage($page['uid']));
             $LD['totalURL'] = $theRedirect;
-            $hiddenfields .= '<input type="hidden" name="redirect" value="' . htmlspecialchars($LD['totalURL']) . '" />';
+            $hiddenfields .= '<input type="hidden" name="redirect" value="' . htmlspecialchars($LD['totalURL']) . '"/>';
         }
         // Formtype (where to submit to!):
         if ($propertyOverride['type']) {
@@ -603,7 +603,7 @@ class FormContentObject extends \TYPO3\CMS\Frontend\ContentObject\AbstractConten
         $theEmail = isset($conf['recipient.']) ? $this->cObj->stdWrap($conf['recipient'], $conf['recipient.']) : $conf['recipient'];
         if ($theEmail && !$GLOBALS['TYPO3_CONF_VARS']['FE']['secureFormmail']) {
             $theEmail = \JambageCom\TslibFetce\Utility\FormUtility::codeString($theEmail);
-            $hiddenfields .= '<input type="hidden" name="recipient" value="' . htmlspecialchars($theEmail) . '" />';
+            $hiddenfields .= '<input type="hidden" name="recipient" value="' . htmlspecialchars($theEmail) . '"/>';
         }
         // location data:
         $location = isset($conf['locationData.']) ? $this->cObj->stdWrap($conf['locationData'], $conf['locationData.']) : $conf['locationData'];
@@ -618,7 +618,7 @@ class FormContentObject extends \TYPO3\CMS\Frontend\ContentObject\AbstractConten
                     $locationData = $GLOBALS['TSFE']->id . ':' . $this->cObj->currentRecord;
                 }
             }
-            $hiddenfields .= '<input type="hidden" name="locationData" value="' . htmlspecialchars($locationData) . '" />';
+            $hiddenfields .= '<input type="hidden" name="locationData" value="' . htmlspecialchars($locationData) . '"/>';
         }
         // Hidden fields:
         if (is_array($conf['hiddenFields.'])) {
@@ -631,7 +631,7 @@ class FormContentObject extends \TYPO3\CMS\Frontend\ContentObject\AbstractConten
                         }
                         $hF_value = \JambageCom\TslibFetce\Utility\FormUtility::codeString($hF_value);
                     }
-                    $hiddenfields .= '<input type="hidden" name="' . $hF_key . '" value="' . htmlspecialchars($hF_value) . '" />';
+                    $hiddenfields .= '<input type="hidden" name="' . $hF_key . '" value="' . htmlspecialchars($hF_value) . '"/>';
                 }
             }
         }
@@ -656,6 +656,7 @@ class FormContentObject extends \TYPO3\CMS\Frontend\ContentObject\AbstractConten
             '</form>'
         );
         $arrayReturnMode = isset($conf['arrayReturnMode.']) ? $this->cObj->stdWrap($conf['arrayReturnMode'], $conf['arrayReturnMode.']) : $conf['arrayReturnMode'];
+
         if ($arrayReturnMode) {
             $content['validateForm'] = $validateForm;
             $content['formname'] = $formName;
