@@ -32,7 +32,7 @@ class FormUtility
      * @param bool $decode If set, string is decoded, not encoded.
      * @return string encoded/decoded version of $string
      */
-    public static function codeString($string, $decode = false)
+    public static function codeString ($string, $decode = false)
     {
         if ($decode) {
             list($md5Hash, $str) = explode(':', $string, 2);
@@ -64,7 +64,7 @@ class FormUtility
      * @param string $string String to crypt, may be empty
      * @return string binary crypt string, will have the same length as $string
      */
-    protected static function roundTripCryptString($string)
+    protected static function roundTripCryptString ($string)
     {
         $out = '';
         $cleartextLength = strlen($string);

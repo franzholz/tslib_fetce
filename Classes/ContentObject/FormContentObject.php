@@ -15,6 +15,7 @@ namespace JambageCom\TslibFetce\ContentObject;
  * The TYPO3 project - inspiring people to share!
  */
 
+use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\MathUtility;
 
@@ -46,9 +47,33 @@ class FormContentObject extends \TYPO3\CMS\Frontend\ContentObject\AbstractConten
     {
         $content = '';
         $xhtmlFix = \JambageCom\Div2007\Utility\HtmlUtility::determineXhtmlFix();
+        $security = GeneralUtility::makeInstance(\JambageCom\Div2007\Security\TransmissionSecurity::class);
+        $encryptionFix = '';
+        $useRsa = false;
+        
+        if (
+            $conf['rsa'] == '1' &&
+            $security->getTransmissionSecurityLevel() == 'rsa'
+        ) {
+            $requiredExtensions = $security->getRequiredExtensions('rsa');
+            foreach ($requiredExtensions as $extension) {
+                if (!ExtensionManagementUtility::isLoaded($extension)) {
+                    $messageMask =
+                        $GLOBALS['TSFE']->sL(
+                        'LLL:EXT:' . DIV2007_EXT . DIV2007_LANGUAGE_SUBPATH . 'locallang.xlf:error.internal_required_extension_missing');
+
+                    $message = sprintf($messageMask, $extension);
+                    return $message;
+                }
+            }
+            $encryptionFix = $security->getEncryptionAttribute();
+            $useRsa = true;
+        }
+
         if (is_array($formData)) {
             $dataArray = $formData;
             $labelArray = array();
+            $rsaArray = array();
         } else {
             $data = isset($conf['data.']) ? $this->cObj->stdWrap($conf['data'], $conf['data.']) : $conf['data'];
             // Clearing dataArr
@@ -62,6 +87,7 @@ class FormContentObject extends \TYPO3\CMS\Frontend\ContentObject\AbstractConten
             if (is_array($conf['dataArray.'])) {
                 // dataArray is supplied
                 $sortedKeyArray = \TYPO3\CMS\Core\TypoScript\TemplateService::sortedKeyList($conf['dataArray.'], true);
+                $dataKey = 0;
                 foreach ($sortedKeyArray as $theKey) {
                     $singleKeyArray = $conf['dataArray.'][$theKey . '.'];
                     if (is_array($singleKeyArray)) {
@@ -70,9 +96,14 @@ class FormContentObject extends \TYPO3\CMS\Frontend\ContentObject\AbstractConten
                         if (isset($singleKeyArray['label'])) {
                             $label = str_replace(':', '', $singleKeyArray['label']);
                         }
-                        $labelArray[] = $label;
+                        $labelArray[$dataKey] = $label;
                         $label = isset($singleKeyArray['label.']) ? $this->cObj->stdWrap($singleKeyArray['label'], $singleKeyArray['label.']) : $singleKeyArray['label'];
                         list($temp[0]) = explode('|', $label);
+                        $rsa = '';
+                        if (isset($singleKeyArray['rsa'])) {
+                            $rsa = intval($singleKeyArray['rsa']);
+                            $rsaArray[$dataKey] = $rsa;
+                        }
                         $type = isset($singleKeyArray['type.']) ? $this->cObj->stdWrap($singleKeyArray['type'], $singleKeyArray['type.']) : $singleKeyArray['type'];
                         list($temp[1]) = explode('|', $type);
                         $required = isset($singleKeyArray['required.']) ? $this->cObj->stdWrap($singleKeyArray['required'], $singleKeyArray['required.']) : $singleKeyArray['required'];
@@ -103,7 +134,8 @@ class FormContentObject extends \TYPO3\CMS\Frontend\ContentObject\AbstractConten
                         $specialEval = isset($singleKeyArray['specialEval.']) ? $this->cObj->stdWrap($singleKeyArray['specialEval'], $singleKeyArray['specialEval.']) : $singleKeyArray['specialEval'];
                         list($temp[3]) = explode('|', $specialEval);
                         // Adding the form entry to the dataArray
-                        $dataArray[] = implode('|', $temp);
+                        $dataArray[$dataKey] = implode('|', $temp);
+                        $dataKey++;
                     }
                 }
             }
@@ -176,7 +208,7 @@ class FormContentObject extends \TYPO3\CMS\Frontend\ContentObject\AbstractConten
                 $confData['type'] = trim(strtolower(end($typeParts)));
 
                 if (count($typeParts) === 1) {
-                    $confData['fieldname'] = $this->cleanFormName($parts[0]);
+                    $confData['fieldname'] = $this->cleanFormName($labelArray[$dataKey]); // $parts[0]
                     if (strtolower(preg_replace('/[^[:alnum:]]/', '', $confData['fieldname'])) == 'email') {
                         $confData['fieldname'] = 'email';
                     }
@@ -214,7 +246,13 @@ class FormContentObject extends \TYPO3\CMS\Frontend\ContentObject\AbstractConten
                 } else {
                     $addParams = '';
                 }
-                $dontMd5FieldNames = isset($conf['dontMd5FieldNames.']) ? $this->cObj->stdWrap($conf['dontMd5FieldNames'], $conf['dontMd5FieldNames.']) : $conf['dontMd5FieldNames'];
+                $dontMd5FieldNames =
+                    isset($conf['dontMd5FieldNames.']) ?
+                        $this->cObj->stdWrap(
+                            $conf['dontMd5FieldNames'],
+                            $conf['dontMd5FieldNames.']
+                        ) :
+                        $conf['dontMd5FieldNames'];
                 
                 if ($dontMd5FieldNames) {
                     $fName = $confData['fieldname'];
@@ -224,7 +262,7 @@ class FormContentObject extends \TYPO3\CMS\Frontend\ContentObject\AbstractConten
                 // Accessibility: Set id = fieldname attribute:
                 $accessibility = isset($conf['accessibility.']) ? $this->cObj->stdWrap($conf['accessibility'], $conf['accessibility.']) : $conf['accessibility'];
                 if ($accessibility || $xhtmlStrict) {
-                    $elementIdAttribute = ' id="' . $prefix . $fName . '"';
+                    $elementIdAttribute = ' id="' . $prefix . $this->cleanFormName($fName) . '"';
                 } else {
                     $elementIdAttribute = '';
                 }
@@ -251,6 +289,12 @@ class FormContentObject extends \TYPO3\CMS\Frontend\ContentObject\AbstractConten
                     case 'input':
 
                     case 'password':
+                        $useFix = '';
+                        if (
+                            $rsaArray[$dataKey]
+                        ) {
+                            $useFix = ' ' . $encryptionFix . ' ';
+                        }
                         $size = trim($fParts[1]) ? (int)$fParts[1] : 20;
                         $compensateFieldWidth = isset($conf['compensateFieldWidth.']) ? $this->cObj->stdWrap($conf['compensateFieldWidth'], $conf['compensateFieldWidth.']) : $conf['compensateFieldWidth'];
                         $compWidth = doubleval($compensateFieldWidth ? $compensateFieldWidth : $GLOBALS['TSFE']->compensateFieldWidth);
@@ -263,7 +307,7 @@ class FormContentObject extends \TYPO3\CMS\Frontend\ContentObject\AbstractConten
                         }
                         $max = trim($fParts[2]) ? ' maxlength="' . MathUtility::forceIntegerInRange($fParts[2], 1, 1000) . '"' : '';
                         $theType = $confData['type'] == 'input' ? 'text' : 'password';
-                        $fieldCode = sprintf('<input type="%s" name="%s"%s size="%s"%s value="%s"%s' . $xhtmlFix . '>', $theType, $confData['fieldname'], $elementIdAttribute, $size, $max, htmlspecialchars($default), $addParams);
+                        $fieldCode = sprintf('<input type="%s" name="%s"%s size="%s"%s value="%s"%s' . $useFix . $xhtmlFix . '>', $theType, $confData['fieldname'], $elementIdAttribute, $size, $max, htmlspecialchars($default), $addParams);
                         break;
                     case 'file':
                         $size = trim($fParts[1]) ? MathUtility::forceIntegerInRange($fParts[1], 1, 60) : 20;
@@ -440,7 +484,7 @@ class FormContentObject extends \TYPO3\CMS\Frontend\ContentObject\AbstractConten
                         } else {
                             $fieldCode = sprintf('<input type="submit" name="%s"%s value="%s"%s' . $xhtmlFix . '>', $confData['fieldname'], $elementIdAttribute, htmlspecialchars($value, ENT_COMPAT, 'UTF-8', false), $addParams);
                         }
-                        break;
+                       break;
                     case 'reset':
                         $value = trim($parts[2]);
                         $fieldCode = sprintf('<input type="reset" name="%s"%s value="%s"%s' . $xhtmlFix . '>', $confData['fieldname'], $elementIdAttribute, htmlspecialchars($value, ENT_COMPAT, 'UTF-8', false), $addParams);
@@ -485,7 +529,7 @@ class FormContentObject extends \TYPO3\CMS\Frontend\ContentObject\AbstractConten
                     // Field:
                     $fieldLabel = $confData['label'];
                     if ($accessibility && trim($fieldLabel) && !preg_match('/^(label|hidden|comment)$/', $confData['type'])) {
-                        $fieldLabel = '<label for="' . $prefix . $fName . '">' . $fieldLabel . '</label>';
+                        $fieldLabel = '<label for="' . $prefix . $this->cleanFormName($fName) . '">' . $fieldLabel . '</label>';
                     }
 
                     // Getting template code:
@@ -535,6 +579,7 @@ class FormContentObject extends \TYPO3\CMS\Frontend\ContentObject\AbstractConten
                     }
 
                     //RTF
+                    $content .= chr(13);
                     $content .= str_replace(
                         array(
                             '###FIELD###',
@@ -697,6 +742,7 @@ class FormContentObject extends \TYPO3\CMS\Frontend\ContentObject\AbstractConten
         // Turn data[x][y] into data:x:y:
         $name = preg_replace('/\\[|\\]\\[?/', ':', trim($name));
         // Remove illegal chars like _
-        return preg_replace('#[^:a-zA-Z0-9]#', '', $name);
+        $result = preg_replace('#[^:a-zA-Z0-9]#', '', $name);
+        return $result;
     }
 }

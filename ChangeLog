@@ -1,3 +1,10 @@
+
+2018-04-30 Franz Holzinger <franz@fholzinger.com>
+    * new feature: add support for RSA encryption in the form entry fields
+    * bugfix: Do not use invalid HTML with square brackets in the tag id.
+        replace id data[tt_board][NEW][notify_me] by mailformdata:ttboard:NEW:notifyme:
+    * bugfix: wrong HTML form id tags over the whole label wrap have been generated. This is too much.
+
 2018-03-19 Franz Holzinger <franz@fholzinger.com>
     * new feature: dontXssFieldNames for all field names where no XSS removal must take place, e.g. for html coming from a captcha extension
     * new feature: add a parameter for the fields to check within calcDoublePostKey
