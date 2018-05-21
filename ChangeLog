@@ -1,3 +1,5 @@
+2018-05-21 Franz Holzinger <franz@fholzinger.com>
+    * bugfix for TYPO3 8.x: use JambageCom\Div2007\Utility\HtmlUtility::XHTML_clean instead of the missing TYPO3\CMS\Core\Html\HtmlParser::XHTML_clean
 
 2018-04-30 Franz Holzinger <franz@fholzinger.com>
     * new feature: add support for RSA encryption in the form entry fields

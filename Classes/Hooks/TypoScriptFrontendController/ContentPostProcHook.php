@@ -15,7 +15,8 @@ namespace JambageCom\TslibFetce\Hooks\TypoScriptFrontendController;
  */
 
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Core\Html\HtmlParser;
+
+use JambageCom\Div2007\Utility\HtmlUtility;
 
 /**
  * Class that hooks into TypoScriptFrontendController to do XHTML cleaning and prefixLocalAnchors functionality
@@ -37,7 +38,7 @@ class ContentPostProcHook
         }
         // XHTML-clean the code, if flag set
         if ($this->doXHTML_cleaning($parentObject) == 'all') {
-            $XHTML_clean = GeneralUtility::makeInstance(HtmlParser::class);
+            $XHTML_clean = GeneralUtility::makeInstance(HtmlUtility::class);
             $parentObject->content = $XHTML_clean->XHTML_clean($parentObject->content);
         }
     }
@@ -58,7 +59,7 @@ class ContentPostProcHook
         }
         // XHTML-clean the code, if flag set
         if ($this->doXHTML_cleaning($parentObject) == 'cached') {
-            $XHTML_clean = GeneralUtility::makeInstance(HtmlParser::class);
+            $XHTML_clean = GeneralUtility::makeInstance(HtmlUtility::class);
             $parentObject->content = $XHTML_clean->XHTML_clean($parentObject->content);
         }
     }
@@ -79,7 +80,7 @@ class ContentPostProcHook
         }
         // XHTML-clean the code, if flag set
         if ($this->doXHTML_cleaning($parentObject) == 'output') {
-            $XHTML_clean = GeneralUtility::makeInstance(HtmlParser::class);
+            $XHTML_clean = GeneralUtility::makeInstance(HtmlUtility::class);
             $parentObject->content = $XHTML_clean->XHTML_clean($parentObject->content);
         }
     }

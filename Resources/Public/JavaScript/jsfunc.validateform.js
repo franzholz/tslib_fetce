@@ -53,9 +53,9 @@ function validateForm(theFormname,theFieldlist,goodMess,badMess,emailMess) {
 			theField = theField;
 			if (formObject[theField]) {
 				var fObj = formObject[theField];
-				var type=fObj.type;
+				var type = fObj.type;
 				if (!fObj.type) {
-					type="radio";
+					type = "radio";
 				}
 				var value="";
 				switch(type) {
@@ -74,7 +74,7 @@ function validateForm(theFormname,theFieldlist,goodMess,badMess,emailMess) {
 						var l=fObj.length;
 						for (a=0;a<l;a++) {
 							if (fObj.options[a].selected) {
-								 value+= fObj.options[a].value;
+								 value += fObj.options[a].value;
 							}
 						}
 					break;
@@ -115,6 +115,7 @@ function validateForm(theFormname,theFieldlist,goodMess,badMess,emailMess) {
 						if (!value) {
 							msg+="\n"+theLabel;
 						}
+                    break;
 				}
 			}
 			index++;
