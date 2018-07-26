@@ -6,10 +6,9 @@ if (!defined ('TYPO3_MODE')) {
 
 define('TSLIB_FETCE_EXT', $_EXTKEY);
 
-$GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['tslib/class.tslib_fe.php']['checkDataSubmission'][] = 'EXT:' . $_EXTKEY . '/Classes/Controller/TypoScriptFrontendTceController.php:JambageCom\\TslibFetce\\Controller\\TypoScriptFrontendTceController';
+$GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['tslib/class.tslib_fe.php']['checkDataSubmission'][] = \JambageCom\TslibFetce\Controller\TypoScriptFrontendTceController::class;
 
-$GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['tslib/class.tslib_fe.php']['configArrayPostProc'][] = 'EXT:' . $_EXTKEY . '/Classes/Hooks/FrontendHooks.php:JambageCom\\TslibFetce\\Hooks\\FrontendHooks->getFeDataConfigArray';
-
+$GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['tslib/class.tslib_fe.php']['configArrayPostProc'][] = \JambageCom\TslibFetce\Hooks\FrontendHooks::class . '->getFeDataConfigArray';
 
 // Register legacy content objects
 if (!\TYPO3\CMS\Core\Utility\ExtensionManagementUtility::isLoaded('compatibility6')) {
