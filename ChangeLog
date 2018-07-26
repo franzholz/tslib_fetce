@@ -1,32 +1,32 @@
-2018-07-26 Franz Holzinger <franz@fholzinger.com>
+2018-07-26 Franz Holzinger <franz@ttproducts.de>
     * Remove the file ext_autoload.php because the file composer.json must be used.
     * bugfix: use a correct namespace notation for the SC_OPTIONS - tslib/class.tslib_fe.php hooks.
 
-2018-05-21 Franz Holzinger <franz@fholzinger.com>
+2018-05-21 Franz Holzinger <franz@ttproducts.de>
     * bugfix for TYPO3 8.x: use JambageCom\Div2007\Utility\HtmlUtility::XHTML_clean instead of the missing TYPO3\CMS\Core\Html\HtmlParser::XHTML_clean
 
-2018-04-30 Franz Holzinger <franz@fholzinger.com>
+2018-04-30 Franz Holzinger <franz@ttproducts.de>
     * new feature: add support for RSA encryption in the form entry fields
     * bugfix: Do not use invalid HTML with square brackets in the tag id.
         replace id data[tt_board][NEW][notify_me] by mailformdata:ttboard:NEW:notifyme:
     * bugfix: wrong HTML form id tags over the whole label wrap have been generated. This is too much.
 
-2018-03-19 Franz Holzinger <franz@fholzinger.com>
+2018-03-19 Franz Holzinger <franz@ttproducts.de>
     * new feature: dontXssFieldNames for all field names where no XSS removal must take place, e.g. for html coming from a captcha extension
     * new feature: add a parameter for the fields to check within calcDoublePostKey
     * new feature: collect the labels without additional long texts. Remove the colon at the end. Programmers must use the labelWrap and stdWrap for larger texts.
 
-2017-10-06 Franz Holzinger <franz@fholzinger.com>
+2017-10-06 Franz Holzinger <franz@ttproducts.de>
     * bugfix: method ContentPostProcHook::doXHTML_cleaning needs a parameter $parentObject
 
-2017-08-21 Franz Holzinger <franz@fholzinger.com>
+2017-08-21 Franz Holzinger <franz@ttproducts.de>
     * new feature: processScript can be a namespace classname of a class joined with a method function
 
-2017-07-27 Franz Holzinger <franz@fholzinger.com>
+2017-07-27 Franz Holzinger <franz@ttproducts.de>
     * support for TYPO3 8.7.4
     * remove in TYPO3 8 deprecated check for checkFileInclude in order to allow php files outside of the TYPO3 directories ext and sysext, typo3conf/ext
 
-2016-08-02 Franz Holzinger <franz@fholzinger.com>
+2016-08-02 Franz Holzinger <franz@ttproducts.de>
 	* support for TYPO3 7.6.10
 	* remove MAIL feature
 	* use much code from TYPO3 7.6.10 system extension compatibility6
