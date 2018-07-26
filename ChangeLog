@@ -1,3 +1,6 @@
+2018-07-26 Franz Holzinger <franz@fholzinger.com>
+    * Remove the file ext_autoload.php because the file composer.json must be used.
+
 2018-05-21 Franz Holzinger <franz@fholzinger.com>
     * bugfix for TYPO3 8.x: use JambageCom\Div2007\Utility\HtmlUtility::XHTML_clean instead of the missing TYPO3\CMS\Core\Html\HtmlParser::XHTML_clean
 
