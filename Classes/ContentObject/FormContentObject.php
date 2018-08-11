@@ -86,7 +86,7 @@ class FormContentObject extends \TYPO3\CMS\Frontend\ContentObject\AbstractConten
             // Adding the new dataArray config form:
             if (is_array($conf['dataArray.'])) {
                 // dataArray is supplied
-                $sortedKeyArray = \TYPO3\CMS\Core\TypoScript\TemplateService::sortedKeyList($conf['dataArray.'], true);
+                $sortedKeyArray = \TYPO3\CMS\Core\Utility\ArrayUtility::filterAndSortByNumericKeys($conf['dataArray.'], true);
                 $dataKey = 0;
                 foreach ($sortedKeyArray as $theKey) {
                     $singleKeyArray = $conf['dataArray.'][$theKey . '.'];
@@ -193,7 +193,7 @@ class FormContentObject extends \TYPO3\CMS\Frontend\ContentObject\AbstractConten
                 }
                 // label:
                 if ($removeXss) {
-                    $confData['label'] = GeneralUtility::removeXSS(trim($parts[0]));
+                    $confData['label'] = htmlspecialchars(trim($parts[0]));
                 } else {
                     $confData['label'] = trim($parts[0]);
                 }
@@ -609,16 +609,21 @@ class FormContentObject extends \TYPO3\CMS\Frontend\ContentObject\AbstractConten
         $noCache = isset($conf['no_cache.']) ? $this->cObj->stdWrap($conf['no_cache'], $conf['no_cache.']) : $conf['no_cache'];
         // redirect should be set to the page to redirect to after an external script has been used. If internal scripts is used, and if no 'type' is set that dictates otherwise, redirect is used as the url to jump to as long as it's an integer (page)
         $page = $GLOBALS['TSFE']->page;
+        $mpValue = '';
+        if (method_exists($this->cObj, 'getClosestMPvalueForPage')) { // only TYPO3 < 9
+            $mpValue = $this->cObj->getClosestMPvalueForPage($page['uid']);
+        }
+        
         // Internal: Just submit to current page
         if (!$theRedirect) {
-            $LD = $GLOBALS['TSFE']->tmpl->linkData($page, $target, $noCache, 'index.php', '', $this->cObj->getClosestMPvalueForPage($page['uid']));
+            $LD = $GLOBALS['TSFE']->tmpl->linkData($page, $target, $noCache, 'index.php', '', $mpValue);
         } elseif (MathUtility::canBeInterpretedAsInteger($theRedirect)) {
             // Internal: Submit to page with ID $theRedirect
             $page = $GLOBALS['TSFE']->sys_page->getPage_noCheck($theRedirect);
-            $LD = $GLOBALS['TSFE']->tmpl->linkData($page, $target, $noCache, 'index.php', '', $this->cObj->getClosestMPvalueForPage($page['uid']));
+            $LD = $GLOBALS['TSFE']->tmpl->linkData($page, $target, $noCache, 'index.php', '', $mpValue);
         } else {
             // External URL, redirect-hidden field is rendered!
-            $LD = $GLOBALS['TSFE']->tmpl->linkData($page, $target, $noCache, '', '', $this->cObj->getClosestMPvalueForPage($page['uid']));
+            $LD = $GLOBALS['TSFE']->tmpl->linkData($page, $target, $noCache, '', '', $mpValue);
             $LD['totalURL'] = $theRedirect;
             $hiddenfields .= '<input type="hidden" name="redirect" value="' . htmlspecialchars($LD['totalURL']) . '"' . $xhtmlFix . '>';
         }
@@ -631,7 +636,7 @@ class FormContentObject extends \TYPO3\CMS\Frontend\ContentObject\AbstractConten
         // Submit to a specific page
         if (MathUtility::canBeInterpretedAsInteger($formtype)) {
             $page = $GLOBALS['TSFE']->sys_page->getPage_noCheck($formtype);
-            $LD_A = $GLOBALS['TSFE']->tmpl->linkData($page, $target, $noCache, '', '', $this->cObj->getClosestMPvalueForPage($page['uid']));
+            $LD_A = $GLOBALS['TSFE']->tmpl->linkData($page, $target, $noCache, '', '', $mpValue);
             $action = $LD_A['totalURL'];
         } elseif ($formtype) {
             // Submit to external script
@@ -642,7 +647,7 @@ class FormContentObject extends \TYPO3\CMS\Frontend\ContentObject\AbstractConten
             $action = $LD_A['totalURL'];
         } else {
             // Submit to "nothing" - which is current page
-            $LD_A = $GLOBALS['TSFE']->tmpl->linkData($GLOBALS['TSFE']->page, $target, $noCache, '', '', $this->cObj->getClosestMPvalueForPage($page['uid']));
+            $LD_A = $GLOBALS['TSFE']->tmpl->linkData($GLOBALS['TSFE']->page, $target, $noCache, '', '', $mpValue);
             $action = $LD_A['totalURL'];
         }
         // Recipient:

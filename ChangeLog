@@ -1,3 +1,9 @@
+2018-08-11 Franz Holzinger <franz@ttproducts.de>
+    * support for TYPO3 9.3.x
+    * TYPO3 9: replace \TYPO3\CMS\Core\TypoScript\TemplateService::sortedKeyList by \TYPO3\CMS\Core\Utility\ArrayUtility::filterAndSortByNumericKeys
+    * TYPO3 9: GeneralUtility::removeXSS by htmlspecialchars
+    * TYPO3 9: Do not call $this->cObj->getClosestMPvalueForPage any more.
+
 2018-07-26 Franz Holzinger <franz@ttproducts.de>
     * Remove the file ext_autoload.php because the file composer.json must be used.
     * bugfix: use a correct namespace notation for the SC_OPTIONS - tslib/class.tslib_fe.php hooks.
