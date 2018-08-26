@@ -1,3 +1,6 @@
+2018-08-26 Franz Holzinger <franz@ttproducts.de>
+    * Do not use htmlspecialchars for label data. Use strip_tags instead where the HTML tags <div><p><span><strong><a><br> are allowed.
+
 2018-08-11 Franz Holzinger <franz@ttproducts.de>
     * support for TYPO3 9.3.x
     * TYPO3 9: replace \TYPO3\CMS\Core\TypoScript\TemplateService::sortedKeyList by \TYPO3\CMS\Core\Utility\ArrayUtility::filterAndSortByNumericKeys

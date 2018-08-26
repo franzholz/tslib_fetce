@@ -193,7 +193,7 @@ class FormContentObject extends \TYPO3\CMS\Frontend\ContentObject\AbstractConten
                 }
                 // label:
                 if ($removeXss) {
-                    $confData['label'] = htmlspecialchars(trim($parts[0]));
+                    $confData['label'] = strip_tags(trim($parts[0]), '<div><p><span><strong><a><br>');
                 } else {
                     $confData['label'] = trim($parts[0]);
                 }
