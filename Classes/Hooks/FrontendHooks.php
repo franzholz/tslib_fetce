@@ -4,7 +4,6 @@ namespace JambageCom\TslibFetce\Hooks;
 
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
-
 /***************************************************************
 *  Copyright notice
 *
