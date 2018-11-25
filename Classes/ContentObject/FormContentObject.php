@@ -86,7 +86,13 @@ class FormContentObject extends \TYPO3\CMS\Frontend\ContentObject\AbstractConten
             // Adding the new dataArray config form:
             if (is_array($conf['dataArray.'])) {
                 // dataArray is supplied
-                $sortedKeyArray = \TYPO3\CMS\Core\Utility\ArrayUtility::filterAndSortByNumericKeys($conf['dataArray.'], true);
+                if (
+                    version_compare(TYPO3_version, '8.0.0', '>=')
+                ) {                
+                    $sortedKeyArray = \TYPO3\CMS\Core\Utility\ArrayUtility::filterAndSortByNumericKeys($conf['dataArray.'], true);
+                } else {
+                    $sortedKeyArray = \TYPO3\CMS\Core\TypoScript\TemplateService::sortedKeyList($conf['dataArray.'], true);
+                }
                 $dataKey = 0;
                 foreach ($sortedKeyArray as $theKey) {
                     $singleKeyArray = $conf['dataArray.'][$theKey . '.'];
