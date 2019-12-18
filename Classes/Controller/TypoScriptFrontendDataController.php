@@ -136,7 +136,10 @@ class TypoScriptFrontendDataController {
                                 )
                             ) {
                                 unset($this->newData[$table][$id]);	// Unsetting the whole thing, because it's not going to be saved.
-                                if (TYPO3_DLOG) {
+                                if (
+                                    defined('TYPO3_DLOG') && TYPO3_DLOG ||
+                                    isset($GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['t3lib/class.t3lib_div.php']['devLog'])
+                                ) {
                                     GeneralUtility::devLog(
                                         '"FEData": Submitted record to table ' .  $table . ' was doublePosted (key: ' . $doublePostCheckKey . '). Nothing saved.',
                                         TSLIB_FETCE_EXT

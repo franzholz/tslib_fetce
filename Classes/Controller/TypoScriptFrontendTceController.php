@@ -69,14 +69,20 @@ class TypoScriptFrontendTceController {
                 if ($this->locDataCheck($_POST['locationData'])) {
                     if ($formtype_db && is_array($_POST['data'])) {
                         $this->fe_tce();
-                        if (TYPO3_DLOG) {
+                        if (
+                            defined('TYPO3_DLOG') && TYPO3_DLOG ||
+                            isset($GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['t3lib/class.t3lib_div.php']['devLog'])
+                        ) {
                             GeneralUtility::devLog('"Check Data Submission": Return value: fe_tce', TSLIB_FETCE_EXT);
                         }
                         $result = 'fe_tce';
                     }
                 }
             } else {
-                if (TYPO3_DLOG) {
+                if (
+                    defined('TYPO3_DLOG') && TYPO3_DLOG ||
+                    isset($GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['t3lib/class.t3lib_div.php']['devLog'])
+                ) {
                     GeneralUtility::devLog('"Check Data Submission": HTTP_HOST and REFERER HOST do not match when processing submitted formdata!', TSLIB_FETCE_EXT);
                 }
             }
@@ -105,12 +111,18 @@ class TypoScriptFrontendTceController {
             if (count($this->frontendController->sys_page->getPage($locData[0]))) {
                 return 1;
             } else {
-                if (TYPO3_DLOG) {
+                if (
+                    defined('TYPO3_DLOG') && TYPO3_DLOG ||
+                    isset($GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['t3lib/class.t3lib_div.php']['devLog'])
+                ) {
                     GeneralUtility::devLog('LocationData Error: The page pointed to by location data (' . $locationData . ') is not accessible.', TSLIB_FETCE_EXT);
                 }
             }
         } else {
-            if (TYPO3_DLOG) {
+            if (
+                defined('TYPO3_DLOG') && TYPO3_DLOG ||
+                isset($GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['t3lib/class.t3lib_div.php']['devLog'])
+            ) {
                 GeneralUtility::devLog('LocationData Error: Location data (' . $locationData . ') record pointed to is not accessible.', TSLIB_FETCE_EXT);
             }
         }

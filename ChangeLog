@@ -1,3 +1,9 @@
+2019-12-18 Franz Holzinger <franz@ttproducts.de>
+    * compatibility for TYPO3 9 breaking 82162: replace constant TYPO3_DLOG by 
+        isset($GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['t3lib/class.t3lib_div.php']['devLog'])
+
+2019-11-01 Franz Holzinger <franz@ttproducts.de>
+    * support for TYPO3 9.5.x
 
 2018-11-25 Franz Holzinger <franz@ttproducts.de>
     * TYPO3 7: Do not replace \TYPO3\CMS\Core\TypoScript\TemplateService::sortedKeyList by \TYPO3\CMS\Core\Utility\ArrayUtility::filterAndSortByNumericKeys for TYPO3 7.6.
