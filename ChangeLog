@@ -1,3 +1,6 @@
+2020-01-05 Franz Holzinger <franz@ttproducts.de>
+    * use the Doctrine database interface instead of $GLOBALS["TYPO3_DB"]
+
 2019-12-18 Franz Holzinger <franz@ttproducts.de>
     * compatibility for TYPO3 9 breaking 82162: replace constant TYPO3_DLOG by 
         isset($GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['t3lib/class.t3lib_div.php']['devLog'])

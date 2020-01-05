@@ -210,11 +210,19 @@ class TypoScriptFrontendDataController {
     * @access private
     */
     public function checkDoublePostExist ($table, $doublePostField, $key) {
-        $result = $GLOBALS['TYPO3_DB']->exec_SELECTcountRows(
-            '*',
-            $table,
-            $doublePostField . '=' . intval($key)
-        );
+        $queryBuilder = GeneralUtility::makeInstance(\TYPO3\CMS\Core\Database\ConnectionPool::class)->getQueryBuilderForTable($table);
+        $queryBuilder->setRestrictions(GeneralUtility::makeInstance(\TYPO3\CMS\Core\Database\Query\Restriction\FrontendRestrictionContainer::class));
+
+        $result =
+            $queryBuilder
+                ->count('*')
+                ->from($table)
+                ->where(
+                    $queryBuilder->expr()->eq($doublePostField, $queryBuilder->createNamedParameter($key, \PDO::PARAM_INT))
+                    )
+                ->execute()
+                ->fetchColumn(0);
+
         return $result;
     }
 
@@ -302,7 +310,7 @@ class TypoScriptFrontendDataController {
     *
     * @param	string		The table name for which to create the insert statement
     * @param	array		array with key/value pairs being field/values (already escaped)
-    * @return	void
+    * @return	int       number of inserted rows
     */
     public function execNEWinsert ($table, $dataArr) {
         $extraList = $this->extraList;
@@ -334,7 +342,18 @@ class TypoScriptFrontendDataController {
             }
         }
 
-        $GLOBALS['TYPO3_DB']->exec_INSERTquery($table, $insertFields);
+        $queryBuilder = GeneralUtility::makeInstance(\TYPO3\CMS\Core\Database\ConnectionPool::class)->getQueryBuilderForTable($table);
+        $queryBuilder->setRestrictions(GeneralUtility::makeInstance(\TYPO3\CMS\Core\Database\Query\Restriction\FrontendRestrictionContainer::class));
+
+        $result =
+            $queryBuilder
+                ->insert($table)
+                ->values(
+                    $insertFields
+                )
+                ->execute();
+                
+        return $result;
     }
 
 
