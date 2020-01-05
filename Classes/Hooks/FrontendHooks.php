@@ -32,7 +32,8 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
  *
  * @author	Franz Holzinger <franz@ttproducts.de>
  */
-class FrontendHooks {
+class FrontendHooks
+{
 
     /**
     * Checks if config-array exists already but if not, gets it
@@ -42,8 +43,8 @@ class FrontendHooks {
     * @return void
     * @todo Define visibility
     */
-    public function getFeDataConfigArray (&$params, $parentObject) {
-
+    public function getFeDataConfigArray (&$params, $parentObject)
+    {
         if (isset($parentObject->tmpl->setup['FEData'])) {
             $parentObject->config['FEData'] = $parentObject->tmpl->setup['FEData'];
         }

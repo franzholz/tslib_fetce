@@ -38,7 +38,8 @@ use JambageCom\TslibFetce\Controller\TypoScriptFrontendDataController;
  * @author	Franz Holzinger <franz@ttproducts.de>
  *
  */
-class TypoScriptFrontendTceController {
+class TypoScriptFrontendTceController
+{
 
     /**
     * @var \TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController
@@ -52,7 +53,8 @@ class TypoScriptFrontendTceController {
     * @param	$frontendController: The current \TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController
     * @return string "fe_tce" if TCE FE data have been processed "" if none.
     */
-    public function checkDataSubmission ($frontendController) {
+    public function checkDataSubmission ($frontendController)
+    {
         $this->frontendController = $frontendController;
 
         $ret = '';
@@ -101,7 +103,8 @@ class TypoScriptFrontendTceController {
     * @see checkDataSubmission()
     * @todo Define visibility
     */
-    public function locDataCheck ($locationData) {
+    public function locDataCheck ($locationData)
+    {
         $locData = explode(':', $locationData);
         if (
             !$locData[1] ||
@@ -135,8 +138,8 @@ class TypoScriptFrontendTceController {
     * @return	void
     * @see tslib_feTCE
     */
-    protected function fe_tce () {
-
+    protected function fe_tce ()
+    {
         $fe_tce = GeneralUtility::makeInstance(TypoScriptFrontendDataController::class);
         $fe_tce->start(
             GeneralUtility::_POST('data'),

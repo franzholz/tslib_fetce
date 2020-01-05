@@ -1,7 +1,7 @@
 <?php
 
 if (\TYPO3\CMS\Core\Utility\ExtensionManagementUtility::isLoaded('compatibility6')) {
-	return;
+    return;
 }
 
 

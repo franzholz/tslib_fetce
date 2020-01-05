@@ -53,8 +53,8 @@ use TYPO3\CMS\Core\Cache\CacheManager;
  * @package TYPO3
  * @subpackage tslib_fetce
  */
-class TypoScriptFrontendDataController {
-
+class TypoScriptFrontendDataController
+{
     public $extScripts = array();
     public $extScriptsConf = array();
     public $extUserFuncs = array();
@@ -78,7 +78,8 @@ class TypoScriptFrontendDataController {
     * @return	void
     * @see TYPO3 4.5 tslib_fe::fe_tce(), includeScripts()
     */
-    public function start ($data, $FEData) {
+    public function start ($data, $FEData)
+    {
         foreach ($data as $table => $id_arr) {
             if (
                 is_array($id_arr) &&
@@ -209,7 +210,8 @@ class TypoScriptFrontendDataController {
     * @return	integer		The number of found rows. If zero then no "double-post" was found and its all OK.
     * @access private
     */
-    public function checkDoublePostExist ($table, $doublePostField, $key) {
+    public function checkDoublePostExist ($table, $doublePostField, $key)
+    {
         $queryBuilder = GeneralUtility::makeInstance(\TYPO3\CMS\Core\Database\ConnectionPool::class)->getQueryBuilderForTable($table);
         $queryBuilder->setRestrictions(GeneralUtility::makeInstance(\TYPO3\CMS\Core\Database\Query\Restriction\FrontendRestrictionContainer::class));
 
@@ -235,7 +237,8 @@ class TypoScriptFrontendDataController {
     * @return	integer		And unsigned 32bit integer hash
     * @access private
     */
-    public function calcDoublePostKey (array $parameter, $doublePostCheckFields) {
+    public function calcDoublePostKey (array $parameter, $doublePostCheckFields)
+    {
         if ($doublePostCheckFields != '') {
             $fieldArray = GeneralUtility::trimExplode(',', $doublePostCheckFields);
             $checkArray = array();
@@ -259,7 +262,8 @@ class TypoScriptFrontendDataController {
     * @return	void
     * @see tslib_fe::fe_tce(), includeScripts()
     */
-    public function includeScripts () {
+    public function includeScripts ()
+    {
         foreach ($this->extScripts as $incFile_table => $incFile) {
             if (@is_file($incFile)) {
                 include($incFile);	// Always start the incFiles with a check of the object fe_tce.  is_object($this);
@@ -276,7 +280,8 @@ class TypoScriptFrontendDataController {
     * @return   void
     * @see tslib_fe::fe_tce(), executeFunctions()
     */
-    public function executeFunctions () {
+    public function executeFunctions ()
+    {
         // Instantiate \TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer to execute the user function
         /** @var $cObj ContentObjectRenderer */
         $cObj = GeneralUtility::makeInstance(\TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer::class);
@@ -312,7 +317,8 @@ class TypoScriptFrontendDataController {
     * @param	array		array with key/value pairs being field/values (already escaped)
     * @return	int       number of inserted rows
     */
-    public function execNEWinsert ($table, $dataArr) {
+    public function execNEWinsert ($table, $dataArr)
+    {
         $extraList = $this->extraList;
         if ($GLOBALS['TCA'][$table]['ctrl']['tstamp']) {
             $field = $GLOBALS['TCA'][$table]['ctrl']['tstamp'];
@@ -365,7 +371,8 @@ class TypoScriptFrontendDataController {
     * @return	void
     * @see tslib_fe::set_no_cache()
     */
-    public function clear_cacheCmd ($cacheCmd) {
+    public function clear_cacheCmd ($cacheCmd)
+    {
         $cacheCmd = intval($cacheCmd);
 
         if ($cacheCmd) {
@@ -384,7 +391,8 @@ class TypoScriptFrontendDataController {
     * @return	array		TypoScript properties from FEData.[table] - if exists.
     *               		empty if nothing has been defined
     */
-    public function getConf ($table) {
+    public function getConf ($table)
+    {
         $result = array();
         if (isset($this->extScriptsConf[$table])) {
             $result = $this->extScriptsConf[$table];
