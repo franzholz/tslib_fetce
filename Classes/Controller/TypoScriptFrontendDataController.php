@@ -41,9 +41,9 @@ namespace JambageCom\TslibFetce\Controller;
  */
 
 
-use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Cache\CacheManager;
-
+use TYPO3\CMS\Core\Database\ConnectionPool;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /**
  * Form-data processing class.
@@ -314,32 +314,34 @@ class TypoScriptFrontendDataController
     * Executes an insert query!
     *
     * @param	string		The table name for which to create the insert statement
-    * @param	array		array with key/value pairs being field/values (already escaped)
-    * @return	int       number of inserted rows
+    * @param	array		record array with key/value pairs being field/values (already escaped)
+    * @return	int       uid of successfully inserted row
     */
-    public function execNEWinsert ($table, $dataArr)
+    public function execNEWinsert ($table, $dataArray)
     {
+        $result = false;
+
         $extraList = $this->extraList;
         if ($GLOBALS['TCA'][$table]['ctrl']['tstamp']) {
             $field = $GLOBALS['TCA'][$table]['ctrl']['tstamp'];
-            $dataArr[$field] = $GLOBALS['EXEC_TIME'];
+            $dataArray[$field] = $GLOBALS['EXEC_TIME'];
             $extraList .= ',' . $field;
         }
         if ($GLOBALS['TCA'][$table]['ctrl']['crdate']) {
             $field = $GLOBALS['TCA'][$table]['ctrl']['crdate'];
-            $dataArr[$field] = $GLOBALS['EXEC_TIME'];
+            $dataArray[$field] = $GLOBALS['EXEC_TIME'];
             $extraList .= ',' . $field;
         }
         if ($GLOBALS['TCA'][$table]['ctrl']['cruser_id']) {
             $field = $GLOBALS['TCA'][$table]['ctrl']['cruser_id'];
-            $dataArr[$field] = 0;
+            $dataArray[$field] = 0;
             $extraList .= ',' . $field;
         }
 
-        unset($dataArr['uid']);	// uid can never be set
+        unset($dataArray['uid']);	// uid can never be set
         $insertFields = array();
 
-        foreach($dataArr as $f => $v) {
+        foreach($dataArray as $f => $v) {
             if (
                 GeneralUtility::inList($extraList, $f) ||
                 isset($GLOBALS['TCA'][$table]['columns'][$f])
@@ -348,17 +350,19 @@ class TypoScriptFrontendDataController
             }
         }
 
-        $queryBuilder = GeneralUtility::makeInstance(\TYPO3\CMS\Core\Database\ConnectionPool::class)->getQueryBuilderForTable($table);
-        $queryBuilder->setRestrictions(GeneralUtility::makeInstance(\TYPO3\CMS\Core\Database\Query\Restriction\FrontendRestrictionContainer::class));
+        $connectionPool = GeneralUtility::makeInstance(ConnectionPool::class);
+        $databaseConnectionForTable = $connectionPool->getConnectionForTable($table);
 
-        $result =
-            $queryBuilder
-                ->insert($table)
-                ->values(
-                    $insertFields
-                )
-                ->execute();
-                
+        $count =
+            $databaseConnectionForTable->insert(
+                $table,
+                $insertFields
+            );
+
+        if ($count) {
+            $result = (int) $databaseConnectionForTable->lastInsertId($table);
+        }
+
         return $result;
     }
 
