@@ -1,3 +1,6 @@
+2020-02-02 Franz Holzinger <franz@ttproducts.de>
+    * bugfix: class JambageCom\TslibFetce\Hooks\FrontendHooks was not found
+
 2020-01-05 Franz Holzinger <franz@ttproducts.de>
     * new feature: the method execNEWinsert must return the uid of the successfully inserted record and not the count of inserted records
     * use the Doctrine database interface instead of $GLOBALS["TYPO3_DB"]
