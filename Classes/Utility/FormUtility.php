@@ -14,7 +14,11 @@ namespace JambageCom\TslibFetce\Utility;
  *
  * The TYPO3 project - inspiring people to share!
  */
+ 
+use TYPO3\CMS\Core\Database\ConnectionPool;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 
+ 
 /**
  * Contains some functions that were been previously found
  * inside TypoScriptFrontendController
@@ -75,5 +79,59 @@ class FormUtility
             $out .= chr(ord($string[$a]) ^ $xorVal);
         }
         return $out;
+    }
+
+    /**
+    * Creates the double-post hash value from the input array
+    *
+    * @param	array		The array with key/values to hash
+    * @param    string      The fields which are used to compare for a double post
+    * @return	integer		And unsigned 32bit integer hash
+    * @access private
+    */
+    static public function calcDoublePostKey (array $parameter, $doublePostCheckFields)
+    {
+        if ($doublePostCheckFields != '') {
+            $fieldArray = GeneralUtility::trimExplode(',', $doublePostCheckFields);
+            $checkArray = array();
+            foreach ($fieldArray as $field) {
+                if (isset($parameter[$field])) {
+                    $checkArray[$field] = $parameter[$field];
+                }
+            }
+        } else {
+            $checkArray = $parameter;
+        }
+        ksort($checkArray);      // Sorting by key
+        $result = hexdec(substr(md5(serialize($checkArray)), 0, 8));	// Making key
+        return $result;
+    }
+
+    /**
+    * Checking if a "double-post" exists already.
+    * "Double-posting" is if someone refreshes a page with a form for the message board or guestbook and thus submits the element twice. Checking for double-posting prevents the second submission from being stored. This is done by saving the first record with a MD5 hash of the content - if this hash exists already, the record cannot be saved.
+    *
+    * @param	string		The database table to check
+    * @param	string		The fieldname from the database table to search
+    * @param	integer		The hash value to search for.
+    * @return	integer		The number of found rows. If zero then no "double-post" was found and its all OK.
+    * @access private
+    */
+    static public function checkDoublePostExist ($table, $doublePostField, $key)
+    {
+        $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable($table);
+        $queryBuilder->setRestrictions(GeneralUtility::makeInstance(\TYPO3\CMS\Core\Database\Query\Restriction\FrontendRestrictionContainer::class));
+
+        $result =
+            $queryBuilder
+                ->count('*')
+                ->from($table)
+                ->where(
+                    $queryBuilder->expr()->eq($doublePostField, $queryBuilder->createNamedParameter($key, \PDO::PARAM_STR))
+                    )
+                ->execute()
+                ->fetchColumn(0);
+
+        return $result;
     }
 }

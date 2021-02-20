@@ -34,6 +34,9 @@ use TYPO3\CMS\Core\Cache\CacheManager;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
+use JambageCom\TslibFetce\Utility\FormUtility;
+
+
 /**
  * Form-data processing class.
  * Used by the FE_DATA object found in TSref. Quite old fashioned and used only by a few extensions, like good old 'tt_guest' and 'tt_board'
@@ -69,6 +72,9 @@ class TypoScriptFrontendDataController
     */
     public function start ($data, $FEData)
     {
+    debug ('B');
+    debug ($FEData, 'start $FEData');
+        $formUtility = GeneralUtility::makeInstance(FormUtility::class);
         foreach ($data as $table => $id_arr) {
             if (
                 is_array($id_arr) &&
@@ -94,7 +100,7 @@ class TypoScriptFrontendDataController
                                         $this->newData[$table][$id][$field] = implode($sep,$value);
                                     } else {
                                         $this->newData[$table][$id][$field] = $value;
-                                    }
+                d                    }
                                 }
                             }
                         }
@@ -114,18 +120,18 @@ class TypoScriptFrontendDataController
                             $dPC_field
                         ) {
                             $doublePostCheckKey =
-                                $this->calcDoublePostKey(
+                                $formUtility->calcDoublePostKey(
                                     $this->newData[$table][$id],
                                     $doublePostCheckFields
                                 );
                             if (
-                                $this->checkDoublePostExist(
+                                $formUtility->checkDoublePostExist(
                                     $table,
                                     $dPC_field,
                                     $doublePostCheckKey
                                 )
                             ) {
-                                unset($this->newData[$table][$id]);	// Unsetting the whole thing, because it's not going to be saved.
+                                unset($this->newData[$table][$id]);	// Unsetting the whole thing, because it shall not be saved.
                                 if (
                                     defined('TYPO3_DLOG') && TYPO3_DLOG ||
                                     isset($GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['t3lib/class.t3lib_div.php']['devLog'])
@@ -186,64 +192,8 @@ class TypoScriptFrontendDataController
                 }
             }
         }
+        debug ('E');
     }
-
-
-    /**
-    * Checking if a "double-post" exists already.
-    * "Double-posting" is if someone refreshes a page with a form for the message board or guestbook and thus submits the element twice. Checking for double-posting prevents the second submission from being stored. This is done by saving the first record with a MD5 hash of the content - if this hash exists already, the record cannot be saved.
-    *
-    * @param	string		The database table to check
-    * @param	string		The fieldname from the database table to search
-    * @param	integer		The hash value to search for.
-    * @return	integer		The number of found rows. If zero then no "double-post" was found and its all OK.
-    * @access private
-    */
-    public function checkDoublePostExist ($table, $doublePostField, $key)
-    {
-        $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable($table);
-        $queryBuilder->setRestrictions(GeneralUtility::makeInstance(\TYPO3\CMS\Core\Database\Query\Restriction\FrontendRestrictionContainer::class));
-
-        $result =
-            $queryBuilder
-                ->count('*')
-                ->from($table)
-                ->where(
-                    $queryBuilder->expr()->eq($doublePostField, $queryBuilder->createNamedParameter($key, \PDO::PARAM_INT))
-                    )
-                ->execute()
-                ->fetchColumn(0);
-
-        return $result;
-    }
-
-
-    /**
-    * Creates the double-post hash value from the input array
-    *
-    * @param	array		The array with key/values to hash
-    * @param    string      The fields which are used to compare for a double post
-    * @return	integer		And unsigned 32bit integer hash
-    * @access private
-    */
-    public function calcDoublePostKey (array $parameter, $doublePostCheckFields)
-    {
-        if ($doublePostCheckFields != '') {
-            $fieldArray = GeneralUtility::trimExplode(',', $doublePostCheckFields);
-            $checkArray = array();
-            foreach ($fieldArray as $field) {
-                if (isset($parameter[$field])) {
-                    $checkArray[$field] = $parameter[$field];
-                }
-            }
-        } else {
-            $checkArray = $parameter;
-        }
-        ksort($checkArray);      // Sorting by key
-        $result = hexdec(substr(md5(serialize($checkArray)), 0, 8));	// Making key
-        return $result;
-    }
-
 
     /**
     * Includes the submit scripts found in ->extScripts (filled in by the start() function)

@@ -59,7 +59,7 @@ class FormContentObject extends \TYPO3\CMS\Frontend\ContentObject\AbstractConten
             foreach ($requiredExtensions as $extension) {
                 if (!ExtensionManagementUtility::isLoaded($extension)) {
                     $messageMask =
-                        $GLOBALS['TSFE']->sL(
+                        $this->getTypoScriptFrontendController()->sL(
                         'LLL:EXT:' . DIV2007_EXT . DIV2007_LANGUAGE_SUBPATH . 'locallang.xlf:error.internal_required_extension_missing');
 
                     $message = sprintf($messageMask, $extension);
@@ -152,15 +152,15 @@ class FormContentObject extends \TYPO3\CMS\Frontend\ContentObject\AbstractConten
         $propertyOverride = array();
         $fieldname_hashArray = array();
         $counter = 0;
-        $xhtmlStrict = GeneralUtility::inList('xhtml_strict,xhtml_11,xhtml_2', $GLOBALS['TSFE']->xhtmlDoctype);
+        $xhtmlStrict = GeneralUtility::inList('xhtml_strict,xhtml_11,xhtml_2', $this->getTypoScriptFrontendController()->xhtmlDoctype);
         // Formname
         $formName = isset($conf['formName.']) ? $this->cObj->stdWrap($conf['formName'], $conf['formName.']) : $conf['formName'];
         $formName = $this->cleanFormName($formName);
-        $formName = $GLOBALS['TSFE']->getUniqueId($formName);
         $dontXssArray = array();
         if ($conf['dontXssFieldNames'] != '') {
             $dontXssArray = GeneralUtility::trimExplode(',', $conf['dontXssFieldNames']);
         }
+        $prefix = '';
         $fieldPrefix = isset($conf['fieldPrefix.']) ? $this->cObj->stdWrap($conf['fieldPrefix'], $conf['fieldPrefix.']) : $conf['fieldPrefix'];
         if (isset($conf['fieldPrefix']) || isset($conf['fieldPrefix.'])) {
             if ($fieldPrefix) {
@@ -277,7 +277,7 @@ class FormContentObject extends \TYPO3\CMS\Frontend\ContentObject\AbstractConten
                     case 'textarea':
                         $cols = trim($fParts[1]) ? (int)$fParts[1] : 20;
                         $compensateFieldWidth = isset($conf['compensateFieldWidth.']) ? $this->cObj->stdWrap($conf['compensateFieldWidth'], $conf['compensateFieldWidth.']) : $conf['compensateFieldWidth'];
-                        $compWidth = doubleval($compensateFieldWidth ? $compensateFieldWidth : $GLOBALS['TSFE']->compensateFieldWidth);
+                        $compWidth = doubleval($compensateFieldWidth ? $compensateFieldWidth : $this->getTypoScriptFrontendController()->compensateFieldWidth);
                         $compWidth = $compWidth ? $compWidth : 1;
                         $cols = MathUtility::forceIntegerInRange($cols * $compWidth, 1, 120);
                         $rows = trim($fParts[2]) ? MathUtility::forceIntegerInRange($fParts[2], 1, 30) : 5;
@@ -303,7 +303,7 @@ class FormContentObject extends \TYPO3\CMS\Frontend\ContentObject\AbstractConten
                         }
                         $size = trim($fParts[1]) ? (int)$fParts[1] : 20;
                         $compensateFieldWidth = isset($conf['compensateFieldWidth.']) ? $this->cObj->stdWrap($conf['compensateFieldWidth'], $conf['compensateFieldWidth.']) : $conf['compensateFieldWidth'];
-                        $compWidth = doubleval($compensateFieldWidth ? $compensateFieldWidth : $GLOBALS['TSFE']->compensateFieldWidth);
+                        $compWidth = doubleval($compensateFieldWidth ? $compensateFieldWidth : $this->getTypoScriptFrontendController()->compensateFieldWidth);
                         $compWidth = $compWidth ? $compWidth : 1;
                         $size = MathUtility::forceIntegerInRange($size * $compWidth, 1, 120);
                         $noValueInsert = isset($conf['noValueInsert.']) ? $this->cObj->stdWrap($conf['noValueInsert'], $conf['noValueInsert.']) : $conf['noValueInsert'];
@@ -608,28 +608,33 @@ class FormContentObject extends \TYPO3\CMS\Frontend\ContentObject\AbstractConten
         }
 
         // Redirect (external: where to go afterwards. internal: where to submit to)
-        $theRedirect = isset($conf['redirect.']) ? $this->cObj->stdWrap($conf['redirect'], $conf['redirect.']) : $conf['redirect'];
+        $theRedirect = (isset($conf['redirect.']) ? $this->cObj->stdWrap($conf['redirect'], $conf['redirect.']) : $conf['redirect']);
         // redirect should be set to the page to redirect to after an external script has been used. If internal scripts is used, and if no 'type' is set that dictates otherwise, redirect is used as the url to jump to as long as it's an integer (page)
-        $target = isset($conf['target.']) ? $this->cObj->stdWrap($conf['target'], $conf['target.']) : $conf['target'];
+        $target = (isset($conf['target.']) ? $this->cObj->stdWrap($conf['target'], $conf['target.']) : (isset($conf['target']) ? $conf['target'] : ''));
         // redirect should be set to the page to redirect to after an external script has been used. If internal scripts is used, and if no 'type' is set that dictates otherwise, redirect is used as the url to jump to as long as it's an integer (page)
-        $noCache = isset($conf['no_cache.']) ? $this->cObj->stdWrap($conf['no_cache'], $conf['no_cache.']) : $conf['no_cache'];
+        $noCache = (isset($conf['no_cache.']) ? $this->cObj->stdWrap($conf['no_cache'], $conf['no_cache.']) : $conf['no_cache']);
         // redirect should be set to the page to redirect to after an external script has been used. If internal scripts is used, and if no 'type' is set that dictates otherwise, redirect is used as the url to jump to as long as it's an integer (page)
-        $page = $GLOBALS['TSFE']->page;
+        $page = $this->getTypoScriptFrontendController()->page;
         $mpValue = '';
         if (method_exists($this->cObj, 'getClosestMPvalueForPage')) { // only TYPO3 < 9
             $mpValue = $this->cObj->getClosestMPvalueForPage($page['uid']);
         }
         
+        $pageLinkBuilder = GeneralUtility::makeInstance(\TYPO3\CMS\Frontend\Typolink\PageLinkBuilder::class, $this->cObj, $this->getTypoScriptFrontendController());
+        $LD = [];
+
         // Internal: Just submit to current page
         if (!$theRedirect) {
-            $LD = $GLOBALS['TSFE']->tmpl->linkData($page, $target, $noCache, 'index.php', '', $mpValue);
+            list($LD['totalURL'], $LD['linkText'], $LD['target']) = $pageLinkBuilder->build($page, '', $target, []);
         } elseif (MathUtility::canBeInterpretedAsInteger($theRedirect)) {
             // Internal: Submit to page with ID $theRedirect
-            $page = $GLOBALS['TSFE']->sys_page->getPage_noCheck($theRedirect);
-            $LD = $GLOBALS['TSFE']->tmpl->linkData($page, $target, $noCache, 'index.php', '', $mpValue);
+            $page = $this->getTypoScriptFrontendController()->sys_page->getPage_noCheck($theRedirect);
+            $page['pagetype'] = $mpValue ?? '';
+            list($LD['totalURL'], $LD['linkText'], $LD['target']) = $pageLinkBuilder->build($page, '', $target, []);
         } else {
+            $page['pagetype'] = $mpValue ?? '';
             // External URL, redirect-hidden field is rendered!
-            $LD = $GLOBALS['TSFE']->tmpl->linkData($page, $target, $noCache, '', '', $mpValue);
+            list($LD['totalURL'], $LD['linkText'], $LD['target']) = $pageLinkBuilder->build($page, '', $target, []);
             $LD['totalURL'] = $theRedirect;
             $hiddenfields .= '<input type="hidden" name="redirect" value="' . htmlspecialchars($LD['totalURL']) . '"' . $xhtmlFix . '>';
         }
@@ -641,8 +646,9 @@ class FormContentObject extends \TYPO3\CMS\Frontend\ContentObject\AbstractConten
         }
         // Submit to a specific page
         if (MathUtility::canBeInterpretedAsInteger($formtype)) {
-            $page = $GLOBALS['TSFE']->sys_page->getPage_noCheck($formtype);
-            $LD_A = $GLOBALS['TSFE']->tmpl->linkData($page, $target, $noCache, '', '', $mpValue);
+            $page = $this->getTypoScriptFrontendController()->sys_page->getPage_noCheck($formtype);
+            $page['pagetype'] = $mpValue ?? '';
+            list($LD_A['totalURL'], $LD_A['linkText'], $LD_A['target']) = $pageLinkBuilder->build($page, '', $target, []);
             $action = $LD_A['totalURL'];
         } elseif ($formtype) {
             // Submit to external script
@@ -653,7 +659,10 @@ class FormContentObject extends \TYPO3\CMS\Frontend\ContentObject\AbstractConten
             $action = $LD_A['totalURL'];
         } else {
             // Submit to "nothing" - which is current page
-            $LD_A = $GLOBALS['TSFE']->tmpl->linkData($GLOBALS['TSFE']->page, $target, $noCache, '', '', $mpValue);
+            $page['pagetype'] = $mpValue ?? '';
+            list($LD_A['totalURL'], $LD_A['linkText'], $LD_A['target']) = $pageLinkBuilder->build($page, '', $target, []);
+
+//             $LD_A = $GLOBALS['TSFE']->tmpl->linkData($GLOBALS['TSFE']->page, $target, $noCache, '', '', $mpValue);
             $action = $LD_A['totalURL'];
         }
         // Recipient:
@@ -670,9 +679,9 @@ class FormContentObject extends \TYPO3\CMS\Frontend\ContentObject\AbstractConten
             } else {
                 // locationData is [the page id]:[tablename]:[uid of record]. Indicates on which page the record (from tablename with uid) is shown. Used to check access.
                 if (isset($this->data['_LOCALIZED_UID'])) {
-                    $locationData = $GLOBALS['TSFE']->id . ':' . str_replace($this->data['uid'], $this->data['_LOCALIZED_UID'], $this->cObj->currentRecord);
+                    $locationData = $this->getTypoScriptFrontendController()->id . ':' . str_replace($this->data['uid'], $this->data['_LOCALIZED_UID'], $this->cObj->currentRecord);
                 } else {
-                    $locationData = $GLOBALS['TSFE']->id . ':' . $this->cObj->currentRecord;
+                    $locationData = $this->getTypoScriptFrontendController()->id . ':' . $this->cObj->currentRecord;
                 }
             }
             $hiddenfields .= '<input type="hidden" name="locationData" value="' . htmlspecialchars($locationData) . '"' . $xhtmlFix . '>';
@@ -700,7 +709,11 @@ class FormContentObject extends \TYPO3\CMS\Frontend\ContentObject\AbstractConten
             $badMess = isset($conf['badMess.']) ? $this->cObj->stdWrap($conf['badMess'], $conf['badMess.']) : $conf['badMess'];
             $emailMess = isset($conf['emailMess.']) ? $this->cObj->stdWrap($conf['emailMess'], $conf['emailMess.']) : $conf['emailMess'];
             $validateForm = ' onsubmit="return validateForm(' . GeneralUtility::quoteJSvalue($formName) . ',' . GeneralUtility::quoteJSvalue(implode(',', $fieldlist)) . ',' . GeneralUtility::quoteJSvalue($goodMess) . ',' . GeneralUtility::quoteJSvalue($badMess) . ',' . GeneralUtility::quoteJSvalue($emailMess) . ')"';
-            $GLOBALS['TSFE']->additionalHeaderData['JSFormValidate'] = '<script type="text/javascript" src="' . GeneralUtility::createVersionNumberedFilename($GLOBALS['TSFE']->absRefPrefix . \TYPO3\CMS\Core\Utility\ExtensionManagementUtility::siteRelPath('tslib_fetce') . 'Resources/Public/JavaScript/jsfunc.validateform.js') . '"></script>';
+            
+            $path = \TYPO3\CMS\Core\Utility\PathUtility::stripPathSitePrefix(
+                    \TYPO3\CMS\Core\Utility\ExtensionManagementUtility::extPath(TSLIB_FETCE_EXT)
+                );
+            $this->getTypoScriptFrontendController()->additionalHeaderData['JSFormValidate'] = '<script type="text/javascript" src="' . GeneralUtility::createVersionNumberedFilename($this->getTypoScriptFrontendController()->absRefPrefix . $path . 'Resources/Public/JavaScript/jsfunc.validateform.js') . '"></script>';
         } else {
             $validateForm = '';
         }
@@ -712,15 +725,8 @@ class FormContentObject extends \TYPO3\CMS\Frontend\ContentObject\AbstractConten
             $hiddenfields . $content,
             '</form>'
         );
-        $arrayReturnMode = isset($conf['arrayReturnMode.']) ? $this->cObj->stdWrap($conf['arrayReturnMode'], $conf['arrayReturnMode.']) : $conf['arrayReturnMode'];
 
-        if ($arrayReturnMode) {
-            $content['validateForm'] = $validateForm;
-            $content['formname'] = $formName;
-            return $content;
-        } else {
-            return implode('', $content);
-        }
+        return implode('', $content);
     }
 
 
@@ -735,7 +741,7 @@ class FormContentObject extends \TYPO3\CMS\Frontend\ContentObject\AbstractConten
      */
     protected function getFieldDefaultValue ($noValueInsert, $fieldName, $defaultVal)
     {
-        if (!$GLOBALS['TSFE']->no_cache || !isset($_POST[$fieldName]) && !isset($_GET[$fieldName]) || $noValueInsert) {
+        if (!$this->getTypoScriptFrontendController()->no_cache || !isset($_POST[$fieldName]) && !isset($_GET[$fieldName]) || $noValueInsert) {
             return $defaultVal;
         } else {
             return GeneralUtility::_GP($fieldName);
@@ -752,8 +758,16 @@ class FormContentObject extends \TYPO3\CMS\Frontend\ContentObject\AbstractConten
     {
         // Turn data[x][y] into data:x:y:
         $name = preg_replace('/\\[|\\]\\[?/', ':', trim($name));
-        // Remove illegal chars like _
+        // Remove illegal chars like -:
         $result = preg_replace('#[^:a-zA-Z0-9]#', '', $name);
         return $result;
+    }
+    
+    /**
+     * @return TypoScriptFrontendController
+     */
+    protected function getTypoScriptFrontendController()
+    {
+        return $GLOBALS['TSFE'];
     }
 }
