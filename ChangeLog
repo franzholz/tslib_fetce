@@ -1,6 +1,8 @@
+2021-10-22 Franz Holzinger <franz@ttproducts.de>
+    * bugfix: Middleware must provide the global TSFE object of type \TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController
 
 2021-02-19 Franz Holzinger <franz@ttproducts.de>
-    * compatibility TYPO3 10.4: replace $GLOBALS['TSFE']->getUniqueId($formName) by addition of bin2hex(random_bytes(16)) at the end of the form name. This however made a problem. The formname is an id which must be a fix name. So the form name will remain now unchanged.
+    * compatibility TYPO3 10.4: replace $GLOBALS['TSFE']->getUniqueId($formName) by addition of bin2hex(random_bytes(16)) at the end of the form name. This however leads to a problem. The formname is an id which must be a fix name. So the form name will remain now unchanged.
     * Remove configuration option arrayReturnMode, because only a string must be returned to TYPO3.
 
 2020-07-29 Franz Holzinger <franz@ttproducts.de>

@@ -6,7 +6,7 @@ namespace JambageCom\TslibFetce\Controller;
 /***************************************************************
 *  Copyright notice
 *
-*  (c) 1999-2017 Kasper Skårhøj (kasperYYYY@typo3.com)
+*  (c) 1999-2021 Kasper Skårhøj (kasperYYYY@typo3.com)
 *  All rights reserved
 *
 *  This script is part of the TYPO3 project. The TYPO3 project is
@@ -81,12 +81,7 @@ class TypoScriptFrontendTceController
                     }
                 }
             } else {
-                if (
-                    defined('TYPO3_DLOG') && TYPO3_DLOG ||
-                    isset($GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['t3lib/class.t3lib_div.php']['devLog'])
-                ) {
-                    GeneralUtility::devLog('"Check Data Submission": HTTP_HOST and REFERER HOST do not match when processing submitted formdata!', TSLIB_FETCE_EXT);
-                }
+                debug(TSLIB_FETCE_EXT, '"Check Data Submission": HTTP_HOST and REFERER HOST do not match when processing submitted formdata!');
             }
         }
 
