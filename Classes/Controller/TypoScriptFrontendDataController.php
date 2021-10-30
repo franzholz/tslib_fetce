@@ -100,7 +100,7 @@ class TypoScriptFrontendDataController
                                         $this->newData[$table][$id][$field] = implode($sep,$value);
                                     } else {
                                         $this->newData[$table][$id][$field] = $value;
-                d                    }
+                                    }
                                 }
                             }
                         }
