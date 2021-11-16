@@ -72,8 +72,6 @@ class TypoScriptFrontendDataController
     */
     public function start ($data, $FEData)
     {
-    debug ('B');
-    debug ($FEData, 'start $FEData');
         $formUtility = GeneralUtility::makeInstance(FormUtility::class);
         foreach ($data as $table => $id_arr) {
             if (
@@ -192,7 +190,6 @@ class TypoScriptFrontendDataController
                 }
             }
         }
-        debug ('E');
     }
 
     /**

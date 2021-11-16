@@ -56,7 +56,6 @@ class TypoScriptFrontendTceController
     public function checkDataSubmission ($frontendController)
     {
         $this->frontendController = $frontendController;
-
         $ret = '';
         // Checks if any FORM submissions
         $formtype_db = isset($_POST['formtype_db']) || isset($_POST['formtype_db_x']);
@@ -66,9 +65,12 @@ class TypoScriptFrontendTceController
 
             if (
                 GeneralUtility::getIndpEnv('TYPO3_HOST_ONLY') == $refInfo['host'] ||
-                $frontendController->TYPO3_CONF_VARS['SYS']['doNotCheckReferer']
+                $GLOBALS['TYPO3_CONF_VARS']['SYS']['doNotCheckReferer']
             ) {
-                if ($this->locDataCheck($_POST['locationData'])) {
+                if (
+                    empty($_POST['locationData']) ||
+                    $this->locDataCheck($_POST['locationData'])
+                ) {
                     if ($formtype_db && is_array($_POST['data'])) {
                         $this->fe_tce();
                         if (
@@ -81,7 +83,7 @@ class TypoScriptFrontendTceController
                     }
                 }
             } else {
-                debug(TSLIB_FETCE_EXT, '"Check Data Submission": HTTP_HOST and REFERER HOST do not match when processing submitted formdata!');
+                debug(TSLIB_FETCE_EXT, '"Check Data Submission": HTTP_HOST and REFERER HOST do not match when processing submitted formdata!'); // keep this
             }
         }
 
@@ -99,14 +101,14 @@ class TypoScriptFrontendTceController
     * @todo Define visibility
     */
     public function locDataCheck ($locationData)
-    {
+    {    
         $locData = explode(':', $locationData);
         if (
-            !$locData[1] ||
-            $frontendController->sys_page->checkRecord($locData[1], $locData[2], 1)
+            !$locData['1'] ||
+            $this->frontendController->sys_page->checkRecord($locData['1'], $locData['2'], 1)
         ) {
             // $locData[1] -check means that a record is checked only if the locationData has a value for a record else than the page.
-            if (count($this->frontendController->sys_page->getPage($locData[0]))) {
+            if (count($this->frontendController->sys_page->getPage($locData['0']))) {
                 return 1;
             } else {
                 if (
@@ -134,7 +136,7 @@ class TypoScriptFrontendTceController
     * @see tslib_feTCE
     */
     protected function fe_tce ()
-    {
+    {    
         $fe_tce = GeneralUtility::makeInstance(TypoScriptFrontendDataController::class);
         $fe_tce->start(
             GeneralUtility::_POST('data'),

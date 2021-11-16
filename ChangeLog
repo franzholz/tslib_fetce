@@ -1,3 +1,7 @@
+2021-11-17 Franz Holzinger <franz@ttproducts.de>
+    * bugfix: locationData must not be required
+    * bugfix TYPO3 10: The Middleware must be executed after typo3/cms-frontend/prepare-tsfe-rendering .
+
 2021-10-22 Franz Holzinger <franz@ttproducts.de>
     * bugfix: Middleware must provide the global TSFE object of type \TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController
 

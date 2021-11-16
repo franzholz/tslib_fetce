@@ -42,7 +42,6 @@ class FrontendTce implements MiddlewareInterface
         $tsfetce = GeneralUtility::makeInstance(\JambageCom\TslibFetce\Controller\TypoScriptFrontendTceController::class);
         $tsfe = $this->getTypoScriptFrontendController();
         $basketExtRaw = $tsfetce->checkDataSubmission($tsfe);
-
         return $handler->handle($request);
     }
 
