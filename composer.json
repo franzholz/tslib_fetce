@@ -30,7 +30,6 @@
     }
   },
   "replace": {
-    "jambagecom/tslib-fetce": "self.version",
     "typo3-ter/tslib-fetce": "self.version"
   },
   "extra": {
