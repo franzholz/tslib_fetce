@@ -1,3 +1,6 @@
+2022-04-07 Franz Holzinger <franz@ttproducts.de>
+    * compatibility TYPO3 8.5 and PHP 8
+
 2021-11-17 Franz Holzinger <franz@ttproducts.de>
     * bugfix: locationData must not be required
     * bugfix TYPO3 10: The Middleware must be executed after typo3/cms-frontend/prepare-tsfe-rendering .

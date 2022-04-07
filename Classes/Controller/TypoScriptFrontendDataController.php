@@ -33,6 +33,7 @@ namespace JambageCom\TslibFetce\Controller;
 use TYPO3\CMS\Core\Cache\CacheManager;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Extbase\Configuration\ConfigurationManager;
 
 use JambageCom\TslibFetce\Utility\FormUtility;
 
@@ -316,9 +317,20 @@ class TypoScriptFrontendDataController
         $cacheCmd = intval($cacheCmd);
 
         if ($cacheCmd) {
-            $this->cacheService = new \TYPO3\CMS\Extbase\Service\CacheService();
             $cacheManager = GeneralUtility::makeInstance(CacheManager::class);
-            $this->cacheService->injectCacheManager($cacheManager);
+            if (
+                version_compare(TYPO3_version, '11.5.0', '>=')
+            ) {
+                $configurationManager = GeneralUtility::getContainer()->get(ConfigurationManager::class);
+                $this->cacheService =
+                    new \TYPO3\CMS\Extbase\Service\CacheService(
+                        $configurationManager,
+                        $cacheManager
+                    );
+            } else {
+                $this->cacheService = new \TYPO3\CMS\Extbase\Service\CacheService();
+                $this->cacheService->injectCacheManager($cacheManager);
+            }
             $this->cacheService->clearPageCache($cacheCmd);
         }
     }
