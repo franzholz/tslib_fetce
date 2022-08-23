@@ -3,7 +3,9 @@ defined('TYPO3_MODE') || die('Access denied.');
 defined('TYPO3_version') || die('The constant TYPO3_version is undefined in tslib_fetce!');
 
 call_user_func(function () {
-    define('TSLIB_FETCE_EXT', 'tslib_fetce');
+    if (!defined ('TSLIB_FETCE_EXT')) {
+        define('TSLIB_FETCE_EXT', 'tslib_fetce');
+    }
 
     $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['tslib/class.tslib_fe.php']['checkDataSubmission'][] = \JambageCom\TslibFetce\Controller\TypoScriptFrontendTceController::class;
 
