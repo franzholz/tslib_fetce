@@ -56,7 +56,7 @@ class TypoScriptFrontendTceController
     public function checkDataSubmission ($frontendController)
     {
         $this->frontendController = $frontendController;
-        $ret = '';
+        $result = '';
         // Checks if any FORM submissions
         $formtype_db = isset($_POST['formtype_db']) || isset($_POST['formtype_db_x']);
 
