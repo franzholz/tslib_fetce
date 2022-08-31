@@ -94,10 +94,13 @@ class ContentPostProcHook
      */
     protected function doXHTML_cleaning ($parentObject)
     {
-        if ($parentObject->config['config']['xmlprologue'] == 'none') {
+        if (
+            isset($parentObject->config['config']['xmlprologue']) &&
+            $parentObject->config['config']['xmlprologue'] == 'none'
+        ) {
             return 'none';
         }
-        return $parentObject->config['config']['xhtml_cleaning'];
+        return $parentObject->config['config']['xhtml_cleaning'] ?? 'none';
     }
 
 
