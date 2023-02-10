@@ -31,8 +31,8 @@ class FormContentObject extends \TYPO3\CMS\Frontend\ContentObject\AbstractConten
      * In the optional $formData array each entry represents a line in the ordinary setup.
      * In those entries each entry (0,1,2...) represents a space normally divided by the '|' line.
      *
-     * $formData [] = array('Name:', 'name=input, 25 ', 'Default value....');
-     * $formData [] = array('Email:', 'email=input, 25 ', 'Default value for email....');
+     * $formData [] = ['Name:', 'name=input, 25 ', 'Default value....'];
+     * $formData [] = ['Email:', 'email=input, 25 ', 'Default value for email....'];
      *
      * - corresponds to the $conf['data'] value being :
      * Name:|name=input, 25 |Default value....||Email:|email=input, 25 |Default value for email....
@@ -429,14 +429,14 @@ class FormContentObject extends \TYPO3\CMS\Frontend\ContentObject\AbstractConten
                         if ($accessibility) {
                             $accessibilityWrap = isset($conf['radioWrap.']['accessibilityWrap.']) ? $this->cObj->stdWrap($conf['radioWrap.']['accessibilityWrap'], $conf['radioWrap.']['accessibilityWrap.']) : $conf['radioWrap.']['accessibilityWrap'];
                             if ($accessibilityWrap) {
-                                $search = array(
+                                $search = [
                                     '###RADIO_FIELD_ID###',
                                     '###RADIO_GROUP_LABEL###'
-                                );
-                                $replace = array(
+                                ];
+                                $replace = [
                                     $elementIdAttribute,
                                     $confData['label']
-                                );
+                                ];
                                 $accessibilityWrap = str_replace($search, $replace, $accessibilityWrap);
                                 $option = $this->cObj->wrap($option, $accessibilityWrap);
                             }
@@ -581,16 +581,16 @@ class FormContentObject extends \TYPO3\CMS\Frontend\ContentObject\AbstractConten
                     //RTF
                     $content .= chr(13);
                     $content .= str_replace(
-                        array(
+                        [
                             '###FIELD###',
                             '###LABEL###',
                             '###COMMENT###'
-                        ),
-                        array(
+                        ],
+                        [
                             $fieldCode,
                             $labelCode,
                             $commentCode
-                        ),
+                        ],
                         $result
                     );
                 }
@@ -714,11 +714,11 @@ class FormContentObject extends \TYPO3\CMS\Frontend\ContentObject\AbstractConten
         // Create form tag:
         $theTarget = $theRedirect ? $LD['target'] : $LD_A['target'];
         $method = isset($conf['method.']) ? $this->cObj->stdWrap($conf['method'], $conf['method.']) : $conf['method'];
-        $content = array(
+        $content = [
             '<form' . ' action="' . htmlspecialchars($action) . '"' . ' id="' . $formName . '"' . ($xhtmlStrict ? '' : ' name="' . $formName . '"') . ' enctype="multipart/form-data"' . ' method="' . ($method ? $method : 'post') . '"' . ($theTarget ? ' target="' . $theTarget . '"' : '') . $validateForm . '>',
             $hiddenfields . $content,
             '</form>'
-        );
+        ];
 
         return implode('', $content);
     }
