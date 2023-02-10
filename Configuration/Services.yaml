@@ -1,6 +1,6 @@
 services:
 
-  Bmack\ModernTemplateBuilding\:
+  JambageCom\TslibFetce\:
     resource: '../Classes/*'
 
   # Register all available content objects
