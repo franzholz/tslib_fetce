@@ -318,19 +318,12 @@ class TypoScriptFrontendDataController
 
         if ($cacheCmd) {
             $cacheManager = GeneralUtility::makeInstance(CacheManager::class);
-            if (
-                version_compare(TYPO3_version, '11.5.0', '>=')
-            ) {
-                $configurationManager = GeneralUtility::getContainer()->get(ConfigurationManager::class);
-                $this->cacheService =
-                    new \TYPO3\CMS\Extbase\Service\CacheService(
-                        $configurationManager,
-                        $cacheManager
-                    );
-            } else {
-                $this->cacheService = new \TYPO3\CMS\Extbase\Service\CacheService();
-                $this->cacheService->injectCacheManager($cacheManager);
-            }
+            $configurationManager = GeneralUtility::getContainer()->get(ConfigurationManager::class);
+            $this->cacheService =
+                new \TYPO3\CMS\Extbase\Service\CacheService(
+                    $configurationManager,
+                    $cacheManager
+                );
             $this->cacheService->clearPageCache($cacheCmd);
         }
     }
