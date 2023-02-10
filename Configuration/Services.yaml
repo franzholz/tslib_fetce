@@ -1,0 +1,12 @@
+services:
+
+  Bmack\ModernTemplateBuilding\:
+    resource: '../Classes/*'
+
+  # Register all available content objects
+  JambageCom\TslibFetce\ContentObject\FormContentObject:
+    tags:
+      - name: frontend.contentobject
+        identifier: 'FORM'
+
+
