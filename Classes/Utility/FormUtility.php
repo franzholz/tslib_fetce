@@ -93,7 +93,7 @@ class FormUtility
     {
         if ($doublePostCheckFields != '') {
             $fieldArray = GeneralUtility::trimExplode(',', $doublePostCheckFields);
-            $checkArray = array();
+            $checkArray = [];
             foreach ($fieldArray as $field) {
                 if (isset($parameter[$field])) {
                     $checkArray[$field] = $parameter[$field];

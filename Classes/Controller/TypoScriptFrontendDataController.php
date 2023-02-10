@@ -48,11 +48,11 @@ use JambageCom\TslibFetce\Utility\FormUtility;
  */
 class TypoScriptFrontendDataController
 {
-    public $extScripts = array();
-    public $extScriptsConf = array();
-    public $extUserFuncs = array();
-    public $extUserFuncsConf = array();
-    public $newData = array();
+    public $extScripts = [];
+    public $extScriptsConf = [];
+    public $extUserFuncs = [];
+    public $extUserFuncsConf = [];
+    public $newData = [];
     public $extraList = 'pid';
 
     /**
@@ -82,7 +82,7 @@ class TypoScriptFrontendDataController
             ) {
                 $sep = $FEData[$table . '.']['separator'] ? $FEData[$table . '.']['separator'] : LF;
                 foreach ($id_arr as $id => $field_arr) {
-                    $this->newData[$table][$id] = array();
+                    $this->newData[$table][$id] = [];
                     if (strstr($id, 'NEW')) {   // NEW
                             // Defaults:
                         if ($FEData[$table . '.']['default.']) {
@@ -276,7 +276,7 @@ class TypoScriptFrontendDataController
         }
 
         unset($dataArray['uid']);	// uid can never be set
-        $insertFields = array();
+        $insertFields = [];
 
         foreach($dataArray as $f => $v) {
             if (
@@ -345,7 +345,7 @@ class TypoScriptFrontendDataController
     */
     public function getConf ($table)
     {
-        $result = array();
+        $result = [];
         if (isset($this->extScriptsConf[$table])) {
             $result = $this->extScriptsConf[$table];
         }

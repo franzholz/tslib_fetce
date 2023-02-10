@@ -43,7 +43,7 @@ class FormContentObject extends \TYPO3\CMS\Frontend\ContentObject\AbstractConten
      * @param array $formData Alternative formdata overriding whatever comes from TypoScript
      * @return string Output
      */
-    public function render ($conf = array(), $formData = '')
+    public function render ($conf = [], $formData = '')
     {
         $content = '';
         $xhtmlFix = \JambageCom\Div2007\Utility\HtmlUtility::determineXhtmlFix();
@@ -72,12 +72,12 @@ class FormContentObject extends \TYPO3\CMS\Frontend\ContentObject\AbstractConten
 
         if (is_array($formData)) {
             $dataArray = $formData;
-            $labelArray = array();
-            $rsaArray = array();
+            $labelArray = [];
+            $rsaArray = [];
         } else {
             $data = isset($conf['data.']) ? $this->cObj->stdWrap($conf['data'], $conf['data.']) : $conf['data'];
             // Clearing dataArr
-            $dataArray = array();
+            $dataArray = [];
             // Getting the original config
             if (trim($data)) {
                 $data = str_replace(LF, '||', $data);
@@ -97,7 +97,7 @@ class FormContentObject extends \TYPO3\CMS\Frontend\ContentObject\AbstractConten
                 foreach ($sortedKeyArray as $theKey) {
                     $singleKeyArray = $conf['dataArray.'][$theKey . '.'];
                     if (is_array($singleKeyArray)) {
-                        $temp = array();
+                        $temp = [];
                         $label = '';
                         if (isset($singleKeyArray['label'])) {
                             $label = str_replace(':', '', $singleKeyArray['label']);
@@ -120,10 +120,10 @@ class FormContentObject extends \TYPO3\CMS\Frontend\ContentObject\AbstractConten
                         list($temp[2]) = explode('|', $singleValue);
                         // If value array is set, then implode those values.
                         if (is_array($singleKeyArray['valueArray.'])) {
-                            $temp_accumulated = array();
+                            $temp_accumulated = [];
                             foreach ($singleKeyArray['valueArray.'] as $singleKey => $singleKey_valueArray) {
                                 if (is_array($singleKey_valueArray) && (int)$singleKey . '.' === (string)$singleKey) {
-                                    $temp_valueArray = array();
+                                    $temp_valueArray = [];
                                     $valueArrayLabel = isset($singleKey_valueArray['label.']) ? $this->cObj->stdWrap($singleKey_valueArray['label'], $singleKey_valueArray['label.']) : $singleKey_valueArray['label'];
                                     list($temp_valueArray[0]) = explode('=', $valueArrayLabel);
                                     $selected = isset($singleKey_valueArray['selected.']) ? $this->cObj->stdWrap($singleKey_valueArray['selected'], $singleKey_valueArray['selected.']) : $singleKey_valueArray['selected'];
@@ -148,15 +148,15 @@ class FormContentObject extends \TYPO3\CMS\Frontend\ContentObject\AbstractConten
         }
         $attachmentCounter = '';
         $hiddenfields = '';
-        $fieldlist = array();
-        $propertyOverride = array();
-        $fieldname_hashArray = array();
+        $fieldlist = [];
+        $propertyOverride = [];
+        $fieldname_hashArray = [];
         $counter = 0;
         $xhtmlStrict = GeneralUtility::inList('xhtml_strict,xhtml_11,xhtml_2', $this->getTypoScriptFrontendController()->xhtmlDoctype);
         // Formname
         $formName = isset($conf['formName.']) ? $this->cObj->stdWrap($conf['formName'], $conf['formName.']) : $conf['formName'];
         $formName = $this->cleanFormName($formName);
-        $dontXssArray = array();
+        $dontXssArray = [];
         if ($conf['dontXssFieldNames'] != '') {
             $dontXssArray = GeneralUtility::trimExplode(',', $conf['dontXssFieldNames']);
         }
@@ -174,7 +174,7 @@ class FormContentObject extends \TYPO3\CMS\Frontend\ContentObject\AbstractConten
 
         foreach ($dataArray as $dataKey => $dataValue) {
             $counter++;
-            $confData = array();
+            $confData = [];
             if (is_array($formData)) {
                 $parts = $dataValue;
                 // TRUE...
@@ -338,9 +338,9 @@ class FormContentObject extends \TYPO3\CMS\Frontend\ContentObject\AbstractConten
                         // multiple
                         $multiple = strtolower(trim($fParts[2])) == 'm' ? ' multiple="multiple"' : '';
                         // Where the items will be
-                        $items = array();
+                        $items = [];
                         //RTF
-                        $defaults = array();
+                        $defaults = [];
                         $pCount = count($valueParts);
                         for ($a = 0; $a < $pCount; $a++) {
                             $valueParts[$a] = trim($valueParts[$a]);
@@ -365,7 +365,7 @@ class FormContentObject extends \TYPO3\CMS\Frontend\ContentObject\AbstractConten
                         $noValueInsert = isset($conf['noValueInsert.']) ? $this->cObj->stdWrap($conf['noValueInsert'], $conf['noValueInsert.']) : $conf['noValueInsert'];
                         $default = $this->getFieldDefaultValue($noValueInsert, $confData['fieldname'], $defaults);
                         if (!is_array($default)) {
-                            $defaults = array();
+                            $defaults = [];
                             $defaults[] = $default;
                         } else {
                             $defaults = $default;
@@ -389,7 +389,7 @@ class FormContentObject extends \TYPO3\CMS\Frontend\ContentObject\AbstractConten
                         $option = '';
                         $valueParts = explode(',', $parts[2]);
                         // Where the items will be
-                        $items = array();
+                        $items = [];
                         $default = '';
                         $pCount = count($valueParts);
                         for ($a = 0; $a < $pCount; $a++) {
@@ -508,7 +508,7 @@ class FormContentObject extends \TYPO3\CMS\Frontend\ContentObject\AbstractConten
                     if (trim($parts[3]) !== '' && GeneralUtility::inList('textarea,input,password', $confData['type'])) {
                         $modeParameters = GeneralUtility::trimExplode(':', $parts[3]);
                     } else {
-                        $modeParameters = array();
+                        $modeParameters = [];
                     }
                     // Adding evaluation based on settings:
                     switch ((string)$modeParameters[0]) {
