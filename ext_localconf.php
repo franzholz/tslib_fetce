@@ -1,6 +1,5 @@
 <?php
 defined('TYPO3') || die('Access denied.');
-defined('TYPO3_version') || die('The constant TYPO3_version is undefined in tslib_fetce!');
 
 call_user_func(function () {
     if (!defined ('TSLIB_FETCE_EXT')) {
