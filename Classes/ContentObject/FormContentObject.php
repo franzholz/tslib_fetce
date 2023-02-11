@@ -756,12 +756,4 @@ class FormContentObject extends \TYPO3\CMS\Frontend\ContentObject\AbstractConten
         $result = preg_replace('#[^:a-zA-Z0-9]#', '', $name);
         return $result;
     }
-    
-    /**
-     * @return TypoScriptFrontendController
-     */
-    protected function getTypoScriptFrontendController()
-    {
-        return $GLOBALS['TSFE'];
-    }
 }
