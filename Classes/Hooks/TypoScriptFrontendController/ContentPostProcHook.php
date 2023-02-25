@@ -14,15 +14,25 @@ namespace JambageCom\TslibFetce\Hooks\TypoScriptFrontendController;
  * The TYPO3 project - inspiring people to share!
  */
 
+use Psr\Log\LoggerInterface;
+
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 use JambageCom\Div2007\Utility\HtmlUtility;
 
 /**
+ * Deprecated. Only used until TYPO3 11.5
+ *
  * Class that hooks into TypoScriptFrontendController to do XHTML cleaning and prefixLocalAnchors functionality
  */
 class ContentPostProcHook
 {
+    private LoggerInterface $logger;
+
+    public function __construct(LoggerInterface $logger) {
+        $this->logger = $logger;
+    }
+
     /**
      * XHTML-clean the code, if flag config.xhtml_cleaning is set
      * to "all", same goes for config.prefixLocalAnchors
@@ -124,7 +134,7 @@ class ContentPostProcHook
      */
     protected function prefixLocalAnchorsWithScript ($parentObject)
     {
-        if (!$parentObject->beUserLogin) {
+        if (!$parentObject->getContext()->getPropertyFromAspect('backend.user', 'isLoggedIn', false)) {
             if (!is_object($parentObject->cObj)) {
                 $parentObject->newCObj();
             }
@@ -139,7 +149,9 @@ class ContentPostProcHook
         $parentObject->content = preg_replace('/(<(?:a|area).*?href=")(#[^"]*")/i', '${1}' . htmlspecialchars($scriptPath) . '${2}', $originalContent);
         // There was an error in the call to preg_replace, so keep the original content (behavior prior to PHP 5.2)
         if (preg_last_error() > 0) {
-            GeneralUtility::sysLog('preg_replace returned error-code: ' . preg_last_error() . ' in function prefixLocalAnchorsWithScript. Replacement not done!', 'cms', GeneralUtility::SYSLOG_SEVERITY_FATAL);
+            $this->logger->error(
+                'preg_replace returned error-code: ' . preg_last_error() . ' in function prefixLocalAnchorsWithScript. Replacement not done!'
+            );
             $parentObject->content = $originalContent;
         }
     }

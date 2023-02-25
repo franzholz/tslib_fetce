@@ -31,7 +31,7 @@ use TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController;
 class FrontendTce implements MiddlewareInterface
 {
     /**
-     * Hook to store the current basket
+     * Hook to process the submitted form data
      *
      * @param ServerRequestInterface $request
      * @param RequestHandlerInterface $handler
@@ -41,7 +41,7 @@ class FrontendTce implements MiddlewareInterface
     {
         $tsfetce = GeneralUtility::makeInstance(\JambageCom\TslibFetce\Controller\TypoScriptFrontendTceController::class);
         $tsfe = $this->getTypoScriptFrontendController();
-        $basketExtRaw = $tsfetce->checkDataSubmission($tsfe);
+        $dataProcessed = $tsfetce->checkDataSubmission($tsfe);
         return $handler->handle($request);
     }
 

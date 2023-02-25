@@ -50,8 +50,10 @@ class FormContentObject extends \TYPO3\CMS\Frontend\ContentObject\AbstractConten
         $security = GeneralUtility::makeInstance(\JambageCom\Div2007\Security\TransmissionSecurity::class);
         $encryptionFix = '';
         $useRsa = false;
+        $rsaArray = [];
         
         if (
+            isset($conf['rsa']) &&
             $conf['rsa'] == '1' &&
             $security->getTransmissionSecurityLevel() == 'rsa'
         ) {
@@ -73,9 +75,11 @@ class FormContentObject extends \TYPO3\CMS\Frontend\ContentObject\AbstractConten
         if (is_array($formData)) {
             $dataArray = $formData;
             $labelArray = [];
-            $rsaArray = [];
         } else {
-            $data = isset($conf['data.']) ? $this->cObj->stdWrap($conf['data'], $conf['data.']) : $conf['data'];
+            $data = '';
+            if (isset($conf['data'])) {
+                $data = isset($conf['data.']) ? $this->cObj->stdWrap($conf['data'], $conf['data.']) : $conf['data'];
+            }
             // Clearing dataArr
             $dataArray = [];
             // Getting the original config
@@ -97,41 +101,77 @@ class FormContentObject extends \TYPO3\CMS\Frontend\ContentObject\AbstractConten
                             $label = str_replace(':', '', $singleKeyArray['label']);
                         }
                         $labelArray[$dataKey] = $label;
-                        $label = isset($singleKeyArray['label.']) ? $this->cObj->stdWrap($singleKeyArray['label'], $singleKeyArray['label.']) : $singleKeyArray['label'];
+                        $label = '';
+                        if (isset($singleKeyArray['label'])) {
+                            $label = isset($singleKeyArray['label.']) ? $this->cObj->stdWrap($singleKeyArray['label'], $singleKeyArray['label.']) : $singleKeyArray['label'];
+                        }
                         list($temp[0]) = explode('|', $label);
                         $rsa = '';
                         if (isset($singleKeyArray['rsa'])) {
                             $rsa = intval($singleKeyArray['rsa']);
                             $rsaArray[$dataKey] = $rsa;
                         }
-                        $type = isset($singleKeyArray['type.']) ? $this->cObj->stdWrap($singleKeyArray['type'], $singleKeyArray['type.']) : $singleKeyArray['type'];
+                        $type = '';
+                        if (isset($singleKeyArray['type'])) {
+                            $type = isset($singleKeyArray['type.']) ? $this->cObj->stdWrap($singleKeyArray['type'], $singleKeyArray['type.']) : $singleKeyArray['type'];
+                        }
                         list($temp[1]) = explode('|', $type);
-                        $required = isset($singleKeyArray['required.']) ? $this->cObj->stdWrap($singleKeyArray['required'], $singleKeyArray['required.']) : $singleKeyArray['required'];
+                        $required = '';
+                        if (isset($singleKeyArray['required'])) {
+                            $required = isset($singleKeyArray['required.']) ? $this->cObj->stdWrap($singleKeyArray['required'], $singleKeyArray['required.']) : $singleKeyArray['required'];
+                        }
                         if ($required) {
                             $temp[1] = '*' . $temp[1];
                         }
-                        $singleValue = isset($singleKeyArray['value.']) ? $this->cObj->stdWrap($singleKeyArray['value'], $singleKeyArray['value.']) : $singleKeyArray['value'];
+                        $singleValue = '';
+                        if (isset($singleKeyArray['value'])) {
+                            $singleValue = isset($singleKeyArray['value.']) ? $this->cObj->stdWrap($singleKeyArray['value'], $singleKeyArray['value.']) : $singleKeyArray['value'];
+                        }
                         list($temp[2]) = explode('|', $singleValue);
                         // If value array is set, then implode those values.
-                        if (is_array($singleKeyArray['valueArray.'])) {
+                        if (
+                            isset($singleKeyArray['valueArray.']) &&
+                            is_array($singleKeyArray['valueArray.'])
+                        ) {
                             $temp_accumulated = [];
                             foreach ($singleKeyArray['valueArray.'] as $singleKey => $singleKey_valueArray) {
                                 if (is_array($singleKey_valueArray) && (int)$singleKey . '.' === (string)$singleKey) {
                                     $temp_valueArray = [];
-                                    $valueArrayLabel = isset($singleKey_valueArray['label.']) ? $this->cObj->stdWrap($singleKey_valueArray['label'], $singleKey_valueArray['label.']) : $singleKey_valueArray['label'];
+                                    $valueArrayLabel = '';
+                                    if (isset($singleKey_valueArray['label'])) {
+                                        $valueArrayLabel = 
+                                            isset($singleKey_valueArray['label.']) ? 
+                                                $this->cObj->stdWrap($singleKey_valueArray['label'], $singleKey_valueArray['label.']) :
+                                                $singleKey_valueArray['label'];
+                                    }
                                     list($temp_valueArray[0]) = explode('=', $valueArrayLabel);
-                                    $selected = isset($singleKey_valueArray['selected.']) ? $this->cObj->stdWrap($singleKey_valueArray['selected'], $singleKey_valueArray['selected.']) : $singleKey_valueArray['selected'];
+                                    $selected = '';
+                                    if (isset($singleKey_valueArray['selected'])) {
+                                        $selected = isset($singleKey_valueArray['selected.']) ?
+                                            $this->cObj->stdWrap($singleKey_valueArray['selected'], $singleKey_valueArray['selected.']) :
+                                            $singleKey_valueArray['selected'];
+                                    }
                                     if ($selected) {
                                         $temp_valueArray[0] = '*' . $temp_valueArray[0];
                                     }
-                                    $singleKeyValue = isset($singleKey_valueArray['value.']) ? $this->cObj->stdWrap($singleKey_valueArray['value'], $singleKey_valueArray['value.']) : $singleKey_valueArray['value'];
+                                    $singleKeyValue = '';
+                                    if ($singleKey_valueArray['value']) {
+                                        $singleKeyValue = isset($singleKey_valueArray['value.']) ?
+                                            $this->cObj->stdWrap($singleKey_valueArray['value'], $singleKey_valueArray['value.']) :
+                                            $singleKey_valueArray['value'];
+                                    }
                                     list($temp_valueArray[1]) = explode(',', $singleKeyValue);
                                 }
                                 $temp_accumulated[] = implode('=', $temp_valueArray);
                             }
                             $temp[2] = implode(',', $temp_accumulated);
                         }
-                        $specialEval = isset($singleKeyArray['specialEval.']) ? $this->cObj->stdWrap($singleKeyArray['specialEval'], $singleKeyArray['specialEval.']) : $singleKeyArray['specialEval'];
+                        $specialEval = '';
+                        if (isset($singleKeyArray['specialEval'])) {
+                            $specialEval = isset($singleKeyArray['specialEval.']) ?
+                                $this->cObj->stdWrap($singleKeyArray['specialEval'], $singleKeyArray['specialEval.']) :
+                                $singleKeyArray['specialEval'];
+                        }
                         list($temp[3]) = explode('|', $specialEval);
                         // Adding the form entry to the dataArray
                         $dataArray[$dataKey] = implode('|', $temp);
@@ -155,7 +195,13 @@ class FormContentObject extends \TYPO3\CMS\Frontend\ContentObject\AbstractConten
             $dontXssArray = GeneralUtility::trimExplode(',', $conf['dontXssFieldNames']);
         }
         $prefix = '';
-        $fieldPrefix = isset($conf['fieldPrefix.']) ? $this->cObj->stdWrap($conf['fieldPrefix'], $conf['fieldPrefix.']) : $conf['fieldPrefix'];
+        $fieldPrefix = '';
+        if (isset($conf['fieldPrefix'])) {
+            $fieldPrefix = isset($conf['fieldPrefix.']) ?
+                $this->cObj->stdWrap($conf['fieldPrefix'], $conf['fieldPrefix.']) :
+                $conf['fieldPrefix'];
+        }
+
         if (isset($conf['fieldPrefix']) || isset($conf['fieldPrefix.'])) {
             if ($fieldPrefix) {
                 $prefix = $this->cleanFormName($fieldPrefix);
@@ -227,24 +273,29 @@ class FormContentObject extends \TYPO3\CMS\Frontend\ContentObject\AbstractConten
                 }
                 $confData['fieldname'] = htmlspecialchars($confData['fieldname']);
                 $fieldCode = '';
-                $wrapFieldName = isset($conf['wrapFieldName']) ? $this->cObj->stdWrap($conf['wrapFieldName'], $conf['wrapFieldName.']) : $conf['wrapFieldName'];
+                $wrapFieldName = '';
+                if (isset($conf['wrapFieldName'])) {
+                    $wrapFieldName = isset($conf['wrapFieldName.']) ?
+                        $this->cObj->stdWrap($conf['wrapFieldName'], $conf['wrapFieldName.']) :
+                        $conf['wrapFieldName'];
+                }
                 if ($wrapFieldName) {
                     $confData['fieldname'] = $this->cObj->wrap($confData['fieldname'], $wrapFieldName);
                 }
                 // Set field name as current:
                 $this->cObj->setCurrentVal($confData['fieldname']);
+                $addParams = '';
                 // Additional parameters
                 if (trim($confData['type'])) {
+                    
                     if (isset($conf['params.'][$confData['type']])) {
                         $addParams = isset($conf['params.'][$confData['type'] . '.']) ? trim($this->cObj->stdWrap($conf['params.'][$confData['type']], $conf['params.'][$confData['type'] . '.'])) : trim($conf['params.'][$confData['type']]);
                     } else {
-                        $addParams = isset($conf['params.']) ? trim($this->cObj->stdWrap($conf['params'], $conf['params.'])) : trim($conf['params']);
+                        $addParams = isset($conf['params']) ? trim($this->cObj->stdWrap($conf['params'], $conf['params.'])) : '';
                     }
                     if ((string)$addParams !== '') {
                         $addParams = ' ' . $addParams;
                     }
-                } else {
-                    $addParams = '';
                 }
                 $dontMd5FieldNames =
                     isset($conf['dontMd5FieldNames.']) ?
@@ -269,13 +320,16 @@ class FormContentObject extends \TYPO3\CMS\Frontend\ContentObject\AbstractConten
                 // Create form field based on configuration/type:
                 switch ($confData['type']) {
                     case 'textarea':
-                        $cols = trim($fParts[1]) ? (int)$fParts[1] : 20;
-                        $compensateFieldWidth = isset($conf['compensateFieldWidth.']) ? $this->cObj->stdWrap($conf['compensateFieldWidth'], $conf['compensateFieldWidth.']) : $conf['compensateFieldWidth'];
+                        $cols = isset($fParts[1]) && trim($fParts[1]) ? (int)$fParts[1] : 20;
+                        $compensateFieldWidth = '';
+                        if (isset($conf['compensateFieldWidth'])) {
+                            $compensateFieldWidth = isset($conf['compensateFieldWidth.']) ? $this->cObj->stdWrap($conf['compensateFieldWidth'], $conf['compensateFieldWidth.']) : $conf['compensateFieldWidth'];
+                        }
                         $compWidth = doubleval($compensateFieldWidth ? $compensateFieldWidth : $this->getTypoScriptFrontendController()->compensateFieldWidth);
                         $compWidth = $compWidth ? $compWidth : 1;
                         $cols = MathUtility::forceIntegerInRange($cols * $compWidth, 1, 120);
-                        $rows = trim($fParts[2]) ? MathUtility::forceIntegerInRange($fParts[2], 1, 30) : 5;
-                        $wrap = trim($fParts[3]);
+                        $rows = isset($fParts[2]) && trim($fParts[2]) ? MathUtility::forceIntegerInRange($fParts[2], 1, 30) : 5;
+                        $wrap = isset($fParts[3]) ? trim($fParts[3]) : '';
                         $noWrapAttr = isset($conf['noWrapAttr.']) ? $this->cObj->stdWrap($conf['noWrapAttr'], $conf['noWrapAttr.']) : $conf['noWrapAttr'];
                         if ($noWrapAttr || $wrap === 'disabled') {
                             $wrap = '';
@@ -291,32 +345,40 @@ class FormContentObject extends \TYPO3\CMS\Frontend\ContentObject\AbstractConten
                     case 'password':
                         $useFix = '';
                         if (
-                            $rsaArray[$dataKey]
+                            !empty($rsaArray[$dataKey])
                         ) {
                             $useFix = ' ' . $encryptionFix . ' ';
                         }
-                        $size = trim($fParts[1]) ? (int)$fParts[1] : 20;
-                        $compensateFieldWidth = isset($conf['compensateFieldWidth.']) ? $this->cObj->stdWrap($conf['compensateFieldWidth'], $conf['compensateFieldWidth.']) : $conf['compensateFieldWidth'];
+                        $size = isset($fParts[1]) && trim($fParts[1]) ? (int)$fParts[1] : 20;
+                        $compensateFieldWidth = '';
+                        if (isset($conf['compensateFieldWidth'])) {
+                            $compensateFieldWidth = isset($conf['compensateFieldWidth.']) ? $this->cObj->stdWrap($conf['compensateFieldWidth'], $conf['compensateFieldWidth.']) : $conf['compensateFieldWidth'];
+                        }
                         $compWidth = doubleval($compensateFieldWidth ? $compensateFieldWidth : $this->getTypoScriptFrontendController()->compensateFieldWidth);
                         $compWidth = $compWidth ? $compWidth : 1;
                         $size = MathUtility::forceIntegerInRange($size * $compWidth, 1, 120);
-                        $noValueInsert = isset($conf['noValueInsert.']) ? $this->cObj->stdWrap($conf['noValueInsert'], $conf['noValueInsert.']) : $conf['noValueInsert'];
-                        $default = $this->getFieldDefaultValue($noValueInsert, $confData['fieldname'], trim($parts[2]));
+                        $noValueInsert = '';
+                        if (isset($conf['noValueInsert'])) {
+                            $noValueInsert = isset($conf['noValueInsert.']) ?
+                                $this->cObj->stdWrap($conf['noValueInsert'], $conf['noValueInsert.']) :
+                                $conf['noValueInsert'];
+                        }
+                        $default = $this->getFieldDefaultValue($noValueInsert, $confData['fieldname'], (isset($fParts[2]) ? trim($parts[2]) : '' ));
                         if ($confData['type'] == 'password') {
                             $default = '';
                         }
-                        $max = trim($fParts[2]) ? ' maxlength="' . MathUtility::forceIntegerInRange($fParts[2], 1, 1000) . '"' : '';
+                        $max = !empty($fParts[2]) ? ' maxlength="' . MathUtility::forceIntegerInRange($fParts[2], 1, 1000) . '"' : '';
                         $theType = $confData['type'] == 'input' ? 'text' : 'password';
                         $fieldCode = sprintf('<input type="%s" name="%s"%s size="%s"%s value="%s"%s' . $useFix . $xhtmlFix . '>', $theType, $confData['fieldname'], $elementIdAttribute, $size, $max, htmlspecialchars($default), $addParams);
                         break;
                     case 'file':
-                        $size = trim($fParts[1]) ? MathUtility::forceIntegerInRange($fParts[1], 1, 60) : 20;
+                        $size = isset($fParts[1]) ? MathUtility::forceIntegerInRange($fParts[1], 1, 60) : 20;
                         $fieldCode = sprintf('<input type="file" name="%s"%s size="%s"%s' . $xhtmlFix . '>', $confData['fieldname'], $elementIdAttribute, $size, $addParams);
                         break;
                     case 'check':
                         // alternative default value:
                         $noValueInsert = isset($conf['noValueInsert.']) ? $this->cObj->stdWrap($conf['noValueInsert'], $conf['noValueInsert.']) : $conf['noValueInsert'];
-                        $default = $this->getFieldDefaultValue($noValueInsert, $confData['fieldname'], trim($parts[2]));
+                        $default = $this->getFieldDefaultValue($noValueInsert, $confData['fieldname'], (isset($parts[2]) ? trim($parts[2]) : ''));
                         $checked = $default ? ' checked="checked"' : '';
                         $fieldCode = sprintf('<input type="checkbox" value="%s" name="%s"%s%s%s' . $xhtmlFix . '>', 1, $confData['fieldname'], $elementIdAttribute, $checked, $addParams);
                         break;
@@ -324,11 +386,11 @@ class FormContentObject extends \TYPO3\CMS\Frontend\ContentObject\AbstractConten
                         $option = '';
                         $valueParts = explode(',', $parts[2]);
                         // size
-                        if (strtolower(trim($fParts[1])) == 'auto') {
+                        if (isset($fParts[1]) && strtolower(trim($fParts[1])) == 'auto') {
                             $fParts[1] = count($valueParts);
                         }
                         // Auto size set here. Max 20
-                        $size = trim($fParts[1]) ? MathUtility::forceIntegerInRange($fParts[1], 1, 20) : 1;
+                        $size = isset($fParts[1]) && trim($fParts[1]) ? MathUtility::forceIntegerInRange($fParts[1], 1, 20) : 1;
                         // multiple
                         $multiple = strtolower(trim($fParts[2])) == 'm' ? ' multiple="multiple"' : '';
                         // Where the items will be
@@ -444,7 +506,7 @@ class FormContentObject extends \TYPO3\CMS\Frontend\ContentObject\AbstractConten
                         $fieldCode = $option;
                         break;
                     case 'hidden':
-                        $value = trim($parts[2]);
+                        $value = (isset($parts[2]) ? trim($parts[2]) : '');
                         // If this form includes an auto responder message, include a HMAC checksum field
                         // in order to verify potential abuse of this feature.
                         if ($value !== '') {
@@ -504,20 +566,22 @@ class FormContentObject extends \TYPO3\CMS\Frontend\ContentObject\AbstractConten
                     } else {
                         $modeParameters = [];
                     }
-                    // Adding evaluation based on settings:
-                    switch ((string)$modeParameters[0]) {
-                        case 'EREG':
-                            $fieldlist[] = '_EREG';
-                            $fieldlist[] = $modeParameters[1];
-                            $fieldlist[] = $modeParameters[2];
-                            // Setting this so "required" layout is used.
-                            $confData['required'] = 1;
-                            break;
-                        case 'EMAIL':
-                            $fieldlist[] = '_EMAIL';
-                            // Setting this so "required" layout is used.
-                            $confData['required'] = 1;
-                            break;
+                    if (isset($modeParameters[0])) {
+                        // Adding evaluation based on settings:
+                        switch ((string)$modeParameters[0]) {
+                            case 'EREG':
+                                $fieldlist[] = '_EREG';
+                                $fieldlist[] = $modeParameters[1];
+                                $fieldlist[] = $modeParameters[2];
+                                // Setting this so "required" layout is used.
+                                $confData['required'] = 1;
+                                break;
+                            case 'EMAIL':
+                                $fieldlist[] = '_EMAIL';
+                                // Setting this so "required" layout is used.
+                                $confData['required'] = 1;
+                                break;
+                        }
                     }
 
                     if ($confData['required']) {
@@ -548,19 +612,33 @@ class FormContentObject extends \TYPO3\CMS\Frontend\ContentObject\AbstractConten
                         if (isset($conf['REQ.']['labelWrap.'])) {
                             $labelCode = $this->cObj->stdWrap($fieldLabel, $conf['REQ.']['labelWrap.']);
                         }
-                        $reqLayout = isset($conf['REQ.']['layout.']) ? $this->cObj->stdWrap($conf['REQ.']['layout'], $conf['REQ.']['layout.']) : $conf['REQ.']['layout'];
+                        $reqLayout = '';
+                        if (isset($conf['REQ.']['layout'])) {
+                            $reqLayout = isset($conf['REQ.']['layout.']) ?
+                                $this->cObj->stdWrap($conf['REQ.']['layout'], $conf['REQ.']['layout.']) :
+                                $conf['REQ.']['layout'];
+                        }
                         if ($reqLayout) {
                             $result = $reqLayout;
                         }
                     }
+
                     if ($confData['type'] == 'comment') {
-                        $commentLayout = isset($conf['COMMENT.']['layout.']) ? $this->cObj->stdWrap($conf['COMMENT.']['layout'], $conf['COMMENT.']['layout.']) : $conf['COMMENT.']['layout'];
+                        $commentLayout = '';
+                        if (isset($conf['COMMENT.']['layout'])) {
+                            $commentLayout = isset($conf['COMMENT.']['layout.']) ?
+                                $this->cObj->stdWrap($conf['COMMENT.']['layout'], $conf['COMMENT.']['layout.']) :
+                                $conf['COMMENT.']['layout'];
+                        }
                         if ($commentLayout) {
                             $result = $commentLayout;
                         }
                     }
                     if ($confData['type'] == 'check') {
-                        $checkLayout = isset($conf['CHECK.']['layout.']) ? $this->cObj->stdWrap($conf['CHECK.']['layout'], $conf['CHECK.']['layout.']) : $conf['CHECK.']['layout'];
+                        $checkLayout = '';
+                        if (isset($conf['CHECK.']['layout'])) {
+                            $checkLayout = isset($conf['CHECK.']['layout.']) ? $this->cObj->stdWrap($conf['CHECK.']['layout'], $conf['CHECK.']['layout.']) : $conf['CHECK.']['layout'];
+                        }
                         if ($checkLayout) {
                             $result = $checkLayout;
                         }

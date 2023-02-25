@@ -29,6 +29,7 @@ namespace JambageCom\TslibFetce\Controller;
  * @author Kasper Skårhøj <kasperYYYY@typo3.com>
  */
 
+use Psr\Log\LoggerInterface;
 
 use TYPO3\CMS\Core\Cache\CacheManager;
 use TYPO3\CMS\Core\Database\ConnectionPool;
@@ -48,12 +49,17 @@ use JambageCom\TslibFetce\Utility\FormUtility;
  */
 class TypoScriptFrontendDataController
 {
+    private LoggerInterface $logger;
     public $extScripts = [];
     public $extScriptsConf = [];
     public $extUserFuncs = [];
     public $extUserFuncsConf = [];
     public $newData = [];
     public $extraList = 'pid';
+
+    public function __construct(LoggerInterface $logger) {
+        $this->logger = $logger;
+    }
 
     /**
     * @var \TYPO3\CMS\Extbase\Service\CacheService
@@ -205,7 +211,7 @@ class TypoScriptFrontendDataController
             if (@is_file($incFile)) {
                 include($incFile);	// Always start the incFiles with a check of the object fe_tce.  is_object($this);
             } else {
-                GeneralUtility::sysLog('"' . $incFile . '" file not found!', TSLIB_FETCE_EXT);
+                $this->logger->error('"' . $incFile . '" file not found!');
             }
         }
     }
@@ -238,7 +244,7 @@ class TypoScriptFrontendDataController
             }
 
             if ($error) {
-                GeneralUtility::sysLog('"' . $userFunc . '" user function cannot be found.', TSLIB_FETCE_EXT);
+                $this->logger->error('"' . $userFunc . '" user function cannot be found.');
             }
         }
     }
