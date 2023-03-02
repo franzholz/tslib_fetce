@@ -52,7 +52,6 @@ call_user_func(function () {
                 'logFile' => \TYPO3\CMS\Core\Core\Environment::getVarPath() . '/log/tslib_fetce.log'
             ]
         ]
-    ];
-    
+    ];    
 });
 

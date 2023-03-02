@@ -77,13 +77,13 @@ class TypoScriptFrontendTceController
                             defined('TYPO3_DLOG') && TYPO3_DLOG ||
                             isset($GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['t3lib/class.t3lib_div.php']['devLog'])
                         ) {
-                            GeneralUtility::devLog('"Check Data Submission": Return value: fe_tce', TSLIB_FETCE_EXT);
+                            GeneralUtility::devLog('"Check Data Submission": Return value: fe_tce', 'tslib_fetce');
                         }
                         $result = 'fe_tce';
                     }
                 }
             } else {
-                debug(TSLIB_FETCE_EXT, '"Check Data Submission": HTTP_HOST and REFERER HOST do not match when processing submitted formdata!'); // keep this
+                debug('tslib_fetce', '"Check Data Submission": HTTP_HOST and REFERER HOST do not match when processing submitted formdata!'); // keep this
             }
         }
 
@@ -115,7 +115,7 @@ class TypoScriptFrontendTceController
                     defined('TYPO3_DLOG') && TYPO3_DLOG ||
                     isset($GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['t3lib/class.t3lib_div.php']['devLog'])
                 ) {
-                    GeneralUtility::devLog('LocationData Error: The page pointed to by location data (' . $locationData . ') is not accessible.', TSLIB_FETCE_EXT);
+                    GeneralUtility::devLog('LocationData Error: The page pointed to by location data (' . $locationData . ') is not accessible.', 'tslib_fetce');
                 }
             }
         } else {
@@ -123,7 +123,7 @@ class TypoScriptFrontendTceController
                 defined('TYPO3_DLOG') && TYPO3_DLOG ||
                 isset($GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['t3lib/class.t3lib_div.php']['devLog'])
             ) {
-                GeneralUtility::devLog('LocationData Error: Location data (' . $locationData . ') record pointed to is not accessible.', TSLIB_FETCE_EXT);
+                GeneralUtility::devLog('LocationData Error: Location data (' . $locationData . ') record pointed to is not accessible.', 'tslib_fetce');
             }
         }
     }

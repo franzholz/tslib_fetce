@@ -19,11 +19,118 @@ use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\MathUtility;
 
+use TYPO3\CMS\Frontend\Typolink\LinkResultInterface;
+use TYPO3\CMS\Frontend\Typolink\LinkResult;
+use TYPO3\CMS\Frontend\Typolink\PageLinkBuilder;
+
+
+
 /**
  * Contains FORM class object.
  */
 class FormContentObject extends \TYPO3\CMS\Frontend\ContentObject\AbstractContentObject
 {
+    /**
+    * Builds a TypoLink to a certain page
+    */
+    protected function buildLinks ($theRedirect, $page, $target): LinkResultInterface
+    {
+        $linkedResult = null;
+        $url = '';
+        $linkText = ''; 
+        $linkTarget = '';
+        $pageLinkBuilder = GeneralUtility::makeInstance(PageLinkBuilder::class, $this->cObj, $this->getTypoScriptFrontendController());
+
+        // Internal: Just submit to current page
+        if (!$theRedirect) {
+            $linkedResult = $pageLinkBuilder->build($page, '', $target, []);
+        } elseif (MathUtility::canBeInterpretedAsInteger($theRedirect)) {
+            // Internal: Submit to page with ID $theRedirect
+            $page = $this->getTypoScriptFrontendController()->sys_page->getPage_noCheck($theRedirect);
+            $linkedResult = $pageLinkBuilder->build($page, '', $target, []);
+        } else {
+            // External URL, redirect-hidden field is rendered!
+            $linkedResult = $pageLinkBuilder->build($page, '', $target, []);
+            $url = $theRedirect;
+        }
+        // previously: list($LD['totalURL'], $LD['linkText'], $LD['target']) instead of $linkedResult
+
+        // Legacy layer, can be removed in TYPO3 v12.0.
+        if (!($linkedResult instanceof LinkResultInterface)) {
+            if (is_array($linkedResult)) {
+                $storeUrl = $url;
+                [$url, $linkText, $linkTarget] = $linkedResult;
+                if (!empty($storeUrl)) {
+                    $url = $storeUrl;
+                }
+            } else {
+                $url = '';
+            }
+            $linkedResult = new LinkResult('', $url);
+            $linkedResult = $linkedResult
+                ->withTarget($linkTarget)
+                ->withLinkText($linkText);
+        }
+        return $linkedResult;
+    }
+
+
+    /**
+    * Builds a TypoLink to a certain page
+    */
+    protected function buildActionLink (&$actionTarget, $page, $theRedirect, $target, $formtype, LinkResultInterface $previousLinkedResult): string
+    {
+        $linkedResult = null;
+        $action = '';
+        $actionText = ''; 
+        $actionTarget = '';
+        $pageLinkBuilder = GeneralUtility::makeInstance(PageLinkBuilder::class, $this->cObj, $this->getTypoScriptFrontendController());
+
+        // Submit to a specific page
+        if (MathUtility::canBeInterpretedAsInteger($formtype)) {
+            $page = $this->getTypoScriptFrontendController()->sys_page->getPage_noCheck($formtype);
+            $page['pagetype'] = '';
+            $linkedResult =  $pageLinkBuilder->build($page, '', $target, []);
+        } elseif ($formtype) {
+            // Submit to external script
+            $action = $formtype;
+        } elseif (MathUtility::canBeInterpretedAsInteger($theRedirect)) {
+            $linkedResult = $previousLinkedResult;
+        } else {
+            // Submit to "nothing" - which is current page
+            $page['pagetype'] = '';
+            $linkedResult = $pageLinkBuilder->build($page, '', $target, []);
+        }
+        // previously: list($LD_A['totalURL'], $LD_A['linkText'], $LD_A['target']) instead of $linkedResult
+        // Legacy layer, can be removed in TYPO3 v12.0.
+        if (
+            !empty($linkedResult) &&
+            !($linkedResult instanceof LinkResultInterface)
+        ) {
+            if (is_array($linkedResult)) {
+                $storeAction = $action;
+                [$action, $actionText, $actionTarget] = $linkedResult;
+                if (!empty($storeAction)) {
+                    $action = $storeAction;
+                }
+            } else {
+                $action = '';
+            }
+            $linkedResult = new LinkResult('', $action);
+            $linkedResult = $linkedResult
+                ->withTarget($actionTarget)
+                ->withLinkText($actionText);
+        }
+
+        if (!empty($linkedResult)) {
+            $action = $linkedResult->getUrl();
+            $actionTarget = $linkedResult->geTarget();
+        }
+
+        return $action;
+    }
+
+
     /**
      * Rendering the cObject, FORM
      *
@@ -87,6 +194,7 @@ class FormContentObject extends \TYPO3\CMS\Frontend\ContentObject\AbstractConten
                 $data = str_replace(LF, '||', $data);
                 $dataArray = explode('||', $data);
             }
+
             // Adding the new dataArray config form:
             if (is_array($conf['dataArray.'])) {
                 // dataArray is supplied
@@ -215,9 +323,10 @@ class FormContentObject extends \TYPO3\CMS\Frontend\ContentObject\AbstractConten
         foreach ($dataArray as $dataKey => $dataValue) {
             $counter++;
             $confData = [];
-            if (is_array($formData)) {
+            $parts = '';
+            if (is_array($dataValue)) {
                 $parts = $dataValue;
-                // TRUE...
+                // TRUE ...
                 $dataValue = 1;
             } else {
                 $dataValue = trim($dataValue);
@@ -311,16 +420,20 @@ class FormContentObject extends \TYPO3\CMS\Frontend\ContentObject\AbstractConten
                     $fName = md5($confData['fieldname']);
                 }
                 // Accessibility: Set id = fieldname attribute:
-                $accessibility = isset($conf['accessibility.']) ? $this->cObj->stdWrap($conf['accessibility'], $conf['accessibility.']) : $conf['accessibility'];
+                $accessibility = '';
+                if (isset($conf['accessibility'])) {
+                    $accessibility = isset($conf['accessibility.']) ? $this->cObj->stdWrap($conf['accessibility'], $conf['accessibility.']) : $conf['accessibility'];
+                }
                 if ($accessibility || $xhtmlStrict) {
                     $elementIdAttribute = ' id="' . $prefix . $this->cleanFormName($fName) . '"';
                 } else {
                     $elementIdAttribute = '';
                 }
+
                 // Create form field based on configuration/type:
                 switch ($confData['type']) {
                     case 'textarea':
-                        $cols = isset($fParts[1]) && trim($fParts[1]) ? (int)$fParts[1] : 20;
+                        $cols = isset($fParts[1]) && trim($fParts[1]) ? (int) $fParts[1] : 20;
                         $compensateFieldWidth = '';
                         if (isset($conf['compensateFieldWidth'])) {
                             $compensateFieldWidth = isset($conf['compensateFieldWidth.']) ? $this->cObj->stdWrap($conf['compensateFieldWidth'], $conf['compensateFieldWidth.']) : $conf['compensateFieldWidth'];
@@ -330,14 +443,20 @@ class FormContentObject extends \TYPO3\CMS\Frontend\ContentObject\AbstractConten
                         $cols = MathUtility::forceIntegerInRange($cols * $compWidth, 1, 120);
                         $rows = isset($fParts[2]) && trim($fParts[2]) ? MathUtility::forceIntegerInRange($fParts[2], 1, 30) : 5;
                         $wrap = isset($fParts[3]) ? trim($fParts[3]) : '';
-                        $noWrapAttr = isset($conf['noWrapAttr.']) ? $this->cObj->stdWrap($conf['noWrapAttr'], $conf['noWrapAttr.']) : $conf['noWrapAttr'];
+                        $noWrapAttr = '';
+                        if (isset($conf['noWrapAttr'])) {
+                            $noWrapAttr = isset($conf['noWrapAttr.']) ? $this->cObj->stdWrap($conf['noWrapAttr'], $conf['noWrapAttr.']) : $conf['noWrapAttr'];
+                        }
                         if ($noWrapAttr || $wrap === 'disabled') {
                             $wrap = '';
                         } else {
                             $wrap = $wrap ? ' wrap="' . $wrap . '"' : ' wrap="virtual"';
                         }
-                        $noValueInsert = isset($conf['noValueInsert.']) ? $this->cObj->stdWrap($conf['noValueInsert'], $conf['noValueInsert.']) : $conf['noValueInsert'];
-                        $default = $this->getFieldDefaultValue($noValueInsert, $confData['fieldname'], str_replace('\\n', LF, trim($parts[2])));
+                        $noValueInsert = 0;
+                        if (isset($conf['noValueInsert'])) {
+                            $noValueInsert = isset($conf['noValueInsert.']) ? $this->cObj->stdWrap($conf['noValueInsert'], $conf['noValueInsert.']) : $conf['noValueInsert'];
+                        }
+                        $default = $this->getFieldDefaultValue($noValueInsert, $confData['fieldname'], str_replace('\\n', LF, isset($parts[2]) ? trim($parts[2]) : '' ));
                         $fieldCode = sprintf('<textarea name="%s"%s cols="%s" rows="%s"%s%s>%s</textarea>', $confData['fieldname'], $elementIdAttribute, $cols, $rows, $wrap, $addParams, htmlspecialchars($default));
                         break;
                     case 'input':
@@ -357,40 +476,47 @@ class FormContentObject extends \TYPO3\CMS\Frontend\ContentObject\AbstractConten
                         $compWidth = doubleval($compensateFieldWidth ? $compensateFieldWidth : $this->getTypoScriptFrontendController()->compensateFieldWidth);
                         $compWidth = $compWidth ? $compWidth : 1;
                         $size = MathUtility::forceIntegerInRange($size * $compWidth, 1, 120);
-                        $noValueInsert = '';
+                        $noValueInsert = 0;
                         if (isset($conf['noValueInsert'])) {
                             $noValueInsert = isset($conf['noValueInsert.']) ?
                                 $this->cObj->stdWrap($conf['noValueInsert'], $conf['noValueInsert.']) :
                                 $conf['noValueInsert'];
                         }
-                        $default = $this->getFieldDefaultValue($noValueInsert, $confData['fieldname'], (isset($fParts[2]) ? trim($parts[2]) : '' ));
+                        $default = $this->getFieldDefaultValue($noValueInsert, $confData['fieldname'], (isset($parts[2]) ? trim($parts[2]) : '' ));
                         if ($confData['type'] == 'password') {
                             $default = '';
                         }
                         $max = !empty($fParts[2]) ? ' maxlength="' . MathUtility::forceIntegerInRange($fParts[2], 1, 1000) . '"' : '';
                         $theType = $confData['type'] == 'input' ? 'text' : 'password';
-                        $fieldCode = sprintf('<input type="%s" name="%s"%s size="%s"%s value="%s"%s' . $useFix . $xhtmlFix . '>', $theType, $confData['fieldname'], $elementIdAttribute, $size, $max, htmlspecialchars($default), $addParams);
+                        $fieldCode = 
+                            sprintf(
+                                '<input type="%s" name="%s"%s size="%s"%s value="%s"%s' . $useFix . $xhtmlFix . '>',
+                                $theType, $confData['fieldname'], $elementIdAttribute, $size, $max, htmlspecialchars($default), $addParams
+                            );
                         break;
                     case 'file':
-                        $size = isset($fParts[1]) ? MathUtility::forceIntegerInRange($fParts[1], 1, 60) : 20;
+                        $size = !empty($fParts[1]) ? MathUtility::forceIntegerInRange($fParts[1], 1, 60) : 20;
                         $fieldCode = sprintf('<input type="file" name="%s"%s size="%s"%s' . $xhtmlFix . '>', $confData['fieldname'], $elementIdAttribute, $size, $addParams);
                         break;
                     case 'check':
                         // alternative default value:
-                        $noValueInsert = isset($conf['noValueInsert.']) ? $this->cObj->stdWrap($conf['noValueInsert'], $conf['noValueInsert.']) : $conf['noValueInsert'];
+                        $noValueInsert = 0;
+                        if (isset($conf['noValueInsert'])) {
+                            $noValueInsert = isset($conf['noValueInsert.']) ? $this->cObj->stdWrap($conf['noValueInsert'], $conf['noValueInsert.']) : $conf['noValueInsert'];
+                        }
                         $default = $this->getFieldDefaultValue($noValueInsert, $confData['fieldname'], (isset($parts[2]) ? trim($parts[2]) : ''));
                         $checked = $default ? ' checked="checked"' : '';
                         $fieldCode = sprintf('<input type="checkbox" value="%s" name="%s"%s%s%s' . $xhtmlFix . '>', 1, $confData['fieldname'], $elementIdAttribute, $checked, $addParams);
                         break;
                     case 'select':
                         $option = '';
-                        $valueParts = explode(',', $parts[2]);
+                        $valueParts = explode(',', (isset($parts[2]) ? $parts[2] : ''));
                         // size
                         if (isset($fParts[1]) && strtolower(trim($fParts[1])) == 'auto') {
                             $fParts[1] = count($valueParts);
                         }
                         // Auto size set here. Max 20
-                        $size = isset($fParts[1]) && trim($fParts[1]) ? MathUtility::forceIntegerInRange($fParts[1], 1, 20) : 1;
+                        $size = !empty($fParts[1]) ? MathUtility::forceIntegerInRange($fParts[1], 1, 20) : 1;
                         // multiple
                         $multiple = strtolower(trim($fParts[2])) == 'm' ? ' multiple="multiple"' : '';
                         // Where the items will be
@@ -418,7 +544,10 @@ class FormContentObject extends \TYPO3\CMS\Frontend\ContentObject\AbstractConten
                             }
                         }
                         // alternative default value:
-                        $noValueInsert = isset($conf['noValueInsert.']) ? $this->cObj->stdWrap($conf['noValueInsert'], $conf['noValueInsert.']) : $conf['noValueInsert'];
+                        $noValueInsert = 0;
+                        if (isset($conf['noValueInsert'])) {
+                            $noValueInsert = isset($conf['noValueInsert.']) ? $this->cObj->stdWrap($conf['noValueInsert'], $conf['noValueInsert.']) : $conf['noValueInsert'];
+                        }
                         $default = $this->getFieldDefaultValue($noValueInsert, $confData['fieldname'], $defaults);
                         if (!is_array($default)) {
                             $defaults = [];
@@ -443,7 +572,7 @@ class FormContentObject extends \TYPO3\CMS\Frontend\ContentObject\AbstractConten
                         break;
                     case 'radio':
                         $option = '';
-                        $valueParts = explode(',', $parts[2]);
+                        $valueParts = explode(',', (isset($parts[2]) ? $parts[2] : ''));
                         // Where the items will be
                         $items = [];
                         $default = '';
@@ -467,7 +596,10 @@ class FormContentObject extends \TYPO3\CMS\Frontend\ContentObject\AbstractConten
                             }
                         }
                         // alternative default value:
-                        $noValueInsert = isset($conf['noValueInsert.']) ? $this->cObj->stdWrap($conf['noValueInsert'], $conf['noValueInsert.']) : $conf['noValueInsert'];
+                        $noValueInsert = 0;
+                        if (isset($conf['noValueInsert'])) {
+                            $noValueInsert = isset($conf['noValueInsert.']) ? $this->cObj->stdWrap($conf['noValueInsert'], $conf['noValueInsert.']) : $conf['noValueInsert'];
+                        }
                         $default = $this->getFieldDefaultValue($noValueInsert, $confData['fieldname'], $default);
                         // Create the select-box:
                         $iCount = count($items);
@@ -525,14 +657,14 @@ class FormContentObject extends \TYPO3\CMS\Frontend\ContentObject\AbstractConten
                         break;
                     case 'property':
                         if (GeneralUtility::inList('type,locationData,goodMess,badMess,emailMess', $confData['fieldname'])) {
-                            $value = trim($parts[2]);
+                            $value = (isset($parts[2]) ? trim($parts[2]) : '');
                             $propertyOverride[$confData['fieldname']] = $value;
                             $conf[$confData['fieldname']] = $value;
                         }
                         break;
                     case 'submit':
-                        $value = trim($parts[2]);
-                        if ($conf['image.']) {
+                        $value = (isset($parts[2]) ? trim($parts[2]) : '');
+                        if (isset($conf['image.'])) {
                             $this->cObj->data[$this->cObj->currentValKey] = $value;
                             $image = $this->cObj->cObjGetSingle('IMG_RESOURCE', $conf['image.']);
                             $params = $conf['image.']['params'] ? ' ' . $conf['image.']['params'] : '';
@@ -548,21 +680,24 @@ class FormContentObject extends \TYPO3\CMS\Frontend\ContentObject\AbstractConten
                         }
                        break;
                     case 'reset':
-                        $value = trim($parts[2]);
+                        $value = (isset($parts[2]) ? trim($parts[2]) : '');
                         $fieldCode = sprintf('<input type="reset" name="%s"%s value="%s"%s' . $xhtmlFix . '>', $confData['fieldname'], $elementIdAttribute, htmlspecialchars($value, ENT_COMPAT, 'UTF-8', false), $addParams);
                         break;
                     case 'label':
-                        $fieldCode = nl2br(htmlspecialchars(trim($parts[2])));
+                        $value = (isset($parts[2]) ? trim($parts[2]) : '');
+                        $fieldCode = nl2br(htmlspecialchars($value));
                         break;
                     default:
+                        $value = (isset($parts[2]) ? trim($parts[2]) : '');
                         $confData['type'] = 'comment';
-                        $fieldCode = trim($parts[2]) . '&nbsp;';
+                        $fieldCode = $value . '&nbsp;';
                 }
 
                 if ($fieldCode) {
                     // Checking for special evaluation modes:
                     if (trim($parts[3]) !== '' && GeneralUtility::inList('textarea,input,password', $confData['type'])) {
-                        $modeParameters = GeneralUtility::trimExplode(':', $parts[3]);
+                        $value = (isset($parts[3]) ? trim($parts[3]) : '');
+                        $modeParameters = GeneralUtility::trimExplode(':', $value);
                     } else {
                         $modeParameters = [];
                     }
@@ -571,8 +706,8 @@ class FormContentObject extends \TYPO3\CMS\Frontend\ContentObject\AbstractConten
                         switch ((string)$modeParameters[0]) {
                             case 'EREG':
                                 $fieldlist[] = '_EREG';
-                                $fieldlist[] = $modeParameters[1];
-                                $fieldlist[] = $modeParameters[2];
+                                $fieldlist[] = $modeParameters[1] ?? '';
+                                $fieldlist[] = $modeParameters[2] ?? '';
                                 // Setting this so "required" layout is used.
                                 $confData['required'] = 1;
                                 break;
@@ -584,7 +719,7 @@ class FormContentObject extends \TYPO3\CMS\Frontend\ContentObject\AbstractConten
                         }
                     }
 
-                    if ($confData['required']) {
+                    if (!empty($confData['required'])) {
                         if ($labelArray[$dataKey] != '') { 
                             $fieldlist[] = $confData['fieldname'];
                             $fieldlist[] = $labelArray[$dataKey];
@@ -604,8 +739,12 @@ class FormContentObject extends \TYPO3\CMS\Frontend\ContentObject\AbstractConten
 
                     $commentCode = isset($conf['commentWrap.']) ? $this->cObj->stdWrap($confData['label'], $conf['commentWrap.']) : $confData['label'];
                     $result = $conf['layout'];
-                    $req = isset($conf['REQ.']) ? $this->cObj->stdWrap($conf['REQ'], $conf['REQ.']) : $conf['REQ'];
-                    if ($req && $confData['required']) {
+                    $req = '';
+                    if (isset($conf['REQ'])) {
+                        $req = isset($conf['REQ.']) ? $this->cObj->stdWrap($conf['REQ'], $conf['REQ.']) : $conf['REQ'];
+                    }
+
+                    if ($req && !empty($confData['required'])) {
                         if (isset($conf['REQ.']['fieldWrap.'])) {
                             $fieldCode = $this->cObj->stdWrap($fieldCode, $conf['REQ.']['fieldWrap.']);
                         }
@@ -644,13 +783,19 @@ class FormContentObject extends \TYPO3\CMS\Frontend\ContentObject\AbstractConten
                         }
                     }
                     if ($confData['type'] == 'radio') {
-                        $radioLayout = isset($conf['RADIO.']['layout.']) ? $this->cObj->stdWrap($conf['RADIO.']['layout'], $conf['RADIO.']['layout.']) : $conf['RADIO.']['layout'];
+                        $radioLayout = '';
+                        if (isset($conf['RADIO.']['layout'])) {
+                            $radioLayout = isset($conf['RADIO.']['layout.']) ? $this->cObj->stdWrap($conf['RADIO.']['layout'], $conf['RADIO.']['layout.']) : $conf['RADIO.']['layout'];
+                        }
                         if ($radioLayout) {
                             $result = $radioLayout;
                         }
                     }
                     if ($confData['type'] == 'label') {
-                        $labelLayout = isset($conf['LABEL.']['layout.']) ? $this->cObj->stdWrap($conf['LABEL.']['layout'], $conf['LABEL.']['layout.']) : $conf['LABEL.']['layout'];
+                        $labelLayout = '';
+                        if (isset($conf['LABEL.']['layout'])) {
+                            $labelLayout = isset($conf['LABEL.']['layout.']) ? $this->cObj->stdWrap($conf['LABEL.']['layout'], $conf['LABEL.']['layout.']) : $conf['LABEL.']['layout'];
+                        }
                         if ($labelLayout) {
                             $result = $labelLayout;
                         }
@@ -670,7 +815,7 @@ class FormContentObject extends \TYPO3\CMS\Frontend\ContentObject\AbstractConten
                             $commentCode
                         ],
                         $result
-                    );
+                    ) . PHP_EOL;
                 }
             }
         }
@@ -680,71 +825,55 @@ class FormContentObject extends \TYPO3\CMS\Frontend\ContentObject\AbstractConten
         }
 
         // Redirect (external: where to go afterwards. internal: where to submit to)
-        $theRedirect = (isset($conf['redirect.']) ? $this->cObj->stdWrap($conf['redirect'], $conf['redirect.']) : $conf['redirect']);
+        $theRedirect = '';
+        if (isset($conf['redirect'])) {
+            $theRedirect = (isset($conf['redirect.']) ? $this->cObj->stdWrap($conf['redirect'], $conf['redirect.']) : $conf['redirect']);
+        }
         // redirect should be set to the page to redirect to after an external script has been used. If internal scripts is used, and if no 'type' is set that dictates otherwise, redirect is used as the url to jump to as long as it's an integer (page)
-        $target = (isset($conf['target.']) ? $this->cObj->stdWrap($conf['target'], $conf['target.']) : (isset($conf['target']) ? $conf['target'] : ''));
+        $target = '';
+        if (isset($conf['target'])) {
+            $target = (isset($conf['target.']) ? $this->cObj->stdWrap($conf['target'], $conf['target.']) : (isset($conf['target']) ? $conf['target'] : ''));
+        }
         // redirect should be set to the page to redirect to after an external script has been used. If internal scripts is used, and if no 'type' is set that dictates otherwise, redirect is used as the url to jump to as long as it's an integer (page)
-        $noCache = (isset($conf['no_cache.']) ? $this->cObj->stdWrap($conf['no_cache'], $conf['no_cache.']) : $conf['no_cache']);
+        $noCache = 0;
+        if (isset($conf['no_cache'])) {
+            $noCache = (isset($conf['no_cache.']) ? $this->cObj->stdWrap($conf['no_cache'], $conf['no_cache.']) : $conf['no_cache']);
+        }
+
         // redirect should be set to the page to redirect to after an external script has been used. If internal scripts is used, and if no 'type' is set that dictates otherwise, redirect is used as the url to jump to as long as it's an integer (page)
         $page = $this->getTypoScriptFrontendController()->page;
-        $mpValue = '';
-        if (method_exists($this->cObj, 'getClosestMPvalueForPage')) { // only TYPO3 < 9
-            $mpValue = $this->cObj->getClosestMPvalueForPage($page['uid']);
-        }
-        
-        $pageLinkBuilder = GeneralUtility::makeInstance(\TYPO3\CMS\Frontend\Typolink\PageLinkBuilder::class, $this->cObj, $this->getTypoScriptFrontendController());
-        $LD = [];
+        $linkedResult = $this->buildLinks($theRedirect, $page, $target);
 
-        // Internal: Just submit to current page
-        if (!$theRedirect) {
-            list($LD['totalURL'], $LD['linkText'], $LD['target']) = $pageLinkBuilder->build($page, '', $target, []);
-        } elseif (MathUtility::canBeInterpretedAsInteger($theRedirect)) {
-            // Internal: Submit to page with ID $theRedirect
-            $page = $this->getTypoScriptFrontendController()->sys_page->getPage_noCheck($theRedirect);
-            $page['pagetype'] = $mpValue ?? '';
-            list($LD['totalURL'], $LD['linkText'], $LD['target']) = $pageLinkBuilder->build($page, '', $target, []);
-        } else {
-            $page['pagetype'] = $mpValue ?? '';
-            // External URL, redirect-hidden field is rendered!
-            list($LD['totalURL'], $LD['linkText'], $LD['target']) = $pageLinkBuilder->build($page, '', $target, []);
-            $LD['totalURL'] = $theRedirect;
-            $hiddenfields .= '<input type="hidden" name="redirect" value="' . htmlspecialchars($LD['totalURL']) . '"' . $xhtmlFix . '>';
+        if ($theRedirect && !MathUtility::canBeInterpretedAsInteger($theRedirect)) {
+            $hiddenfields .= '<input type="hidden" name="redirect" value="' . htmlspecialchars($theRedirect) . '"' . $xhtmlFix . '>';
         }
+
+        $formtype = '';
         // Formtype (where to submit to!):
-        if ($propertyOverride['type']) {
+        if (!empty($propertyOverride['type'])) {
             $formtype = $propertyOverride['type'];
-        } else {
+        } else if (isset($conf['type'])) {
             $formtype = isset($conf['type.']) ? $this->cObj->stdWrap($conf['type'], $conf['type.']) : $conf['type'];
         }
-        // Submit to a specific page
-        if (MathUtility::canBeInterpretedAsInteger($formtype)) {
-            $page = $this->getTypoScriptFrontendController()->sys_page->getPage_noCheck($formtype);
-            $page['pagetype'] = $mpValue ?? '';
-            list($LD_A['totalURL'], $LD_A['linkText'], $LD_A['target']) = $pageLinkBuilder->build($page, '', $target, []);
-            $action = $LD_A['totalURL'];
-        } elseif ($formtype) {
-            // Submit to external script
-            $LD_A = $LD;
-            $action = $formtype;
-        } elseif (MathUtility::canBeInterpretedAsInteger($theRedirect)) {
-            $LD_A = $LD;
-            $action = $LD_A['totalURL'];
-        } else {
-            // Submit to "nothing" - which is current page
-            $page['pagetype'] = $mpValue ?? '';
-            list($LD_A['totalURL'], $LD_A['linkText'], $LD_A['target']) = $pageLinkBuilder->build($page, '', $target, []);
 
-//             $LD_A = $GLOBALS['TSFE']->tmpl->linkData($GLOBALS['TSFE']->page, $target, $noCache, '', '', $mpValue);
-            $action = $LD_A['totalURL'];
-        }
+        $actionTarget = '';
+        $action = $this->buildActionLink($actionTarget, $theRedirect, $page, $target, $formtype, $linkedResult);
+
         // Recipient:
-        $theEmail = isset($conf['recipient.']) ? $this->cObj->stdWrap($conf['recipient'], $conf['recipient.']) : $conf['recipient'];
+        $theEmail = '';
+        if (isset($conf['recipient'])) {
+            $theEmail = isset($conf['recipient.']) ? $this->cObj->stdWrap($conf['recipient'], $conf['recipient.']) : $conf['recipient'];
+        }
         if ($theEmail && !$GLOBALS['TYPO3_CONF_VARS']['FE']['secureFormmail']) {
             $theEmail = \JambageCom\TslibFetce\Utility\FormUtility::codeString($theEmail);
             $hiddenfields .= '<input type="hidden" name="recipient" value="' . htmlspecialchars($theEmail) . '"' . $xhtmlFix . '>';
         }
         // location data:
-        $location = isset($conf['locationData.']) ? $this->cObj->stdWrap($conf['locationData'], $conf['locationData.']) : $conf['locationData'];
+        $location = '';
+        if (isset($conf['locationData'])) {
+            $location = isset($conf['locationData.']) ? $this->cObj->stdWrap($conf['locationData'], $conf['locationData.']) : $conf['locationData'];
+        }
+
         if ($location) {
             if ($location == 'HTTP_POST_VARS' && isset($_POST['locationData'])) {
                 $locationData = GeneralUtility::_POST('locationData');
@@ -756,10 +885,13 @@ class FormContentObject extends \TYPO3\CMS\Frontend\ContentObject\AbstractConten
                     $locationData = $this->getTypoScriptFrontendController()->id . ':' . $this->cObj->currentRecord;
                 }
             }
-            $hiddenfields .= '<input type="hidden" name="locationData" value="' . htmlspecialchars($locationData) . '"' . $xhtmlFix . '>';
+            $hiddenfields .= '<input type="hidden" name="locationData" value="' . htmlspecialchars($locationData) . '"' . $xhtmlFix . '>' . PHP_EOL;
         }
+
         // Hidden fields:
-        if (is_array($conf['hiddenFields.'])) {
+        if (
+            !empty($conf['hiddenFields.'])
+        ) {
             foreach ($conf['hiddenFields.'] as $hF_key => $hF_conf) {
                 if (substr($hF_key, -1) != '.') {
                     $hF_value = $this->cObj->cObjGetSingle($hF_conf, $conf['hiddenFields.'][$hF_key . '.'], 'hiddenfields');
@@ -769,32 +901,52 @@ class FormContentObject extends \TYPO3\CMS\Frontend\ContentObject\AbstractConten
                         }
                         $hF_value = \JambageCom\TslibFetce\Utility\FormUtility::codeString($hF_value);
                     }
-                    $hiddenfields .= '<input type="hidden" name="' . $hF_key . '" value="' . htmlspecialchars($hF_value) . '"' . $xhtmlFix . '>';
+                    $hiddenfields .= '<input type="hidden" name="' . $hF_key . '" value="' . htmlspecialchars($hF_value) . '"' . $xhtmlFix . '>' . PHP_EOL;
                 }
             }
         }
 
         // Wrap all hidden fields in a div tag (see http://forge.typo3.org/issues/14491)
-        $hiddenfields = isset($conf['hiddenFields.']['stdWrap.']) ? $this->cObj->stdWrap($hiddenfields, $conf['hiddenFields.']['stdWrap.']) : '<div style="display:none;">' . $hiddenfields . '</div>';
-        if ($conf['REQ']) {
-            $goodMess = isset($conf['goodMess.']) ? $this->cObj->stdWrap($conf['goodMess'], $conf['goodMess.']) : $conf['goodMess'];
-            $badMess = isset($conf['badMess.']) ? $this->cObj->stdWrap($conf['badMess'], $conf['badMess.']) : $conf['badMess'];
-            $emailMess = isset($conf['emailMess.']) ? $this->cObj->stdWrap($conf['emailMess'], $conf['emailMess.']) : $conf['emailMess'];
+        $hiddenfields = 
+            isset($conf['hiddenFields.']['stdWrap.']) ? 
+                $this->cObj->stdWrap($hiddenfields, $conf['hiddenFields.']['stdWrap.']) :
+                '<div style="display:none;">' . $hiddenfields . '</div>';
+
+        if (!empty($conf['REQ'])) {
+            $goodMess = '';
+            if (isset($conf['goodMess'])) {
+                $goodMess = isset($conf['goodMess.']) ? $this->cObj->stdWrap($conf['goodMess'], $conf['goodMess.']) : $conf['goodMess'];
+            }
+            $badMess = '';
+            if (isset( $conf['badMess'])) {
+                $badMess = isset($conf['badMess.']) ? $this->cObj->stdWrap($conf['badMess'], $conf['badMess.']) : $conf['badMess'];
+            }
+            $emailMess = '';
+            if (isset($conf['emailMess'])) {
+                $emailMess = isset($conf['emailMess.']) ? $this->cObj->stdWrap($conf['emailMess'], $conf['emailMess.']) : $conf['emailMess'];
+            }
             $validateForm = ' onsubmit="return validateForm(' . GeneralUtility::quoteJSvalue($formName) . ',' . GeneralUtility::quoteJSvalue(implode(',', $fieldlist)) . ',' . GeneralUtility::quoteJSvalue($goodMess) . ',' . GeneralUtility::quoteJSvalue($badMess) . ',' . GeneralUtility::quoteJSvalue($emailMess) . ')"';
             
             $path = \TYPO3\CMS\Core\Utility\PathUtility::stripPathSitePrefix(
-                    \TYPO3\CMS\Core\Utility\ExtensionManagementUtility::extPath(TSLIB_FETCE_EXT)
+                    \TYPO3\CMS\Core\Utility\ExtensionManagementUtility::extPath('tslib_fetce')
                 );
             $this->getTypoScriptFrontendController()->additionalHeaderData['JSFormValidate'] = '<script type="text/javascript" src="' . GeneralUtility::createVersionNumberedFilename($this->getTypoScriptFrontendController()->absRefPrefix . $path . 'Resources/Public/JavaScript/jsfunc.validateform.js') . '"></script>';
         } else {
             $validateForm = '';
         }
         // Create form tag:
-        $theTarget = $theRedirect ? $LD['target'] : $LD_A['target'];
-        $method = isset($conf['method.']) ? $this->cObj->stdWrap($conf['method'], $conf['method.']) : $conf['method'];
+        $theTarget = $theRedirect ? $linkedResult->getTarget() : $actionTarget;
+        $method = '';
+        if (isset($conf['method'])) {
+            $method = isset($conf['method.']) ? $this->cObj->stdWrap($conf['method'], $conf['method.']) : $conf['method'];
+        }
         $content = [
-            '<form' . ' action="' . htmlspecialchars($action) . '"' . ' id="' . $formName . '"' . ($xhtmlStrict ? '' : ' name="' . $formName . '"') . ' enctype="multipart/form-data"' . ' method="' . ($method ? $method : 'post') . '"' . ($theTarget ? ' target="' . $theTarget . '"' : '') . $validateForm . '>',
-            $hiddenfields . $content,
+            '<form' . ' action="' . htmlspecialchars($action) . '"' . ' id="' . $formName . '"' .
+                ($xhtmlStrict ? '' : ' name="' . $formName . '"') . ' enctype="multipart/form-data"' . 
+                ' method="' . ($method ? $method : 'post') . '"' . 
+                ($theTarget ? ' target="' . $theTarget . '"' : '') .
+                $validateForm . '>',
+                $hiddenfields . $content,
             '</form>'
         ];
 
@@ -806,14 +958,18 @@ class FormContentObject extends \TYPO3\CMS\Frontend\ContentObject\AbstractConten
      * Returns a default value for a form field in the FORM cObject.
      * Page CANNOT be cached because that would include the inserted value for the current user.
      *
-     * @param bool $noValueInsert If noValueInsert OR if the no_cache flag for this page is NOT set, the original default value is returned.
-     * @param string $fieldName The POST var name to get default value for
-     * @param string $defaultVal The current default value
-     * @return string The default value, either from INPUT var or the current default, based on whether caching is enabled or not.
+     * @param bool $noValueInsert - If noValueInsert OR if the no_cache flag for this page is NOT set, the original default value is returned.
+     * @param string $fieldName - The POST var name to get default value for
+     * @param string $defaultVal - The current default value
+     * @return string -           The default value, either from INPUT var or the current default, based on whether caching is enabled or not.
      */
     protected function getFieldDefaultValue ($noValueInsert, $fieldName, $defaultVal)
     {
-        if (!$this->getTypoScriptFrontendController()->no_cache || !isset($_POST[$fieldName]) && !isset($_GET[$fieldName]) || $noValueInsert) {
+        if (
+            !$this->getTypoScriptFrontendController()->no_cache ||
+            !isset($_POST[$fieldName]) && !isset($_GET[$fieldName]) ||
+            $noValueInsert
+        ) {
             return $defaultVal;
         } else {
             return GeneralUtility::_GP($fieldName);

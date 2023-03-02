@@ -86,15 +86,15 @@ class TypoScriptFrontendDataController
                 isset($FEData[$table . '.']) &&
                 is_array($FEData[$table . '.'])
             ) {
-                $sep = $FEData[$table . '.']['separator'] ? $FEData[$table . '.']['separator'] : LF;
+                $sep = !empty($FEData[$table . '.']['separator']) ? $FEData[$table . '.']['separator'] : LF;
                 foreach ($id_arr as $id => $field_arr) {
                     $this->newData[$table][$id] = [];
                     if (strstr($id, 'NEW')) {   // NEW
                             // Defaults:
-                        if ($FEData[$table . '.']['default.']) {
+                        if (!empty($FEData[$table . '.']['default.'])) {
                             $this->newData[$table][$id] = $FEData[$table . '.']['default.'];
                         }
-                        if ($FEData[$table . '.']['autoInsertPID']) {
+                        if (!empty($FEData[$table . '.']['autoInsertPID'])) {
                             $this->newData[$table][$id]['pid'] = intval($GLOBALS['TSFE']->page['uid']);
                         }
                             // Insert external data:
@@ -143,7 +143,7 @@ class TypoScriptFrontendDataController
                                 ) {
                                     GeneralUtility::devLog(
                                         '"FEData": Submitted record to table ' .  $table . ' was doublePosted (key: ' . $doublePostCheckKey . '). Nothing saved.',
-                                        TSLIB_FETCE_EXT
+                                        'tslib_fetce'
                                     );
                                 }
                             } else {
@@ -165,20 +165,20 @@ class TypoScriptFrontendDataController
                             }
                         }
                             // Internal Override
-                        if (is_array($FEData[$table . '.']['overrideEdit.'])) {
+                        if (!empty($FEData[$table . '.']['overrideEdit.'])) {
                             foreach ($FEData[$table . '.']['overrideEdit.'] as $field => $value) {
                                 $this->newData[$table][$id][$field] = $value;
                             }
                         }
                     }
 
-                    if ($FEData[$table . '.']['userIdColumn']) {
+                    if (!empty($FEData[$table . '.']['userIdColumn'])) {
                         $this->newData[$table][$id][$FEData[$table . '.']['userIdColumn']] = intval($GLOBALS['TSFE']->fe_user->user['uid']);
                     }
                 }
 
-                $processScript = $FEData[$table . '.']['processScript'];
-                $processScriptConf = $FEData[$table . '.']['processScript.'];
+                $processScript = $FEData[$table . '.']['processScript'] ?? '';
+                $processScriptConf = $FEData[$table . '.']['processScript.'] ?? '';
 
                 if ($processScript) {
                     if (substr($processScript, -4) == '.php') {
@@ -265,17 +265,17 @@ class TypoScriptFrontendDataController
         $result = false;
 
         $extraList = $this->extraList;
-        if ($GLOBALS['TCA'][$table]['ctrl']['tstamp']) {
+        if (!empty($GLOBALS['TCA'][$table]['ctrl']['tstamp'])) {
             $field = $GLOBALS['TCA'][$table]['ctrl']['tstamp'];
             $dataArray[$field] = $GLOBALS['EXEC_TIME'];
             $extraList .= ',' . $field;
         }
-        if ($GLOBALS['TCA'][$table]['ctrl']['crdate']) {
+        if (!empty($GLOBALS['TCA'][$table]['ctrl']['crdate'])) {
             $field = $GLOBALS['TCA'][$table]['ctrl']['crdate'];
             $dataArray[$field] = $GLOBALS['EXEC_TIME'];
             $extraList .= ',' . $field;
         }
-        if ($GLOBALS['TCA'][$table]['ctrl']['cruser_id']) {
+        if (!empty($GLOBALS['TCA'][$table]['ctrl']['cruser_id'])) {
             $field = $GLOBALS['TCA'][$table]['ctrl']['cruser_id'];
             $dataArray[$field] = 0;
             $extraList .= ',' . $field;

@@ -16,6 +16,7 @@ namespace JambageCom\TslibFetce\Utility;
  */
  
 use TYPO3\CMS\Core\Database\ConnectionPool;
+use TYPO3\CMS\Core\Information\Typo3Version;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
  
@@ -119,18 +120,30 @@ class FormUtility
     */
     static public function checkDoublePostExist ($table, $doublePostField, $key)
     {
+        $typo3Version = GeneralUtility::makeInstance(Typo3Version::class);
+        $version = $typo3Version->getVersion();
+
         $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable($table);
         $queryBuilder->setRestrictions(GeneralUtility::makeInstance(\TYPO3\CMS\Core\Database\Query\Restriction\FrontendRestrictionContainer::class));
 
-        $result =
-            $queryBuilder
-                ->count('*')
-                ->from($table)
-                ->where(
-                    $queryBuilder->expr()->eq($doublePostField, $queryBuilder->createNamedParameter($key, \PDO::PARAM_STR))
-                    )
+        $queryBuilder
+            ->count('*')
+            ->from($table)
+            ->where(
+                $queryBuilder->expr()->eq($doublePostField, $queryBuilder->createNamedParameter($key, \PDO::PARAM_STR))
+                );
+
+        if (
+            version_compare($version, '12.0.0', '>=') // Doctrine DBAL 3
+        ) {
+            $result = $queryBuilder
+                ->executeQuery()
+                ->fetchOne();
+        } else {
+            $result = $queryBuilder
                 ->execute()
                 ->fetchColumn(0);
+        }
 
         return $result;
     }
