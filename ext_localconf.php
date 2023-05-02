@@ -1,7 +1,8 @@
 <?php
 defined('TYPO3') || die('Access denied.');
 
-call_user_func(function () {
+call_user_func(function ()
+{
     if (!defined ('TSLIB_FETCE_EXT')) {
         define('TSLIB_FETCE_EXT', 'tslib_fetce');
     }
