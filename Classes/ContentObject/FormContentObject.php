@@ -23,6 +23,8 @@ use TYPO3\CMS\Frontend\Typolink\LinkResultInterface;
 use TYPO3\CMS\Frontend\Typolink\LinkResult;
 use TYPO3\CMS\Frontend\Typolink\PageLinkBuilder;
 
+use JambageCom\Div2007\Security\TransmissionSecurity;
+use JambageCom\Div2007\Utility\HtmlUtility;
 
 
 /**
@@ -153,8 +155,8 @@ class FormContentObject extends \TYPO3\CMS\Frontend\ContentObject\AbstractConten
     public function render ($conf = [], $formData = '')
     {
         $content = '';
-        $xhtmlFix = \JambageCom\Div2007\Utility\HtmlUtility::determineXhtmlFix();
-        $security = GeneralUtility::makeInstance(\JambageCom\Div2007\Security\TransmissionSecurity::class);
+        $xhtmlFix = HtmlUtility::determineXhtmlFix();
+        $security = GeneralUtility::makeInstance(TransmissionSecurity::class);
         $encryptionFix = '';
         $useRsa = false;
         $rsaArray = [];
@@ -169,8 +171,7 @@ class FormContentObject extends \TYPO3\CMS\Frontend\ContentObject\AbstractConten
                 if (!ExtensionManagementUtility::isLoaded($extension)) {
                     $messageMask =
                         $this->getTypoScriptFrontendController()->sL(
-                        'LLL:EXT:' . DIV2007_EXT . DIV2007_LANGUAGE_SUBPATH . 'locallang.xlf:error.internal_required_extension_missing');
-
+                        'LLL:EXT:div2007/Resources/Private/Language/locallang.xlf:error.internal_required_extension_missing');
                     $message = sprintf($messageMask, $extension);
                     return $message;
                 }
@@ -294,7 +295,7 @@ class FormContentObject extends \TYPO3\CMS\Frontend\ContentObject\AbstractConten
         $propertyOverride = [];
         $fieldname_hashArray = [];
         $counter = 0;
-        $xhtmlStrict = GeneralUtility::inList('xhtml_strict,xhtml_11,xhtml_2', $this->getTypoScriptFrontendController()->xhtmlDoctype);
+        $xhtmlStrict = GeneralUtility::inList('xhtml_strict,xhtml_11,xhtml+rdfa_10', $this->getTypoScriptFrontendController()->xhtmlDoctype);
         // Formname
         $formName = isset($conf['formName.']) ? $this->cObj->stdWrap($conf['formName'], $conf['formName.']) : $conf['formName'];
         $formName = $this->cleanFormName($formName);
@@ -424,6 +425,7 @@ class FormContentObject extends \TYPO3\CMS\Frontend\ContentObject\AbstractConten
                 if (isset($conf['accessibility'])) {
                     $accessibility = isset($conf['accessibility.']) ? $this->cObj->stdWrap($conf['accessibility'], $conf['accessibility.']) : $conf['accessibility'];
                 }
+
                 if ($accessibility || $xhtmlStrict) {
                     $elementIdAttribute = ' id="' . $prefix . $this->cleanFormName($fName) . '"';
                 } else {

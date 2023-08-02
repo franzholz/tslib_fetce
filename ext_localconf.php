@@ -1,12 +1,8 @@
 <?php
 defined('TYPO3') || die('Access denied.');
 
-call_user_func(function ()
+call_user_func(function($extensionKey)
 {
-    if (!defined ('TSLIB_FETCE_EXT')) {
-        define('TSLIB_FETCE_EXT', 'tslib_fetce');
-    }
-
     $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['tslib/class.tslib_fe.php']['checkDataSubmission'][] = \JambageCom\TslibFetce\Controller\TypoScriptFrontendTceController::class;
 
     $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['tslib/class.tslib_fe.php']['configArrayPostProc'][] = (\JambageCom\TslibFetce\Hooks\FrontendHooks::class) . '->getFeDataConfigArray';
@@ -54,5 +50,4 @@ call_user_func(function ()
             ]
         ]
     ];    
-});
-
+}, 'tslib_fetce');

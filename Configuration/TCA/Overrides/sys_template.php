@@ -1,34 +1,33 @@
 <?php
 defined('TYPO3') || die('Access denied.');
 
-call_user_func(function ()
+call_user_func(function($extensionKey)
 {
     \TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addTypoScript(
-        'tslib_fetce', 
+        $extensionKey, 
         'constants',
-        '@import \'EXT:tslib_fetce/Configuration/TypoScript/Form/constants.txt\'',
+        '@import \'EXT:tslib_fetce/Configuration/TypoScript/Form/constants.typoscript\'',
         'defaultContentRendering'
     );
     
     \TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addTypoScript(
-        'tslib_fetce', 
+        $extensionKey, 
         'setup',
-        '@import \'EXT:' . 'tslib_fetce' . '/Configuration/TypoScript/Form/setup.txt\'', 'defaultContentRendering');
+        '@import \'EXT:' . $extensionKey . '/Configuration/TypoScript/Form/setup.typoscript\'', 'defaultContentRendering');
 
     // Add Default TypoScript for CType "search" after default content rendering
     
     \TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addTypoScript(
-        'tslib_fetce',
+        $extensionKey,
         'constants', 
-        '@import \'EXT:' . 'tslib_fetce' . '/Configuration/TypoScript/Search/constants.txt\'',
+        '@import \'EXT:' . $extensionKey . '/Configuration/TypoScript/Search/constants.typoscript\'',
         'defaultContentRendering'
     );
     
     \TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addTypoScript(
-        'tslib_fetce',
+        $extensionKey,
         'setup',
-        '@import \'EXT:' . 'tslib_fetce' . '/Configuration/TypoScript/Search/setup.txt\'',
+        '@import \'EXT:' . $extensionKey . '/Configuration/TypoScript/Search/setup.typoscript\'',
         'defaultContentRendering'
     );
-});
-
+}, 'tslib_fetce');
