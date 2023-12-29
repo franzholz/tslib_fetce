@@ -26,7 +26,6 @@ use TYPO3\CMS\Frontend\Typolink\PageLinkBuilder;
 use JambageCom\Div2007\Security\TransmissionSecurity;
 use JambageCom\Div2007\Utility\HtmlUtility;
 
-
 /**
  * Contains FORM class object.
  */
@@ -35,11 +34,11 @@ class FormContentObject extends \TYPO3\CMS\Frontend\ContentObject\AbstractConten
     /**
     * Builds a TypoLink to a certain page
     */
-    protected function buildLinks ($theRedirect, $page, $target): LinkResultInterface
+    protected function buildLinks($theRedirect, $page, $target): LinkResultInterface
     {
         $linkedResult = null;
         $url = '';
-        $linkText = ''; 
+        $linkText = '';
         $linkTarget = '';
         $pageLinkBuilder = GeneralUtility::makeInstance(PageLinkBuilder::class, $this->cObj, $this->getTypoScriptFrontendController());
 
@@ -80,11 +79,11 @@ class FormContentObject extends \TYPO3\CMS\Frontend\ContentObject\AbstractConten
     /**
     * Builds a TypoLink to a certain page
     */
-    protected function buildActionLink (&$actionTarget, $page, $theRedirect, $target, $formtype, LinkResultInterface $previousLinkedResult): string
+    protected function buildActionLink(&$actionTarget, $page, $theRedirect, $target, $formtype, LinkResultInterface $previousLinkedResult): string
     {
         $linkedResult = null;
         $action = '';
-        $actionText = ''; 
+        $actionText = '';
         $actionTarget = '';
         $pageLinkBuilder = GeneralUtility::makeInstance(PageLinkBuilder::class, $this->cObj, $this->getTypoScriptFrontendController());
 
@@ -152,7 +151,7 @@ class FormContentObject extends \TYPO3\CMS\Frontend\ContentObject\AbstractConten
      * @param array $formData Alternative formdata overriding whatever comes from TypoScript
      * @return string Output
      */
-    public function render ($conf = [], $formData = '')
+    public function render($conf = [], $formData = '')
     {
         $content = '';
         $xhtmlFix = HtmlUtility::determineXhtmlFix();
@@ -160,7 +159,7 @@ class FormContentObject extends \TYPO3\CMS\Frontend\ContentObject\AbstractConten
         $encryptionFix = '';
         $useRsa = false;
         $rsaArray = [];
-        
+
         if (
             isset($conf['rsa']) &&
             $conf['rsa'] == '1' &&
@@ -171,7 +170,8 @@ class FormContentObject extends \TYPO3\CMS\Frontend\ContentObject\AbstractConten
                 if (!ExtensionManagementUtility::isLoaded($extension)) {
                     $messageMask =
                         $this->getTypoScriptFrontendController()->sL(
-                        'LLL:EXT:div2007/Resources/Private/Language/locallang.xlf:error.internal_required_extension_missing');
+                            'LLL:EXT:div2007/Resources/Private/Language/locallang.xlf:error.internal_required_extension_missing'
+                        );
                     $message = sprintf($messageMask, $extension);
                     return $message;
                 }
@@ -248,8 +248,8 @@ class FormContentObject extends \TYPO3\CMS\Frontend\ContentObject\AbstractConten
                                     $temp_valueArray = [];
                                     $valueArrayLabel = '';
                                     if (isset($singleKey_valueArray['label'])) {
-                                        $valueArrayLabel = 
-                                            isset($singleKey_valueArray['label.']) ? 
+                                        $valueArrayLabel =
+                                            isset($singleKey_valueArray['label.']) ?
                                                 $this->cObj->stdWrap($singleKey_valueArray['label'], $singleKey_valueArray['label.']) :
                                                 $singleKey_valueArray['label'];
                                     }
@@ -397,7 +397,7 @@ class FormContentObject extends \TYPO3\CMS\Frontend\ContentObject\AbstractConten
                 $addParams = '';
                 // Additional parameters
                 if (trim($confData['type'])) {
-                    
+
                     if (isset($conf['params.'][$confData['type']])) {
                         $addParams = isset($conf['params.'][$confData['type'] . '.']) ? trim($this->cObj->stdWrap($conf['params.'][$confData['type']], $conf['params.'][$confData['type'] . '.'])) : trim($conf['params.'][$confData['type']]);
                     } else {
@@ -414,7 +414,7 @@ class FormContentObject extends \TYPO3\CMS\Frontend\ContentObject\AbstractConten
                             $conf['dontMd5FieldNames.']
                         ) :
                         $conf['dontMd5FieldNames'];
-                
+
                 if ($dontMd5FieldNames) {
                     $fName = $confData['fieldname'];
                 } else {
@@ -458,7 +458,7 @@ class FormContentObject extends \TYPO3\CMS\Frontend\ContentObject\AbstractConten
                         if (isset($conf['noValueInsert'])) {
                             $noValueInsert = isset($conf['noValueInsert.']) ? $this->cObj->stdWrap($conf['noValueInsert'], $conf['noValueInsert.']) : $conf['noValueInsert'];
                         }
-                        $default = $this->getFieldDefaultValue($noValueInsert, $confData['fieldname'], str_replace('\\n', LF, isset($parts[2]) ? trim($parts[2]) : '' ));
+                        $default = $this->getFieldDefaultValue($noValueInsert, $confData['fieldname'], str_replace('\\n', LF, isset($parts[2]) ? trim($parts[2]) : ''));
                         $fieldCode = sprintf('<textarea name="%s"%s cols="%s" rows="%s"%s%s>%s</textarea>', $confData['fieldname'], $elementIdAttribute, $cols, $rows, $wrap, $addParams, htmlspecialchars($default));
                         break;
                     case 'input':
@@ -484,16 +484,22 @@ class FormContentObject extends \TYPO3\CMS\Frontend\ContentObject\AbstractConten
                                 $this->cObj->stdWrap($conf['noValueInsert'], $conf['noValueInsert.']) :
                                 $conf['noValueInsert'];
                         }
-                        $default = $this->getFieldDefaultValue($noValueInsert, $confData['fieldname'], (isset($parts[2]) ? trim($parts[2]) : '' ));
+                        $default = $this->getFieldDefaultValue($noValueInsert, $confData['fieldname'], (isset($parts[2]) ? trim($parts[2]) : ''));
                         if ($confData['type'] == 'password') {
                             $default = '';
                         }
                         $max = !empty($fParts[2]) ? ' maxlength="' . MathUtility::forceIntegerInRange($fParts[2], 1, 1000) . '"' : '';
                         $theType = $confData['type'] == 'input' ? 'text' : 'password';
-                        $fieldCode = 
+                        $fieldCode =
                             sprintf(
                                 '<input type="%s" name="%s"%s size="%s"%s value="%s"%s' . $useFix . $xhtmlFix . '>',
-                                $theType, $confData['fieldname'], $elementIdAttribute, $size, $max, htmlspecialchars($default), $addParams
+                                $theType,
+                                $confData['fieldname'],
+                                $elementIdAttribute,
+                                $size,
+                                $max,
+                                htmlspecialchars($default),
+                                $addParams
                             );
                         break;
                     case 'file':
@@ -680,7 +686,7 @@ class FormContentObject extends \TYPO3\CMS\Frontend\ContentObject\AbstractConten
                         } else {
                             $fieldCode = sprintf('<input type="submit" name="%s"%s value="%s"%s' . $xhtmlFix . '>', $confData['fieldname'], $elementIdAttribute, htmlspecialchars($value, ENT_COMPAT, 'UTF-8', false), $addParams);
                         }
-                       break;
+                        break;
                     case 'reset':
                         $value = (isset($parts[2]) ? trim($parts[2]) : '');
                         $fieldCode = sprintf('<input type="reset" name="%s"%s value="%s"%s' . $xhtmlFix . '>', $confData['fieldname'], $elementIdAttribute, htmlspecialchars($value, ENT_COMPAT, 'UTF-8', false), $addParams);
@@ -722,7 +728,7 @@ class FormContentObject extends \TYPO3\CMS\Frontend\ContentObject\AbstractConten
                     }
 
                     if (!empty($confData['required'])) {
-                        if ($labelArray[$dataKey] != '') { 
+                        if ($labelArray[$dataKey] != '') {
                             $fieldlist[] = $confData['fieldname'];
                             $fieldlist[] = $labelArray[$dataKey];
                         }
@@ -854,7 +860,7 @@ class FormContentObject extends \TYPO3\CMS\Frontend\ContentObject\AbstractConten
         // Formtype (where to submit to!):
         if (!empty($propertyOverride['type'])) {
             $formtype = $propertyOverride['type'];
-        } else if (isset($conf['type'])) {
+        } elseif (isset($conf['type'])) {
             $formtype = isset($conf['type.']) ? $this->cObj->stdWrap($conf['type'], $conf['type.']) : $conf['type'];
         }
 
@@ -909,8 +915,8 @@ class FormContentObject extends \TYPO3\CMS\Frontend\ContentObject\AbstractConten
         }
 
         // Wrap all hidden fields in a div tag (see http://forge.typo3.org/issues/14491)
-        $hiddenfields = 
-            isset($conf['hiddenFields.']['stdWrap.']) ? 
+        $hiddenfields =
+            isset($conf['hiddenFields.']['stdWrap.']) ?
                 $this->cObj->stdWrap($hiddenfields, $conf['hiddenFields.']['stdWrap.']) :
                 '<div style="display:none;">' . $hiddenfields . '</div>';
 
@@ -920,7 +926,7 @@ class FormContentObject extends \TYPO3\CMS\Frontend\ContentObject\AbstractConten
                 $goodMess = isset($conf['goodMess.']) ? $this->cObj->stdWrap($conf['goodMess'], $conf['goodMess.']) : $conf['goodMess'];
             }
             $badMess = '';
-            if (isset( $conf['badMess'])) {
+            if (isset($conf['badMess'])) {
                 $badMess = isset($conf['badMess.']) ? $this->cObj->stdWrap($conf['badMess'], $conf['badMess.']) : $conf['badMess'];
             }
             $emailMess = '';
@@ -928,10 +934,10 @@ class FormContentObject extends \TYPO3\CMS\Frontend\ContentObject\AbstractConten
                 $emailMess = isset($conf['emailMess.']) ? $this->cObj->stdWrap($conf['emailMess'], $conf['emailMess.']) : $conf['emailMess'];
             }
             $validateForm = ' onsubmit="return validateForm(' . GeneralUtility::quoteJSvalue($formName) . ',' . GeneralUtility::quoteJSvalue(implode(',', $fieldlist)) . ',' . GeneralUtility::quoteJSvalue($goodMess) . ',' . GeneralUtility::quoteJSvalue($badMess) . ',' . GeneralUtility::quoteJSvalue($emailMess) . ')"';
-            
+
             $path = \TYPO3\CMS\Core\Utility\PathUtility::stripPathSitePrefix(
-                    \TYPO3\CMS\Core\Utility\ExtensionManagementUtility::extPath('tslib_fetce')
-                );
+                \TYPO3\CMS\Core\Utility\ExtensionManagementUtility::extPath('tslib_fetce')
+            );
             $this->getTypoScriptFrontendController()->additionalHeaderData['JSFormValidate'] = '<script type="text/javascript" src="' . GeneralUtility::createVersionNumberedFilename($this->getTypoScriptFrontendController()->absRefPrefix . $path . 'Resources/Public/JavaScript/jsfunc.validateform.js') . '"></script>';
         } else {
             $validateForm = '';
@@ -944,8 +950,8 @@ class FormContentObject extends \TYPO3\CMS\Frontend\ContentObject\AbstractConten
         }
         $content = [
             '<form' . ' action="' . htmlspecialchars($action) . '"' . ' id="' . $formName . '"' .
-                ($xhtmlStrict ? '' : ' name="' . $formName . '"') . ' enctype="multipart/form-data"' . 
-                ' method="' . ($method ? $method : 'post') . '"' . 
+                ($xhtmlStrict ? '' : ' name="' . $formName . '"') . ' enctype="multipart/form-data"' .
+                ' method="' . ($method ? $method : 'post') . '"' .
                 ($theTarget ? ' target="' . $theTarget . '"' : '') .
                 $validateForm . '>',
                 $hiddenfields . $content,
@@ -965,7 +971,7 @@ class FormContentObject extends \TYPO3\CMS\Frontend\ContentObject\AbstractConten
      * @param string $defaultVal - The current default value
      * @return string -           The default value, either from INPUT var or the current default, based on whether caching is enabled or not.
      */
-    protected function getFieldDefaultValue ($noValueInsert, $fieldName, $defaultVal)
+    protected function getFieldDefaultValue($noValueInsert, $fieldName, $defaultVal)
     {
         if (
             !$this->getTypoScriptFrontendController()->no_cache ||
@@ -984,7 +990,7 @@ class FormContentObject extends \TYPO3\CMS\Frontend\ContentObject\AbstractConten
      * @param string $name Input string
      * @return string the cleaned string
      */
-    protected function cleanFormName ($name)
+    protected function cleanFormName($name)
     {
         // Turn data[x][y] into data:x:y:
         $name = preg_replace('/\\[|\\]\\[?/', ':', trim($name));

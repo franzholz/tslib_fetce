@@ -1,4 +1,5 @@
 <?php
+
 namespace JambageCom\TslibFetce\Hooks\TypoScriptFrontendController;
 
 /*
@@ -29,7 +30,8 @@ class ContentPostProcHook
 {
     private LoggerInterface $logger;
 
-    public function __construct(LoggerInterface $logger) {
+    public function __construct(LoggerInterface $logger)
+    {
         $this->logger = $logger;
     }
 
@@ -40,7 +42,7 @@ class ContentPostProcHook
      * @param array $parameters
      * @param \TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController $parentObject
      */
-    public function contentPostProcAll (&$parameters, $parentObject)
+    public function contentPostProcAll(&$parameters, $parentObject)
     {
         // Fix local anchors in links, if flag set
         if ($this->doLocalAnchorFix($parentObject) == 'all') {
@@ -61,7 +63,7 @@ class ContentPostProcHook
      * @param array $parameters
      * @param \TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController $parentObject
      */
-    public function contentPostProcCached (&$parameters, $parentObject)
+    public function contentPostProcCached(&$parameters, $parentObject)
     {
         // Fix local anchors in links, if flag set
         if ($this->doLocalAnchorFix($parentObject) == 'cached') {
@@ -82,7 +84,7 @@ class ContentPostProcHook
      * @param array $parameters
      * @param \TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController $parentObject
      */
-    public function contentPostProcOutput (&$parameters, $parentObject)
+    public function contentPostProcOutput(&$parameters, $parentObject)
     {
         // Fix local anchors in links, if flag set
         if ($this->doLocalAnchorFix($parentObject) == 'output') {
@@ -102,7 +104,7 @@ class ContentPostProcHook
      * @param \TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController $parentObject
      * @return string Keyword: "all", "cached", "none" or "output"
      */
-    protected function doXHTML_cleaning ($parentObject)
+    protected function doXHTML_cleaning($parentObject)
     {
         if (
             isset($parentObject->config['config']['xmlprologue']) &&
@@ -120,7 +122,7 @@ class ContentPostProcHook
      * @param \TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController $parentObject
      * @return string Keyword: "all", "cached" or "output"
      */
-    public function doLocalAnchorFix ($parentObject)
+    public function doLocalAnchorFix($parentObject)
     {
         return isset($parentObject->config['config']['prefixLocalAnchors']) ? $parentObject->config['config']['prefixLocalAnchors'] : null;
     }
@@ -132,7 +134,7 @@ class ContentPostProcHook
      * @param \TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController $parentObject
      * @return void Works directly on $this->content
      */
-    protected function prefixLocalAnchorsWithScript ($parentObject)
+    protected function prefixLocalAnchorsWithScript($parentObject)
     {
         if (!$parentObject->getContext()->getPropertyFromAspect('backend.user', 'isLoggedIn', false)) {
             if (!is_object($parentObject->cObj)) {

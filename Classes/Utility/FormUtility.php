@@ -14,12 +14,11 @@ namespace JambageCom\TslibFetce\Utility;
  *
  * The TYPO3 project - inspiring people to share!
  */
- 
+
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Information\Typo3Version;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
- 
 /**
  * Contains some functions that were been previously found
  * inside TypoScriptFrontendController
@@ -37,7 +36,7 @@ class FormUtility
      * @param bool $decode If set, string is decoded, not encoded.
      * @return string encoded/decoded version of $string
      */
-    public static function codeString ($string, $decode = false)
+    public static function codeString($string, $decode = false)
     {
         if ($decode) {
             list($md5Hash, $str) = explode(':', $string, 2);
@@ -69,7 +68,7 @@ class FormUtility
      * @param string $string String to crypt, may be empty
      * @return string binary crypt string, will have the same length as $string
      */
-    protected static function roundTripCryptString ($string)
+    protected static function roundTripCryptString($string)
     {
         $out = '';
         $cleartextLength = strlen($string);
@@ -90,7 +89,7 @@ class FormUtility
     * @return	integer		And unsigned 32bit integer hash
     * @access private
     */
-    static public function calcDoublePostKey (array $parameter, $doublePostCheckFields)
+    public static function calcDoublePostKey(array $parameter, $doublePostCheckFields)
     {
         if ($doublePostCheckFields != '') {
             $fieldArray = GeneralUtility::trimExplode(',', $doublePostCheckFields);
@@ -118,7 +117,7 @@ class FormUtility
     * @return	integer		The number of found rows. If zero then no "double-post" was found and its all OK.
     * @access private
     */
-    static public function checkDoublePostExist ($table, $doublePostField, $key)
+    public static function checkDoublePostExist($table, $doublePostField, $key)
     {
         $typo3Version = GeneralUtility::makeInstance(Typo3Version::class);
         $version = $typo3Version->getVersion();
@@ -131,7 +130,7 @@ class FormUtility
             ->from($table)
             ->where(
                 $queryBuilder->expr()->eq($doublePostField, $queryBuilder->createNamedParameter($key, \PDO::PARAM_STR))
-                );
+            );
 
         if (
             version_compare($version, '12.0.0', '>=') // Doctrine DBAL 3

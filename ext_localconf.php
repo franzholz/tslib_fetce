@@ -1,8 +1,8 @@
 <?php
+
 defined('TYPO3') || die('Access denied.');
 
-call_user_func(function($extensionKey)
-{
+call_user_func(function ($extensionKey) {
     $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['tslib/class.tslib_fe.php']['checkDataSubmission'][] = \JambageCom\TslibFetce\Controller\TypoScriptFrontendTceController::class;
 
     $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['tslib/class.tslib_fe.php']['configArrayPostProc'][] = (\JambageCom\TslibFetce\Hooks\FrontendHooks::class) . '->getFeDataConfigArray';
@@ -16,7 +16,7 @@ call_user_func(function($extensionKey)
     $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['tslib/class.tslib_fe.php']['contentPostProc-all'][] = (\JambageCom\TslibFetce\Hooks\TypoScriptFrontendController\ContentPostProcHook::class) . '->contentPostProcAll';
     $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['tslib/class.tslib_fe.php']['contentPostProc-cached'][] = (\JambageCom\TslibFetce\Hooks\TypoScriptFrontendController\ContentPostProcHook::class) . '->contentPostProcCached';
     $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['tslib/class.tslib_fe.php']['contentPostProc-output'][] = (\JambageCom\TslibFetce\Hooks\TypoScriptFrontendController\ContentPostProcHook::class) . '->contentPostProcOutput';
-    
+
     // Add configuration for the logging API
     $GLOBALS['TYPO3_CONF_VARS']['LOG']['JambageCom']['TslibFetce']['EventListener']['AfterCacheableContentIsGenerated']['writerConfiguration'] = [
         // configuration for ERROR level log entries
@@ -49,5 +49,5 @@ call_user_func(function($extensionKey)
                 'logFile' => \TYPO3\CMS\Core\Core\Environment::getVarPath() . '/log/tslib_fetce.log'
             ]
         ]
-    ];    
+    ];
 }, 'tslib_fetce');

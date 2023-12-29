@@ -38,7 +38,6 @@ use TYPO3\CMS\Extbase\Configuration\ConfigurationManager;
 
 use JambageCom\TslibFetce\Utility\FormUtility;
 
-
 /**
  * Form-data processing class.
  * Used by the FE_DATA object found in TSref. Quite old fashioned and used only by a few extensions, like good old 'tt_guest' and 'tt_board'
@@ -57,7 +56,8 @@ class TypoScriptFrontendDataController
     public $newData = [];
     public $extraList = 'pid';
 
-    public function __construct(LoggerInterface $logger) {
+    public function __construct(LoggerInterface $logger)
+    {
         $this->logger = $logger;
     }
 
@@ -77,7 +77,7 @@ class TypoScriptFrontendDataController
     * @return	void
     * @see TYPO3 4.5 tslib_fe::fe_tce(), includeScripts()
     */
-    public function start ($data, $FEData)
+    public function start($data, $FEData)
     {
         $formUtility = GeneralUtility::makeInstance(FormUtility::class);
         foreach ($data as $table => $id_arr) {
@@ -90,19 +90,19 @@ class TypoScriptFrontendDataController
                 foreach ($id_arr as $id => $field_arr) {
                     $this->newData[$table][$id] = [];
                     if (strstr($id, 'NEW')) {   // NEW
-                            // Defaults:
+                        // Defaults:
                         if (!empty($FEData[$table . '.']['default.'])) {
                             $this->newData[$table][$id] = $FEData[$table . '.']['default.'];
                         }
                         if (!empty($FEData[$table . '.']['autoInsertPID'])) {
                             $this->newData[$table][$id]['pid'] = intval($GLOBALS['TSFE']->page['uid']);
                         }
-                            // Insert external data:
+                        // Insert external data:
                         if (is_array($field_arr)) {
                             foreach ($field_arr as $field => $value) {
                                 if ($FEData[$table . '.']['allowNew.'][$field]) {
                                     if (is_array($value)) {
-                                        $this->newData[$table][$id][$field] = implode($sep,$value);
+                                        $this->newData[$table][$id][$field] = implode($sep, $value);
                                     } else {
                                         $this->newData[$table][$id][$field] = $value;
                                     }
@@ -110,7 +110,7 @@ class TypoScriptFrontendDataController
                             }
                         }
 
-                            // Double post check
+                        // Double post check
                         $dPC_field = $FEData[$table . '.']['doublePostCheck'];
                         $doublePostCheckFields = '';
                         if (
@@ -152,7 +152,7 @@ class TypoScriptFrontendDataController
                             }
                         }
                     } else {    // EDIT
-                            // Insert external data:
+                        // Insert external data:
                         if (is_array($field_arr)) {
                             foreach ($field_arr as $field => $value) {
                                 if ($FEData[$table . '.']['allowEdit.'][$field]) {
@@ -164,7 +164,7 @@ class TypoScriptFrontendDataController
                                 }
                             }
                         }
-                            // Internal Override
+                        // Internal Override
                         if (!empty($FEData[$table . '.']['overrideEdit.'])) {
                             foreach ($FEData[$table . '.']['overrideEdit.'] as $field => $value) {
                                 $this->newData[$table][$id][$field] = $value;
@@ -190,7 +190,7 @@ class TypoScriptFrontendDataController
                             $this->extScripts[$table] = $incFile;
                             $this->extScriptsConf[$table] = $processScriptConf;
                         }
-                    } else if (strpos($processScript, '->')) {
+                    } elseif (strpos($processScript, '->')) {
                         $this->extUserFuncs[$table] = $processScript;
                         $this->extUserFuncsConf[$table] = $processScriptConf;
                     }
@@ -205,7 +205,7 @@ class TypoScriptFrontendDataController
     * @return	void
     * @see tslib_fe::fe_tce(), includeScripts()
     */
-    public function includeScripts ()
+    public function includeScripts()
     {
         foreach ($this->extScripts as $incFile_table => $incFile) {
             if (@is_file($incFile)) {
@@ -223,7 +223,7 @@ class TypoScriptFrontendDataController
     * @return   void
     * @see tslib_fe::fe_tce(), executeFunctions()
     */
-    public function executeFunctions ()
+    public function executeFunctions()
     {
         // Instantiate \TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer to execute the user function
         /** @var $cObj ContentObjectRenderer */
@@ -260,7 +260,7 @@ class TypoScriptFrontendDataController
     * @param	array		record array with key/value pairs being field/values (already escaped)
     * @return	int       uid of successfully inserted row
     */
-    public function execNEWinsert ($table, $dataArray)
+    public function execNEWinsert($table, $dataArray)
     {
         $result = false;
 
@@ -318,7 +318,7 @@ class TypoScriptFrontendDataController
     * @return	void
     * @see tslib_fe::set_no_cache()
     */
-    public function clear_cacheCmd ($cacheCmd)
+    public function clear_cacheCmd($cacheCmd)
     {
         $cacheCmd = intval($cacheCmd);
 
@@ -342,7 +342,7 @@ class TypoScriptFrontendDataController
     * @return	array		TypoScript properties from FEData.[table] - if exists.
     *               		empty if nothing has been defined
     */
-    public function getConf ($table)
+    public function getConf($table)
     {
         $result = [];
         if (isset($this->extScriptsConf[$table])) {
@@ -351,4 +351,3 @@ class TypoScriptFrontendDataController
         return $result;
     }
 }
-
