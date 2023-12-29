@@ -39,7 +39,7 @@ class FormUtility
     public static function codeString($string, $decode = false)
     {
         if ($decode) {
-            list($md5Hash, $str) = explode(':', $string, 2);
+            [$md5Hash, $str] = explode(':', $string, 2);
             $newHash = substr(md5($GLOBALS['TYPO3_CONF_VARS']['SYS']['encryptionKey'] . ':' . $str), 0, 10);
             if ($md5Hash === $newHash) {
                 $str = base64_decode($str);

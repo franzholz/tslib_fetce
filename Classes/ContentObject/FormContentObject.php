@@ -217,7 +217,7 @@ class FormContentObject extends AbstractContentObject
                         if (isset($singleKeyArray['label'])) {
                             $label = isset($singleKeyArray['label.']) ? $this->cObj->stdWrap($singleKeyArray['label'], $singleKeyArray['label.']) : $singleKeyArray['label'];
                         }
-                        list($temp[0]) = explode('|', $label);
+                        [$temp[0]] = explode('|', $label);
                         $rsa = '';
                         if (isset($singleKeyArray['rsa'])) {
                             $rsa = intval($singleKeyArray['rsa']);
@@ -227,7 +227,7 @@ class FormContentObject extends AbstractContentObject
                         if (isset($singleKeyArray['type'])) {
                             $type = isset($singleKeyArray['type.']) ? $this->cObj->stdWrap($singleKeyArray['type'], $singleKeyArray['type.']) : $singleKeyArray['type'];
                         }
-                        list($temp[1]) = explode('|', $type);
+                        [$temp[1]] = explode('|', $type);
                         $required = '';
                         if (isset($singleKeyArray['required'])) {
                             $required = isset($singleKeyArray['required.']) ? $this->cObj->stdWrap($singleKeyArray['required'], $singleKeyArray['required.']) : $singleKeyArray['required'];
@@ -239,7 +239,7 @@ class FormContentObject extends AbstractContentObject
                         if (isset($singleKeyArray['value'])) {
                             $singleValue = isset($singleKeyArray['value.']) ? $this->cObj->stdWrap($singleKeyArray['value'], $singleKeyArray['value.']) : $singleKeyArray['value'];
                         }
-                        list($temp[2]) = explode('|', $singleValue);
+                        [$temp[2]] = explode('|', $singleValue);
                         // If value array is set, then implode those values.
                         if (
                             isset($singleKeyArray['valueArray.']) &&
@@ -256,7 +256,7 @@ class FormContentObject extends AbstractContentObject
                                                 $this->cObj->stdWrap($singleKey_valueArray['label'], $singleKey_valueArray['label.']) :
                                                 $singleKey_valueArray['label'];
                                     }
-                                    list($temp_valueArray[0]) = explode('=', $valueArrayLabel);
+                                    [$temp_valueArray[0]] = explode('=', $valueArrayLabel);
                                     $selected = '';
                                     if (isset($singleKey_valueArray['selected'])) {
                                         $selected = isset($singleKey_valueArray['selected.']) ?
@@ -272,7 +272,7 @@ class FormContentObject extends AbstractContentObject
                                             $this->cObj->stdWrap($singleKey_valueArray['value'], $singleKey_valueArray['value.']) :
                                             $singleKey_valueArray['value'];
                                     }
-                                    list($temp_valueArray[1]) = explode(',', $singleKeyValue);
+                                    [$temp_valueArray[1]] = explode(',', $singleKeyValue);
                                 }
                                 $temp_accumulated[] = implode('=', $temp_valueArray);
                             }
@@ -284,7 +284,7 @@ class FormContentObject extends AbstractContentObject
                                 $this->cObj->stdWrap($singleKeyArray['specialEval'], $singleKeyArray['specialEval.']) :
                                 $singleKeyArray['specialEval'];
                         }
-                        list($temp[3]) = explode('|', $specialEval);
+                        [$temp[3]] = explode('|', $specialEval);
                         // Adding the form entry to the dataArray
                         $dataArray[$dataKey] = implode('|', $temp);
                         $dataKey++;
