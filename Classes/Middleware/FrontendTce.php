@@ -14,7 +14,7 @@ namespace JambageCom\TslibFetce\Middleware;
  *
  * The TYPO3 project - inspiring people to share!
  */
-
+use JambageCom\TslibFetce\Controller\TypoScriptFrontendTceController;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
@@ -38,7 +38,7 @@ class FrontendTce implements MiddlewareInterface
      */
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
-        $tsfetce = GeneralUtility::makeInstance(\JambageCom\TslibFetce\Controller\TypoScriptFrontendTceController::class);
+        $tsfetce = GeneralUtility::makeInstance(TypoScriptFrontendTceController::class);
         $tsfe = $this->getTypoScriptFrontendController();
         $dataProcessed = $tsfetce->checkDataSubmission($tsfe);
         return $handler->handle($request);

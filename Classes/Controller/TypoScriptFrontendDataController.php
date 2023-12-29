@@ -14,8 +14,6 @@ namespace JambageCom\TslibFetce\Controller;
  *
  * The TYPO3 project - inspiring people to share!
  */
-
-
 /**
  * Class for the built TypoScript based Front End
  *
@@ -28,7 +26,8 @@ namespace JambageCom\TslibFetce\Controller;
  *
  * @author Kasper Skårhøj <kasperYYYY@typo3.com>
  */
-
+use TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer;
+use TYPO3\CMS\Extbase\Service\CacheService;
 use Psr\Log\LoggerInterface;
 
 use TYPO3\CMS\Core\Cache\CacheManager;
@@ -227,7 +226,7 @@ class TypoScriptFrontendDataController
     {
         // Instantiate \TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer to execute the user function
         /** @var $cObj ContentObjectRenderer */
-        $cObj = GeneralUtility::makeInstance(\TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer::class);
+        $cObj = GeneralUtility::makeInstance(ContentObjectRenderer::class);
         foreach ($this->extUserFuncs as $table => $userFunc) {
             $setup = $this->extUserFuncsConf[$table];
             $parts = explode('->', $userFunc);
@@ -326,7 +325,7 @@ class TypoScriptFrontendDataController
             $cacheManager = GeneralUtility::makeInstance(CacheManager::class);
             $configurationManager = GeneralUtility::getContainer()->get(ConfigurationManager::class);
             $this->cacheService =
-                new \TYPO3\CMS\Extbase\Service\CacheService(
+                new CacheService(
                     $configurationManager,
                     $cacheManager
                 );

@@ -1,9 +1,5 @@
 <?php
 
-if (\TYPO3\CMS\Core\Utility\ExtensionManagementUtility::isLoaded('compatibility6')) {
-    return;
-}
-
 namespace {
     die('Access denied');
 }

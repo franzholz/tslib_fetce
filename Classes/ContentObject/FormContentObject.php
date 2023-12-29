@@ -14,7 +14,10 @@ namespace JambageCom\TslibFetce\ContentObject;
  *
  * The TYPO3 project - inspiring people to share!
  */
-
+use TYPO3\CMS\Frontend\ContentObject\AbstractContentObject;
+use TYPO3\CMS\Core\Utility\ArrayUtility;
+use JambageCom\TslibFetce\Utility\FormUtility;
+use TYPO3\CMS\Core\Utility\PathUtility;
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\MathUtility;
@@ -29,7 +32,7 @@ use JambageCom\Div2007\Utility\HtmlUtility;
 /**
  * Contains FORM class object.
  */
-class FormContentObject extends \TYPO3\CMS\Frontend\ContentObject\AbstractContentObject
+class FormContentObject extends AbstractContentObject
 {
     /**
     * Builds a TypoLink to a certain page
@@ -199,7 +202,7 @@ class FormContentObject extends \TYPO3\CMS\Frontend\ContentObject\AbstractConten
             // Adding the new dataArray config form:
             if (is_array($conf['dataArray.'])) {
                 // dataArray is supplied
-                $sortedKeyArray = \TYPO3\CMS\Core\Utility\ArrayUtility::filterAndSortByNumericKeys($conf['dataArray.'], true);
+                $sortedKeyArray = ArrayUtility::filterAndSortByNumericKeys($conf['dataArray.'], true);
                 $dataKey = 0;
                 foreach ($sortedKeyArray as $theKey) {
                     $singleKeyArray = $conf['dataArray.'][$theKey . '.'];
@@ -440,8 +443,8 @@ class FormContentObject extends \TYPO3\CMS\Frontend\ContentObject\AbstractConten
                         if (isset($conf['compensateFieldWidth'])) {
                             $compensateFieldWidth = isset($conf['compensateFieldWidth.']) ? $this->cObj->stdWrap($conf['compensateFieldWidth'], $conf['compensateFieldWidth.']) : $conf['compensateFieldWidth'];
                         }
-                        $compWidth = doubleval($compensateFieldWidth ? $compensateFieldWidth : $this->getTypoScriptFrontendController()->compensateFieldWidth);
-                        $compWidth = $compWidth ? $compWidth : 1;
+                        $compWidth = doubleval($compensateFieldWidth ?: $this->getTypoScriptFrontendController()->compensateFieldWidth);
+                        $compWidth = $compWidth ?: 1;
                         $cols = MathUtility::forceIntegerInRange($cols * $compWidth, 1, 120);
                         $rows = isset($fParts[2]) && trim($fParts[2]) ? MathUtility::forceIntegerInRange($fParts[2], 1, 30) : 5;
                         $wrap = isset($fParts[3]) ? trim($fParts[3]) : '';
@@ -475,8 +478,8 @@ class FormContentObject extends \TYPO3\CMS\Frontend\ContentObject\AbstractConten
                         if (isset($conf['compensateFieldWidth'])) {
                             $compensateFieldWidth = isset($conf['compensateFieldWidth.']) ? $this->cObj->stdWrap($conf['compensateFieldWidth'], $conf['compensateFieldWidth.']) : $conf['compensateFieldWidth'];
                         }
-                        $compWidth = doubleval($compensateFieldWidth ? $compensateFieldWidth : $this->getTypoScriptFrontendController()->compensateFieldWidth);
-                        $compWidth = $compWidth ? $compWidth : 1;
+                        $compWidth = doubleval($compensateFieldWidth ?: $this->getTypoScriptFrontendController()->compensateFieldWidth);
+                        $compWidth = $compWidth ?: 1;
                         $size = MathUtility::forceIntegerInRange($size * $compWidth, 1, 120);
                         $noValueInsert = 0;
                         if (isset($conf['noValueInsert'])) {
@@ -658,7 +661,7 @@ class FormContentObject extends \TYPO3\CMS\Frontend\ContentObject\AbstractConten
                                 break;
                             }
                             if (GeneralUtility::inList('recipient_copy,recipient', $confData['fieldname'])) {
-                                $value = \JambageCom\TslibFetce\Utility\FormUtility::codeString($value);
+                                $value = FormUtility::codeString($value);
                             }
                         }
                         $hiddenfields .= sprintf('<input type="hidden" name="%s"%s value="%s"' . $xhtmlFix . '>', $confData['fieldname'], $elementIdAttribute, htmlspecialchars($value));
@@ -873,7 +876,7 @@ class FormContentObject extends \TYPO3\CMS\Frontend\ContentObject\AbstractConten
             $theEmail = isset($conf['recipient.']) ? $this->cObj->stdWrap($conf['recipient'], $conf['recipient.']) : $conf['recipient'];
         }
         if ($theEmail && !$GLOBALS['TYPO3_CONF_VARS']['FE']['secureFormmail']) {
-            $theEmail = \JambageCom\TslibFetce\Utility\FormUtility::codeString($theEmail);
+            $theEmail = FormUtility::codeString($theEmail);
             $hiddenfields .= '<input type="hidden" name="recipient" value="' . htmlspecialchars($theEmail) . '"' . $xhtmlFix . '>';
         }
         // location data:
@@ -907,7 +910,7 @@ class FormContentObject extends \TYPO3\CMS\Frontend\ContentObject\AbstractConten
                         if ($GLOBALS['TYPO3_CONF_VARS']['FE']['secureFormmail']) {
                             continue;
                         }
-                        $hF_value = \JambageCom\TslibFetce\Utility\FormUtility::codeString($hF_value);
+                        $hF_value = FormUtility::codeString($hF_value);
                     }
                     $hiddenfields .= '<input type="hidden" name="' . $hF_key . '" value="' . htmlspecialchars($hF_value) . '"' . $xhtmlFix . '>' . PHP_EOL;
                 }
@@ -935,8 +938,8 @@ class FormContentObject extends \TYPO3\CMS\Frontend\ContentObject\AbstractConten
             }
             $validateForm = ' onsubmit="return validateForm(' . GeneralUtility::quoteJSvalue($formName) . ',' . GeneralUtility::quoteJSvalue(implode(',', $fieldlist)) . ',' . GeneralUtility::quoteJSvalue($goodMess) . ',' . GeneralUtility::quoteJSvalue($badMess) . ',' . GeneralUtility::quoteJSvalue($emailMess) . ')"';
 
-            $path = \TYPO3\CMS\Core\Utility\PathUtility::stripPathSitePrefix(
-                \TYPO3\CMS\Core\Utility\ExtensionManagementUtility::extPath('tslib_fetce')
+            $path = PathUtility::stripPathSitePrefix(
+                ExtensionManagementUtility::extPath('tslib_fetce')
             );
             $this->getTypoScriptFrontendController()->additionalHeaderData['JSFormValidate'] = '<script type="text/javascript" src="' . GeneralUtility::createVersionNumberedFilename($this->getTypoScriptFrontendController()->absRefPrefix . $path . 'Resources/Public/JavaScript/jsfunc.validateform.js') . '"></script>';
         } else {
@@ -951,7 +954,7 @@ class FormContentObject extends \TYPO3\CMS\Frontend\ContentObject\AbstractConten
         $content = [
             '<form' . ' action="' . htmlspecialchars($action) . '"' . ' id="' . $formName . '"' .
                 ($xhtmlStrict ? '' : ' name="' . $formName . '"') . ' enctype="multipart/form-data"' .
-                ' method="' . ($method ? $method : 'post') . '"' .
+                ' method="' . ($method ?: 'post') . '"' .
                 ($theTarget ? ' target="' . $theTarget . '"' : '') .
                 $validateForm . '>',
                 $hiddenfields . $content,
