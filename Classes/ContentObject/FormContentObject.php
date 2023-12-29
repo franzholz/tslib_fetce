@@ -521,7 +521,7 @@ class FormContentObject extends AbstractContentObject
                         break;
                     case 'select':
                         $option = '';
-                        $valueParts = explode(',', (isset($parts[2]) ? $parts[2] : ''));
+                        $valueParts = explode(',', ($parts[2] ?? ''));
                         // size
                         if (isset($fParts[1]) && strtolower(trim($fParts[1])) == 'auto') {
                             $fParts[1] = count($valueParts);
@@ -583,7 +583,7 @@ class FormContentObject extends AbstractContentObject
                         break;
                     case 'radio':
                         $option = '';
-                        $valueParts = explode(',', (isset($parts[2]) ? $parts[2] : ''));
+                        $valueParts = explode(',', ($parts[2] ?? ''));
                         // Where the items will be
                         $items = [];
                         $default = '';
@@ -843,7 +843,7 @@ class FormContentObject extends AbstractContentObject
         // redirect should be set to the page to redirect to after an external script has been used. If internal scripts is used, and if no 'type' is set that dictates otherwise, redirect is used as the url to jump to as long as it's an integer (page)
         $target = '';
         if (isset($conf['target'])) {
-            $target = (isset($conf['target.']) ? $this->cObj->stdWrap($conf['target'], $conf['target.']) : (isset($conf['target']) ? $conf['target'] : ''));
+            $target = (isset($conf['target.']) ? $this->cObj->stdWrap($conf['target'], $conf['target.']) : ($conf['target'] ?? ''));
         }
         // redirect should be set to the page to redirect to after an external script has been used. If internal scripts is used, and if no 'type' is set that dictates otherwise, redirect is used as the url to jump to as long as it's an integer (page)
         $noCache = 0;

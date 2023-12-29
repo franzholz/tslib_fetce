@@ -43,7 +43,7 @@ class AfterCacheableContentIsGenerated implements SingletonInterface
      */
     public function doLocalAnchorFix(TypoScriptFrontendController $tsfe)
     {
-        return (isset($tsfe->config['config']['prefixLocalAnchors']) ? $tsfe->config['config']['prefixLocalAnchors'] : null);
+        return ($tsfe->config['config']['prefixLocalAnchors'] ?? null);
     }
 
     /**

@@ -124,7 +124,7 @@ class ContentPostProcHook
      */
     public function doLocalAnchorFix($parentObject)
     {
-        return isset($parentObject->config['config']['prefixLocalAnchors']) ? $parentObject->config['config']['prefixLocalAnchors'] : null;
+        return $parentObject->config['config']['prefixLocalAnchors'] ?? null;
     }
 
 
