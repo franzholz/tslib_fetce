@@ -42,7 +42,7 @@ class FrontendHooks
     * @return void
     * @todo Define visibility
     */
-    public function getFeDataConfigArray(&$params, $parentObject)
+    public function getFeDataConfigArray(&$params, $parentObject): void
     {
         if (isset($parentObject->tmpl->setup['FEData'])) {
             $parentObject->config['FEData'] = $parentObject->tmpl->setup['FEData'];

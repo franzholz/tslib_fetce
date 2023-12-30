@@ -76,7 +76,7 @@ class TypoScriptFrontendDataController
     * @return	void
     * @see TYPO3 4.5 tslib_fe::fe_tce(), includeScripts()
     */
-    public function start($data, $FEData)
+    public function start($data, $FEData): void
     {
         $formUtility = GeneralUtility::makeInstance(FormUtility::class);
         foreach ($data as $table => $id_arr) {
@@ -204,7 +204,7 @@ class TypoScriptFrontendDataController
     * @return	void
     * @see tslib_fe::fe_tce(), includeScripts()
     */
-    public function includeScripts()
+    public function includeScripts(): void
     {
         foreach ($this->extScripts as $incFile_table => $incFile) {
             if (@is_file($incFile)) {
@@ -222,7 +222,7 @@ class TypoScriptFrontendDataController
     * @return   void
     * @see tslib_fe::fe_tce(), executeFunctions()
     */
-    public function executeFunctions()
+    public function executeFunctions(): void
     {
         // Instantiate \TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer to execute the user function
         /** @var $cObj ContentObjectRenderer */
@@ -317,7 +317,7 @@ class TypoScriptFrontendDataController
     * @return	void
     * @see tslib_fe::set_no_cache()
     */
-    public function clear_cacheCmd($cacheCmd)
+    public function clear_cacheCmd($cacheCmd): void
     {
         $cacheCmd = intval($cacheCmd);
 

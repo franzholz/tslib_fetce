@@ -42,7 +42,7 @@ class ContentPostProcHook
      * @param array $parameters
      * @param \TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController $parentObject
      */
-    public function contentPostProcAll(&$parameters, $parentObject)
+    public function contentPostProcAll(&$parameters, $parentObject): void
     {
         // Fix local anchors in links, if flag set
         if ($this->doLocalAnchorFix($parentObject) == 'all') {
@@ -63,7 +63,7 @@ class ContentPostProcHook
      * @param array $parameters
      * @param \TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController $parentObject
      */
-    public function contentPostProcCached(&$parameters, $parentObject)
+    public function contentPostProcCached(&$parameters, $parentObject): void
     {
         // Fix local anchors in links, if flag set
         if ($this->doLocalAnchorFix($parentObject) == 'cached') {
@@ -84,7 +84,7 @@ class ContentPostProcHook
      * @param array $parameters
      * @param \TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController $parentObject
      */
-    public function contentPostProcOutput(&$parameters, $parentObject)
+    public function contentPostProcOutput(&$parameters, $parentObject): void
     {
         // Fix local anchors in links, if flag set
         if ($this->doLocalAnchorFix($parentObject) == 'output') {
