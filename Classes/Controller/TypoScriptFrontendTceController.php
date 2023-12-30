@@ -24,7 +24,8 @@ namespace JambageCom\TslibFetce\Controller;
 *
 *  This copyright notice MUST APPEAR in all copies of the script!
 ***************************************************************/
-
+use TYPO3\CMS\Core\Log\LogManager;
+use TYPO3\CMS\Core\Log\LogLevel;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 
@@ -74,7 +75,7 @@ class TypoScriptFrontendTceController
                             defined('TYPO3_DLOG') && TYPO3_DLOG ||
                             isset($GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['t3lib/class.t3lib_div.php']['devLog'])
                         ) {
-                            GeneralUtility::devLog('"Check Data Submission": Return value: fe_tce', 'tslib_fetce');
+                            GeneralUtility::makeInstance(LogManager::class)->getLogger(__CLASS__)->log(LogLevel::INFO, '"Check Data Submission": Return value: fe_tce', '');
                         }
                         $result = 'fe_tce';
                     }
@@ -112,7 +113,7 @@ class TypoScriptFrontendTceController
                     defined('TYPO3_DLOG') && TYPO3_DLOG ||
                     isset($GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['t3lib/class.t3lib_div.php']['devLog'])
                 ) {
-                    GeneralUtility::devLog('LocationData Error: The page pointed to by location data (' . $locationData . ') is not accessible.', 'tslib_fetce');
+                    GeneralUtility::makeInstance(LogManager::class)->getLogger(__CLASS__)->log(LogLevel::INFO, 'LocationData Error: The page pointed to by location data (' . $locationData . ') is not accessible.', '');
                 }
             }
         } else {
@@ -120,7 +121,7 @@ class TypoScriptFrontendTceController
                 defined('TYPO3_DLOG') && TYPO3_DLOG ||
                 isset($GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['t3lib/class.t3lib_div.php']['devLog'])
             ) {
-                GeneralUtility::devLog('LocationData Error: Location data (' . $locationData . ') record pointed to is not accessible.', 'tslib_fetce');
+                GeneralUtility::makeInstance(LogManager::class)->getLogger(__CLASS__)->log(LogLevel::INFO, 'LocationData Error: Location data (' . $locationData . ') record pointed to is not accessible.', '');
             }
         }
     }

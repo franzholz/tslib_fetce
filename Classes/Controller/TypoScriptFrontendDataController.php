@@ -26,6 +26,14 @@ namespace JambageCom\TslibFetce\Controller;
  *
  * @author Kasper Skårhøj <kasperYYYY@typo3.com>
  */
+use TYPO3\CMS\Core\Log\LogManager;
+use TYPO3\CMS\Core\Log\LogLevel;
+use TYPO3\CMS\Frontend\Resource\FilePathSanitizer;
+use TYPO3\CMS\Core\Resource\Exception\InvalidFileNameException;
+use TYPO3\CMS\Core\Resource\Exception\InvalidPathException;
+use TYPO3\CMS\Core\Resource\Exception\FileDoesNotExistException;
+use TYPO3\CMS\Core\Resource\Exception\InvalidFileException;
+use TYPO3\CMS\Core\TimeTracker\TimeTracker;
 use TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer;
 use TYPO3\CMS\Extbase\Service\CacheService;
 use Psr\Log\LoggerInterface;
@@ -140,10 +148,7 @@ class TypoScriptFrontendDataController
                                     defined('TYPO3_DLOG') && TYPO3_DLOG ||
                                     isset($GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['t3lib/class.t3lib_div.php']['devLog'])
                                 ) {
-                                    GeneralUtility::devLog(
-                                        '"FEData": Submitted record to table ' .  $table . ' was doublePosted (key: ' . $doublePostCheckKey . '). Nothing saved.',
-                                        'tslib_fetce'
-                                    );
+                                    GeneralUtility::makeInstance(LogManager::class)->getLogger(__CLASS__)->log(LogLevel::INFO, '"FEData": Submitted record to table ' .  $table . ' was doublePosted (key: ' . $doublePostCheckKey . '). Nothing saved.', '');
                                 }
                             } else {
                                 $this->newData[$table][$id][$dPC_field] = $doublePostCheckKey;	// Setting key value
@@ -182,8 +187,16 @@ class TypoScriptFrontendDataController
                 if ($processScript) {
                     if (substr($processScript, -4) == '.php') {
 
-                        $incFile =
-                            $GLOBALS['TSFE']->tmpl->getFileName($processScript);
+                        try {
+                            $incFile = GeneralUtility::makeInstance(FilePathSanitizer::class)->sanitize((string) $processScript);
+                        } catch (InvalidFileNameException $e) {
+                            $incFile = null;
+                        } catch (InvalidPathException|FileDoesNotExistException|InvalidFileException $e) {
+                            $incFile = null;
+                            if ($GLOBALS['TSFE']->tmpl->tt_track) {
+                                GeneralUtility::makeInstance(TimeTracker::class)->setTSlogMessage($e->getMessage(), 3);
+                            }
+                        }
 
                         if ($incFile) {
                             $this->extScripts[$table] = $incFile;
