@@ -26,6 +26,7 @@ namespace JambageCom\TslibFetce\Controller;
  *
  * @author Kasper Skårhøj <kasperYYYY@typo3.com>
  */
+use TYPO3\CMS\Core\Context\Context;
 use TYPO3\CMS\Core\Log\LogManager;
 use TYPO3\CMS\Core\Log\LogLevel;
 use TYPO3\CMS\Frontend\Resource\FilePathSanitizer;
@@ -279,12 +280,12 @@ class TypoScriptFrontendDataController
         $extraList = $this->extraList;
         if (!empty($GLOBALS['TCA'][$table]['ctrl']['tstamp'])) {
             $field = $GLOBALS['TCA'][$table]['ctrl']['tstamp'];
-            $dataArray[$field] = $GLOBALS['EXEC_TIME'];
+            $dataArray[$field] = GeneralUtility::makeInstance(Context::class)->getPropertyFromAspect('date', 'timestamp');
             $extraList .= ',' . $field;
         }
         if (!empty($GLOBALS['TCA'][$table]['ctrl']['crdate'])) {
             $field = $GLOBALS['TCA'][$table]['ctrl']['crdate'];
-            $dataArray[$field] = $GLOBALS['EXEC_TIME'];
+            $dataArray[$field] = GeneralUtility::makeInstance(Context::class)->getPropertyFromAspect('date', 'timestamp');
             $extraList .= ',' . $field;
         }
         if (!empty($GLOBALS['TCA'][$table]['ctrl']['cruser_id'])) {
