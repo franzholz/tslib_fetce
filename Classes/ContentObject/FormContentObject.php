@@ -359,7 +359,8 @@ class FormContentObject extends AbstractContentObject
                 // field:
                 $fParts = explode(',', $parts[1]);
                 $fParts[0] = trim($fParts[0]);
-                if ($fParts[0][0] === '*') {
+                $char1 = substr($fParts[0], 0, 1);
+                if ($char1 === '*') {
                     $confData['required'] = 1;
                     $fParts[0] = substr($fParts[0], 1);
                 }
