@@ -3,99 +3,99 @@
   <file source-language="en" datatype="plaintext" original="EXT:tslib_fetce/Resources/Private/Language/locallang.xlf" date="2015-10-29T17:46:32Z" product-name="tslib_fetce" target-language="da">
     <header/>
     <body>
-      <trans-unit id="forms_mail_title">
+      <trans-unit id="forms_mail_title" approved="yes">
         <source>Mail Form</source>
-        <target state="needs-translation">Mail Form</target>
+        <target state="final">Mail-formular</target>
       </trans-unit>
-      <trans-unit id="forms_mail_description">
+      <trans-unit id="forms_mail_description" approved="yes">
         <source>A mail form allowing website users to submit responses.</source>
-        <target state="needs-translation">A mail form allowing website users to submit responses.</target>
+        <target state="final">En mail-formular tillader hjemmesidebrugere at indsende svar og beskeder.</target>
       </trans-unit>
-      <trans-unit id="forms_search_title">
+      <trans-unit id="forms_search_title" approved="yes">
         <source>Search Form</source>
-        <target state="needs-translation">Search Form</target>
+        <target state="final">Søgeformular</target>
       </trans-unit>
-      <trans-unit id="forms_search_description">
+      <trans-unit id="forms_search_description" approved="yes">
         <source>Draws a search form and the search result if a search is performed.</source>
-        <target state="needs-translation">Draws a search form and the search result if a search is performed.</target>
+        <target state="final">Viser en søgeformular og søgeresultatet hvis en søgning udføres.</target>
       </trans-unit>
-      <trans-unit id="closeDoc">
+      <trans-unit id="closeDoc" approved="yes">
         <source>Close</source>
-        <target state="needs-translation">Close</target>
+        <target state="final">Luk</target>
       </trans-unit>
-      <trans-unit id="saveDoc">
+      <trans-unit id="saveDoc" approved="yes">
         <source>Save</source>
-        <target state="needs-translation">Save</target>
+        <target state="final">Gem</target>
       </trans-unit>
-      <trans-unit id="saveCloseDoc">
+      <trans-unit id="saveCloseDoc" approved="yes">
         <source>Save and close</source>
-        <target state="needs-translation">Save and close</target>
+        <target state="final">Gem og luk</target>
       </trans-unit>
-      <trans-unit id="labels.changeInOrig">
+      <trans-unit id="labels.changeInOrig" approved="yes">
         <source>Changed in original translation</source>
-        <target state="needs-translation">Changed in original translation</target>
+        <target state="final">Ændret i originalsproget</target>
       </trans-unit>
-      <trans-unit id="storage_pid">
+      <trans-unit id="storage_pid" approved="yes">
         <source>General Record Storage page:</source>
-        <target state="needs-translation">General Record Storage page:</target>
+        <target state="final">Generel side til at lagre elementer:</target>
       </trans-unit>
-      <trans-unit id="pages.storage_pid_formlabel" xml:space="preserve">
+      <trans-unit id="pages.storage_pid_formlabel" xml:space="preserve" approved="yes">
 				<source>Page</source>
-			<target state="needs-translation">Page</target></trans-unit>
-      <trans-unit id="pages.palettes.storage" xml:space="preserve">
+			<target state="final">Side</target></trans-unit>
+      <trans-unit id="pages.palettes.storage" xml:space="preserve" approved="yes">
 				<source>General Record Storage Page</source>
-			<target state="needs-translation">General Record Storage Page</target></trans-unit>
-      <trans-unit id="LGL.default_value">
+			<target state="final">Generel side til at lagre elementer</target></trans-unit>
+      <trans-unit id="LGL.default_value" approved="yes">
         <source>Default</source>
-        <target state="needs-translation">Default</target>
+        <target state="final">Standard</target>
       </trans-unit>
-      <trans-unit id="LGL.caption">
+      <trans-unit id="LGL.caption" approved="yes">
         <source>Caption:</source>
-        <target state="needs-translation">Caption:</target>
+        <target state="final">Billedetekst:</target>
       </trans-unit>
-      <trans-unit id="eIcon.form">
+      <trans-unit id="eIcon.form" approved="yes">
         <source>Edit email form</source>
-        <target state="needs-translation">Edit email form</target>
+        <target state="final">Rediger e-mail formular</target>
       </trans-unit>
-      <trans-unit id="eIcon.search">
+      <trans-unit id="eIcon.search" approved="yes">
         <source>Edit search element</source>
-        <target state="needs-translation">Edit search element</target>
+        <target state="final">Redigér søgeelement</target>
       </trans-unit>
-      <trans-unit id="search.resultRange">
+      <trans-unit id="search.resultRange" approved="yes">
         <source>Searchresult: ###RANGELOW###-###RANGEHIGH### of ###TOTAL###</source>
-        <target state="needs-translation">Searchresult: ###RANGELOW###-###RANGEHIGH### of ###TOTAL###</target>
+        <target state="final">Søgeresultat: ###RANGELOW###-###RANGEHIGH### af ###TOTAL###</target>
       </trans-unit>
-      <trans-unit id="search.emptySearch">
+      <trans-unit id="search.emptySearch" approved="yes">
         <source>Sorry, your search was empty!</source>
-        <target state="needs-translation">Sorry, your search was empty!</target>
+        <target state="final">Beklager, din søgning var tom!</target>
       </trans-unit>
-      <trans-unit id="search.searchResultNext">
+      <trans-unit id="search.searchResultNext" approved="yes">
         <source>Next</source>
-        <target state="needs-translation">Next</target>
+        <target state="final">Næste</target>
       </trans-unit>
-      <trans-unit id="search.searchResultPrev">
+      <trans-unit id="search.searchResultPrev" approved="yes">
         <source>Prev</source>
-        <target state="needs-translation">Prev</target>
+        <target state="final">Forrige</target>
       </trans-unit>
-      <trans-unit id="search.searchWord">
+      <trans-unit id="search.searchWord" approved="yes">
         <source>Searchword:</source>
-        <target state="needs-translation">Searchword:</target>
+        <target state="final">Søgeord:</target>
       </trans-unit>
-      <trans-unit id="search.searchIn">
+      <trans-unit id="search.searchIn" approved="yes">
         <source>Search in:</source>
-        <target state="needs-translation">Search in:</target>
+        <target state="final">Søg i:</target>
       </trans-unit>
-      <trans-unit id="search.headersKeywords">
+      <trans-unit id="search.headersKeywords" approved="yes">
         <source>Headers and keywords</source>
-        <target state="needs-translation">Headers and keywords</target>
+        <target state="final">Overskrifter og søgeord</target>
       </trans-unit>
-      <trans-unit id="search.pageContent">
+      <trans-unit id="search.pageContent" approved="yes">
         <source>Page content</source>
-        <target state="needs-translation">Page content</target>
+        <target state="final">Sideindhold</target>
       </trans-unit>
-      <trans-unit id="search.searchButton">
+      <trans-unit id="search.searchButton" approved="yes">
         <source>Search now!</source>
-        <target state="needs-translation">Search now!</target>
+        <target state="final">Søg nu!</target>
       </trans-unit>
     </body>
   </file>
