@@ -57,7 +57,7 @@ class FrontendHooks
         // debug ($typoScriptSetupArray, 'getFeDataConfigArray ANFANG $typoScriptSetupArray');
 
         $tsfe->config['FEData']  ??= ''; // $typoScriptSetupArray['FEData']
-        $tsfe->config['FEData.'] ??= '';
+        $tsfe->config['FEData.'] ??= ''; // This cannot be set here, because $frontendTypoScript is always empty.
         debug ($tsfe->config, 'getFeDataConfigArray ENDE $tsfe->config');
         debug ('E');
     }
