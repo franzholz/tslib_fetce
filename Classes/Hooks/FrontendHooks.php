@@ -3,6 +3,8 @@
 namespace JambageCom\TslibFetce\Hooks;
 
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController;
+
 
 /***************************************************************
 *  Copyright notice
@@ -30,6 +32,8 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 /**
  * Frontend hooks used by the tslib_fetce extension.
  *
+ * Only TYPO3 12
+ *
  * @author	Franz Holzinger <franz@ttproducts.de>
  */
 class FrontendHooks
@@ -38,17 +42,23 @@ class FrontendHooks
     * Checks if config-array exists already but if not, gets it
     *
     * @param array $parameters
-    * @param \TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController $parentObject
+    * @param TypoScriptFrontendController $tsfe
     * @return void
     * @todo Define visibility
     */
-    public function getFeDataConfigArray(&$params, $parentObject): void
+    public function getFeDataConfigArray(&$params, TypoScriptFrontendController $tsfe): void
     {
-        if (isset($parentObject->tmpl->setup['FEData'])) {
-            $parentObject->config['FEData'] = $parentObject->tmpl->setup['FEData'];
-        }
-        if (isset($parentObject->tmpl->setup['FEData.'])) {
-            $parentObject->config['FEData.'] = $parentObject->tmpl->setup['FEData.'];
-        }
+        debug ('B');
+        debug ($params, 'getFeDataConfigArray ANFANG $params');
+
+        $frontendTypoScript = $GLOBALS['TYPO3_REQUEST']->getAttribute('frontend.typoscript');
+        debug ($frontendTypoScript, 'getFeDataConfigArray $frontendTypoScript empty +++ HIER');
+        // $typoScriptSetupArray = $frontendTypoScript->getSetupArray();;
+        // debug ($typoScriptSetupArray, 'getFeDataConfigArray ANFANG $typoScriptSetupArray');
+
+        $tsfe->config['FEData']  ??= ''; // $typoScriptSetupArray['FEData']
+        $tsfe->config['FEData.'] ??= '';
+        debug ($tsfe->config, 'getFeDataConfigArray ENDE $tsfe->config');
+        debug ('E');
     }
 }
