@@ -1,6 +1,7 @@
 <?php
 
 use JambageCom\TslibFetce\Middleware\FrontendTce;
+
 return [
     'frontend' => [
         'jambagecom/tslib-fetce/preprocessing' => [

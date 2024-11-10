@@ -138,7 +138,7 @@ class TypoScriptFrontendTceController
         $fe_tce = GeneralUtility::makeInstance(TypoScriptFrontendDataController::class);
         $fe_tce->start(
             GeneralUtility::_POST('data'),
-            $this->frontendController->config['FEData.']
+            $this->frontendController->config['FEData.'] ?? []
         );
         $fe_tce->includeScripts();
         $fe_tce->executeFunctions();

@@ -34,7 +34,6 @@ class AfterCacheableContentIsGenerated implements SingletonInterface
         }
     }
 
-
     /**
      * Returns the mode of Local Anchor prefixing
      *
@@ -82,12 +81,13 @@ class AfterCacheableContentIsGenerated implements SingletonInterface
      */
     protected function doXHTML_cleaning(TypoScriptFrontendController $tsfe)
     {
+        $result = 'none';
         if (
-            isset($tsfe->config['config']['xmlprologue']) &&
-            $tsfe->config['config']['xmlprologue'] == 'none'
+            !isset($tsfe->config['config']['xmlprologue']) ||
+            $tsfe->config['config']['xmlprologue'] != 'none'
         ) {
-            return 'none';
+            $result = $tsfe->config['config']['xhtml_cleaning'] ?? 'none';
         }
-        return $tsfe->config['config']['xhtml_cleaning'] ?? 'none';
+        return $result;
     }
 }

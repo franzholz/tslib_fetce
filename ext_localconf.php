@@ -5,18 +5,6 @@ defined('TYPO3') || die('Access denied.');
 call_user_func(function ($extensionKey): void {
     $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['tslib/class.tslib_fe.php']['checkDataSubmission'][] = \JambageCom\TslibFetce\Controller\TypoScriptFrontendTceController::class;
 
-    $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['tslib/class.tslib_fe.php']['configArrayPostProc'][] = (\JambageCom\TslibFetce\Hooks\FrontendHooks::class) . '->getFeDataConfigArray';
-
-    // Register legacy content objects
-    // only TYPO3 11.5:
-    $GLOBALS['TYPO3_CONF_VARS']['FE']['ContentObjects']['FORM'] = \JambageCom\TslibFetce\ContentObject\FormContentObject::class;
-
-    // Register hooks for xhtml_cleaning and prefixLocalAnchors
-    // only TYPO3 11.5:
-    $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['tslib/class.tslib_fe.php']['contentPostProc-all'][] = (\JambageCom\TslibFetce\Hooks\TypoScriptFrontendController\ContentPostProcHook::class) . '->contentPostProcAll';
-    $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['tslib/class.tslib_fe.php']['contentPostProc-cached'][] = (\JambageCom\TslibFetce\Hooks\TypoScriptFrontendController\ContentPostProcHook::class) . '->contentPostProcCached';
-    $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['tslib/class.tslib_fe.php']['contentPostProc-output'][] = (\JambageCom\TslibFetce\Hooks\TypoScriptFrontendController\ContentPostProcHook::class) . '->contentPostProcOutput';
-
     // Add configuration for the logging API
     $GLOBALS['TYPO3_CONF_VARS']['LOG']['JambageCom']['TslibFetce']['EventListener']['AfterCacheableContentIsGenerated']['writerConfiguration'] = [
         // configuration for ERROR level log entries

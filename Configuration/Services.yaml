@@ -7,10 +7,14 @@ services:
   JambageCom\TslibFetce\:
     resource: '../Classes/*'
 
-  # Register all available content objects
+  # Register FORM content object
   JambageCom\TslibFetce\ContentObject\FormContentObject:
     tags:
       - name: frontend.contentobject
         identifier: 'FORM'
 
-
+  JambageCom\TslibFetce\EventListener\AfterCacheableContentIsGenerated:
+    tags:
+      - name: event.listener
+        identifier: 'tslib-fetce/after-cacheable-content-is-generated'
+        event: TYPO3\CMS\Frontend\Event\AfterCacheableContentIsGeneratedEvent
