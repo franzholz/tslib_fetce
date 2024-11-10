@@ -1,3 +1,9 @@
+
+
+2024-11-10 Franz Holzinger  <franz@ttproducts.de>
+	* delete not working hook class FrontendHooks tslib/class.tslib_fe.php configArrayPostProc, because the TypoScript is not passed by the parent object
+	* initialize FEData in the Middleware
+
 2023-12-30 Franz Holzinger  <franz@ttproducts.de>
 	* use rector to improve the PHP code
 
@@ -25,11 +31,11 @@
     * Remove configuration option arrayReturnMode, because only a string must be returned to TYPO3.
 
 2020-07-29 Franz Holzinger <franz@ttproducts.de>
-    * move method calcDoublePostKey from class TypoScriptFrontendDataController into 
- JambageCom\TslibFetce\Utility\FormUtility 
-    * move method checkDoublePostExist from class TypoScriptFrontendDataController into 
- JambageCom\TslibFetce\Utility\FormUtility 
- 
+    * move method calcDoublePostKey from class TypoScriptFrontendDataController into
+ JambageCom\TslibFetce\Utility\FormUtility
+    * move method checkDoublePostExist from class TypoScriptFrontendDataController into
+ JambageCom\TslibFetce\Utility\FormUtility
+
 2020-02-02 Franz Holzinger <franz@ttproducts.de>
     * bugfix: class JambageCom\TslibFetce\Hooks\FrontendHooks was not found
 
@@ -38,7 +44,7 @@
     * use the Doctrine database interface instead of $GLOBALS["TYPO3_DB"]
 
 2019-12-18 Franz Holzinger <franz@ttproducts.de>
-    * compatibility for TYPO3 9 breaking 82162: replace constant TYPO3_DLOG by 
+    * compatibility for TYPO3 9 breaking 82162: replace constant TYPO3_DLOG by
         isset($GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['t3lib/class.t3lib_div.php']['devLog'])
 
 2019-11-01 Franz Holzinger <franz@ttproducts.de>
