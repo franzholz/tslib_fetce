@@ -14,20 +14,23 @@ namespace JambageCom\TslibFetce\ContentObject;
  *
  * The TYPO3 project - inspiring people to share!
  */
-use TYPO3\CMS\Frontend\ContentObject\AbstractContentObject;
+use TYPO3\CMS\Core\Page\PageRenderer;
+use TYPO3\CMS\Core\Type\DocType;
 use TYPO3\CMS\Core\Utility\ArrayUtility;
-use JambageCom\TslibFetce\Utility\FormUtility;
-use TYPO3\CMS\Core\Utility\PathUtility;
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\MathUtility;
+use TYPO3\CMS\Core\Utility\PathUtility;
 
-use TYPO3\CMS\Frontend\Typolink\LinkResultInterface;
+use TYPO3\CMS\Frontend\ContentObject\AbstractContentObject;
 use TYPO3\CMS\Frontend\Typolink\LinkResult;
+use TYPO3\CMS\Frontend\Typolink\LinkResultInterface;
 use TYPO3\CMS\Frontend\Typolink\PageLinkBuilder;
 
 use JambageCom\Div2007\Security\TransmissionSecurity;
 use JambageCom\Div2007\Utility\HtmlUtility;
+
+use JambageCom\TslibFetce\Utility\FormUtility;
 
 /**
  * Contains FORM class object.
@@ -298,7 +301,8 @@ class FormContentObject extends AbstractContentObject
         $propertyOverride = [];
         $fieldname_hashArray = [];
         $counter = 0;
-        $xhtmlStrict = GeneralUtility::inList('xhtml_strict,xhtml_11,xhtml+rdfa_10', $this->getTypoScriptFrontendController()->xhtmlDoctype);
+        $docType = GeneralUtility::makeInstance(PageRenderer::class)->getDocType();
+        $xhtmlStrict = in_array($docType, [DocType::xhtmlStrict, DocType::xhtml11, DocType::xhtmlRdfa10]);
         // Formname
         $formName = isset($conf['formName.']) ? $this->cObj->stdWrap($conf['formName'], $conf['formName.']) : $conf['formName'];
         $formName = $this->cleanFormName($formName);
@@ -984,7 +988,7 @@ class FormContentObject extends AbstractContentObject
         ) {
             return $defaultVal;
         } else {
-            return GeneralUtility::_GP($fieldName);
+            return $this->request->getParsedBody()[$fieldName] ?? $this->request->getQueryParams()[$fieldName] ?? null;
         }
     }
 
