@@ -891,8 +891,11 @@ class FormContentObject extends AbstractContentObject
         }
 
         if ($location) {
-            if ($location == 'HTTP_POST_VARS' && isset($_POST['locationData'])) {
-                $locationData = GeneralUtility::_POST('locationData');
+            if (
+                $location == 'HTTP_POST_VARS' &&
+                isset($_POST['locationData'])
+            ) {
+                $locationData = $this->request->getParsedBody()['locationData'];
             } else {
                 // locationData is [the page id]:[tablename]:[uid of record]. Indicates on which page the record (from tablename with uid) is shown. Used to check access.
                 if (isset($this->data['_LOCALIZED_UID'])) {

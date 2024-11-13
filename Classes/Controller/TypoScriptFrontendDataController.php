@@ -26,6 +26,7 @@ namespace JambageCom\TslibFetce\Controller;
  *
  * @author Kasper Skårhøj <kasperYYYY@typo3.com>
  */
+use Psr\Http\Message\ServerRequestInterface;
 use Psr\Log\LoggerInterface;
 
 use TYPO3\CMS\Core\Cache\CacheManager;
@@ -63,6 +64,11 @@ class TypoScriptFrontendDataController
     public $extUserFuncsConf = [];
     public $newData = [];
     public $extraList = 'pid';
+
+    /**
+     * Always set via setRequest() after instantiation
+     */
+    protected ServerRequestInterface $request;
 
     public function __construct(LoggerInterface $logger)
     {
@@ -362,5 +368,10 @@ class TypoScriptFrontendDataController
             $result = $this->extScriptsConf[$table];
         }
         return $result;
+    }
+
+    public function setRequest(ServerRequestInterface $request): void
+    {
+        $this->request = $request;
     }
 }
