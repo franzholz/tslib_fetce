@@ -42,6 +42,7 @@ class FrontendTce implements MiddlewareInterface
         $tsfetce->setRequest($request);
         $tsfe = $this->getTypoScriptFrontendController();
         $frontendTypoScript = $GLOBALS['TYPO3_REQUEST']->getAttribute('frontend.typoscript');
+        $typoScriptSetupArray = $frontendTypoScript->getSetupArray();
         $tsfe->config['FEData'] = ($typoScriptSetupArray['FEData'] ?? '');
         $tsfe->config['FEData.'] = ($typoScriptSetupArray['FEData.'] ?? '');
         $dataProcessed = $tsfetce->checkDataSubmission($tsfe);
