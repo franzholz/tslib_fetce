@@ -26,11 +26,13 @@ namespace JambageCom\TslibFetce\Controller;
  *
  * @author Kasper Skårhøj <kasperYYYY@typo3.com>
  */
+use Psr\Http\Message\ServerRequestInterface;
 use Psr\Log\LoggerInterface;
 
 use TYPO3\CMS\Core\Cache\CacheManager;
 use TYPO3\CMS\Core\Context\Context;
 use TYPO3\CMS\Core\Database\ConnectionPool;
+use TYPO3\CMS\Core\Information\Typo3Version;
 use TYPO3\CMS\Core\Log\LogManager;
 use TYPO3\CMS\Core\Log\LogLevel;
 use TYPO3\CMS\Core\Resource\Exception\InvalidFileNameException;
@@ -63,6 +65,11 @@ class TypoScriptFrontendDataController
     public $extUserFuncsConf = [];
     public $newData = [];
     public $extraList = 'pid';
+
+    /**
+     * Always set via setRequest() after instantiation
+     */
+    protected ServerRequestInterface $request;
 
     public function __construct(LoggerInterface $logger)
     {
@@ -334,19 +341,31 @@ class TypoScriptFrontendDataController
     public function clear_cacheCmd($cacheCmd): void
     {
         $cacheCmd = intval($cacheCmd);
+        $typo3Version = GeneralUtility::makeInstance(Typo3Version::class);
+        $version = $typo3Version->getVersion();
 
         if ($cacheCmd) {
+            $connectionPool = GeneralUtility::makeInstance(ConnectionPool::class);
             $cacheManager = GeneralUtility::makeInstance(CacheManager::class);
             $configurationManager = GeneralUtility::getContainer()->get(ConfigurationManager::class);
+
             $this->cacheService =
-                new CacheService(
-                    $configurationManager,
-                    $cacheManager
+                (
+                    version_compare($version, '13.0.0', '>=') ?
+                        new CacheService(
+                            $configurationManager,
+                            $cacheManager,
+                            $connectionPool,
+                        ) :
+                        new CacheService(
+                            $configurationManager,
+                            $cacheManager,
+                        )
                 );
+
             $this->cacheService->clearPageCache($cacheCmd);
         }
     }
-
 
     /**
     * Return TypoScript configuration for a table name
@@ -362,5 +381,15 @@ class TypoScriptFrontendDataController
             $result = $this->extScriptsConf[$table];
         }
         return $result;
+    }
+
+    public function setRequest(ServerRequestInterface $request): void
+    {
+        $this->request = $request;
+    }
+
+    public function getRequest(): ServerRequestInterface
+    {
+        return $this->request;
     }
 }

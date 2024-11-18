@@ -24,10 +24,11 @@ namespace JambageCom\TslibFetce\Controller;
 *
 *  This copyright notice MUST APPEAR in all copies of the script!
 ***************************************************************/
+use Psr\Http\Message\ServerRequestInterface;
+
 use TYPO3\CMS\Core\Log\LogManager;
 use TYPO3\CMS\Core\Log\LogLevel;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-
 
 use JambageCom\TslibFetce\Controller\TypoScriptFrontendDataController;
 
@@ -44,6 +45,10 @@ class TypoScriptFrontendTceController
     */
     protected $frontendController = null;
 
+    /**
+     * Always set via setRequest() after instantiation
+     */
+    protected ServerRequestInterface $request;
 
     /**
     * hook to be executed by TypoScriptFrontendController
@@ -126,6 +131,15 @@ class TypoScriptFrontendTceController
         }
     }
 
+    public function setRequest(ServerRequestInterface $request): void
+    {
+        $this->request = $request;
+    }
+
+    public function getRequest(): ServerRequestInterface
+    {
+        return $this->request;
+    }
 
     /**
     * Processes submitted user data (revival of since TYPO3 6.2 obsolete "Frontend TCE")
@@ -136,8 +150,9 @@ class TypoScriptFrontendTceController
     protected function fe_tce()
     {
         $fe_tce = GeneralUtility::makeInstance(TypoScriptFrontendDataController::class);
+        $fe_tce->setRequest($this->request);
         $fe_tce->start(
-            GeneralUtility::_POST('data'),
+            $this->request->getParsedBody()['data'],
             $this->frontendController->config['FEData.'] ?? []
         );
         $fe_tce->includeScripts();

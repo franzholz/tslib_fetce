@@ -444,13 +444,7 @@ class FormContentObject extends AbstractContentObject
                 switch ($confData['type']) {
                     case 'textarea':
                         $cols = isset($fParts[1]) && trim($fParts[1]) ? (int) $fParts[1] : 20;
-                        $compensateFieldWidth = '';
-                        if (isset($conf['compensateFieldWidth'])) {
-                            $compensateFieldWidth = isset($conf['compensateFieldWidth.']) ? $this->cObj->stdWrap($conf['compensateFieldWidth'], $conf['compensateFieldWidth.']) : $conf['compensateFieldWidth'];
-                        }
-                        $compWidth = doubleval($compensateFieldWidth ?: $this->getTypoScriptFrontendController()->compensateFieldWidth);
-                        $compWidth = $compWidth ?: 1;
-                        $cols = MathUtility::forceIntegerInRange($cols * $compWidth, 1, 120);
+                        $cols = MathUtility::forceIntegerInRange($cols, 1, 120);
                         $rows = isset($fParts[2]) && trim($fParts[2]) ? MathUtility::forceIntegerInRange($fParts[2], 1, 30) : 5;
                         $wrap = isset($fParts[3]) ? trim($fParts[3]) : '';
                         $noWrapAttr = '';
@@ -479,13 +473,7 @@ class FormContentObject extends AbstractContentObject
                             $useFix = ' ' . $encryptionFix . ' ';
                         }
                         $size = isset($fParts[1]) && trim($fParts[1]) ? (int)$fParts[1] : 20;
-                        $compensateFieldWidth = '';
-                        if (isset($conf['compensateFieldWidth'])) {
-                            $compensateFieldWidth = isset($conf['compensateFieldWidth.']) ? $this->cObj->stdWrap($conf['compensateFieldWidth'], $conf['compensateFieldWidth.']) : $conf['compensateFieldWidth'];
-                        }
-                        $compWidth = doubleval($compensateFieldWidth ?: $this->getTypoScriptFrontendController()->compensateFieldWidth);
-                        $compWidth = $compWidth ?: 1;
-                        $size = MathUtility::forceIntegerInRange($size * $compWidth, 1, 120);
+                        $size = MathUtility::forceIntegerInRange($size, 1, 120);
                         $noValueInsert = 0;
                         if (isset($conf['noValueInsert'])) {
                             $noValueInsert = isset($conf['noValueInsert.']) ?
@@ -891,8 +879,11 @@ class FormContentObject extends AbstractContentObject
         }
 
         if ($location) {
-            if ($location == 'HTTP_POST_VARS' && isset($_POST['locationData'])) {
-                $locationData = GeneralUtility::_POST('locationData');
+            if (
+                $location == 'HTTP_POST_VARS' &&
+                isset($_POST['locationData'])
+            ) {
+                $locationData = $this->request->getParsedBody()['locationData'];
             } else {
                 // locationData is [the page id]:[tablename]:[uid of record]. Indicates on which page the record (from tablename with uid) is shown. Used to check access.
                 if (isset($this->data['_LOCALIZED_UID'])) {
@@ -981,15 +972,7 @@ class FormContentObject extends AbstractContentObject
      */
     protected function getFieldDefaultValue($noValueInsert, $fieldName, $defaultVal)
     {
-        if (
-            !$this->getTypoScriptFrontendController()->no_cache ||
-            !isset($_POST[$fieldName]) && !isset($_GET[$fieldName]) ||
-            $noValueInsert
-        ) {
-            return $defaultVal;
-        } else {
-            return $this->request->getParsedBody()[$fieldName] ?? $this->request->getQueryParams()[$fieldName] ?? null;
-        }
+        return $this->request->getParsedBody()[$fieldName] ?? $this->request->getQueryParams()[$fieldName] ?? $defaultVal;
     }
 
     /**

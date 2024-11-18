@@ -15,6 +15,7 @@ namespace JambageCom\TslibFetce\Utility;
  * The TYPO3 project - inspiring people to share!
  */
 use TYPO3\CMS\Core\Database\Query\Restriction\FrontendRestrictionContainer;
+use TYPO3\CMS\Core\Database\Connection;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Information\Typo3Version;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
@@ -129,20 +130,13 @@ class FormUtility
             ->count('*')
             ->from($table)
             ->where(
-                $queryBuilder->expr()->eq($doublePostField, $queryBuilder->createNamedParameter($key, \PDO::PARAM_STR))
+                $queryBuilder->expr()->eq($doublePostField, $queryBuilder->createNamedParameter($key, Connection::PARAM_STR))
             );
 
-        if (
-            version_compare($version, '12.0.0', '>=') // Doctrine DBAL 3
-        ) {
-            $result = $queryBuilder
-                ->executeQuery()
-                ->fetchOne();
-        } else {
-            $result = $queryBuilder
-                ->execute()
-                ->fetchColumn(0);
-        }
+        $result = $queryBuilder
+            ->executeQuery()
+            ->fetchOne();
+
 
         return $result;
     }

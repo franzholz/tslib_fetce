@@ -1,4 +1,8 @@
 
+2024-11-15 Franz Holzinger  <franz@ttproducts.de>
+    * support TYPO3 13
+    * Deprecation no. 79858: remove compensateFieldWidth
+    * The form cannot be cached.
 
 2024-11-10 Franz Holzinger  <franz@ttproducts.de>
 	* delete not working hook class FrontendHooks tslib/class.tslib_fe.php configArrayPostProc, because the TypoScript is not passed by the parent object
