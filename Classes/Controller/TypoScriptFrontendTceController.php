@@ -136,6 +136,11 @@ class TypoScriptFrontendTceController
         $this->request = $request;
     }
 
+    public function getRequest(): ServerRequestInterface
+    {
+        return $this->request;
+    }
+
     /**
     * Processes submitted user data (revival of since TYPO3 6.2 obsolete "Frontend TCE")
     *
