@@ -1,4 +1,8 @@
 
+
+2024-12-20 Franz Holzinger  <franz@ttproducts.de>
+    * fix #6: prefixLocalAnchorsWithScript parameter
+
 2024-11-15 Franz Holzinger  <franz@ttproducts.de>
     * support TYPO3 13
     * Deprecation no. 79858: remove compensateFieldWidth
