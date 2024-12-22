@@ -25,7 +25,7 @@ class AfterCacheableContentIsGenerated implements SingletonInterface
 
         // Fix local anchors in links, if flag set
         if (!empty($this->doLocalAnchorFix($tsfe))) {
-            $this->prefixLocalAnchorsWithScript($event);
+            $this->prefixLocalAnchorsWithScript($tsfe);
         }
         // XHTML-clean the code, if flag set
         if ($this->doXHTML_cleaning($tsfe) != 'none') {
