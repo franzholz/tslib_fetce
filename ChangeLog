@@ -1,4 +1,6 @@
 
+2024-12-30 Franz Holzinger  <franz@ttproducts.de>
+    * workaround for 1666513645 RuntimeException: Setup array has not been initialized.
 
 2024-12-20 Franz Holzinger  <franz@ttproducts.de>
     * fix #6: prefixLocalAnchorsWithScript parameter

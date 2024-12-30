@@ -38,14 +38,16 @@ class FrontendTce implements MiddlewareInterface
      */
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
-        $tsfetce = GeneralUtility::makeInstance(TypoScriptFrontendTceController::class);
-        $tsfetce->setRequest($request);
         $tsfe = $this->getTypoScriptFrontendController();
         $frontendTypoScript = $request->getAttribute('frontend.typoscript');
-        $typoScriptSetupArray = $frontendTypoScript->getSetupArray();
-        $tsfe->config['FEData'] = ($typoScriptSetupArray['FEData'] ?? '');
-        $tsfe->config['FEData.'] = ($typoScriptSetupArray['FEData.'] ?? '');
-        $dataProcessed = $tsfetce->checkDataSubmission($tsfe);
+        if ($frontendTypoScript->hasSetup()) {
+            $typoScriptSetupArray = $frontendTypoScript->getSetupArray();
+            $tsfe->config['FEData'] = ($typoScriptSetupArray['FEData'] ?? '');
+            $tsfe->config['FEData.'] = ($typoScriptSetupArray['FEData.'] ?? '');
+            $tsfetce = GeneralUtility::makeInstance(TypoScriptFrontendTceController::class);
+            $tsfetce->setRequest($request);
+            $dataProcessed = $tsfetce->checkDataSubmission($tsfe);
+        }
         return $handler->handle($request);
     }
 
