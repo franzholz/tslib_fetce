@@ -1,3 +1,5 @@
+2025-07-15 Franz Holzinger  <franz@ttproducts.de>
+    * bugfix: The request object must be changable by the executed methods.
 
 2024-12-30 Franz Holzinger  <franz@ttproducts.de>
     * workaround for 1666513645 RuntimeException: Setup array has not been initialized.

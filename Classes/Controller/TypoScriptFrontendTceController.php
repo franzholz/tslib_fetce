@@ -48,7 +48,7 @@ class TypoScriptFrontendTceController
     /**
      * Always set via setRequest() after instantiation
      */
-    protected ServerRequestInterface $request;
+    protected ?ServerRequestInterface $request = null;
 
     /**
     * hook to be executed by TypoScriptFrontendController
@@ -152,10 +152,15 @@ class TypoScriptFrontendTceController
         $fe_tce = GeneralUtility::makeInstance(TypoScriptFrontendDataController::class);
         $fe_tce->setRequest($this->request);
         $fe_tce->start(
-            $this->request->getParsedBody()['data'],
+            $this->getRequest()->getParsedBody()['data'],
             $this->frontendController->config['FEData.'] ?? []
         );
         $fe_tce->includeScripts();
+
         $fe_tce->executeFunctions();
+        $request = $fe_tce->getRequest();
+        if ($request instanceof ServerRequestInterface) {
+            $this->setRequest($request);
+        }
     }
 }

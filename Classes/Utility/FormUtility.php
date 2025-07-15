@@ -93,7 +93,7 @@ class FormUtility
     public static function calcDoublePostKey(array $parameter, $doublePostCheckFields)
     {
         if ($doublePostCheckFields != '') {
-            $fieldArray = GeneralUtility::trimExplode(',', $doublePostCheckFields);
+            $fieldArray = GeneralUtility::trimExplode(',', $doublePostCheckFields, true);
             $checkArray = [];
             foreach ($fieldArray as $field) {
                 if (isset($parameter[$field])) {

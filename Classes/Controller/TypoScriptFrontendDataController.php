@@ -69,7 +69,7 @@ class TypoScriptFrontendDataController
     /**
      * Always set via setRequest() after instantiation
      */
-    protected ServerRequestInterface $request;
+    protected ?ServerRequestInterface $request = null;
 
     public function __construct(LoggerInterface $logger)
     {
