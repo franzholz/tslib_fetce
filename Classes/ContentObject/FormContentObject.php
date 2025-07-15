@@ -308,7 +308,7 @@ class FormContentObject extends AbstractContentObject
         $formName = $this->cleanFormName($formName);
         $dontXssArray = [];
         if ($conf['dontXssFieldNames'] != '') {
-            $dontXssArray = GeneralUtility::trimExplode(',', $conf['dontXssFieldNames']);
+            $dontXssArray = GeneralUtility::trimExplode(',', $conf['dontXssFieldNames'], true);
         }
         $prefix = '';
         $fieldPrefix = '';
@@ -701,7 +701,7 @@ class FormContentObject extends AbstractContentObject
                     // Checking for special evaluation modes:
                     if (trim($parts[3]) !== '' && GeneralUtility::inList('textarea,input,password', $confData['type'])) {
                         $value = (isset($parts[3]) ? trim($parts[3]) : '');
-                        $modeParameters = GeneralUtility::trimExplode(':', $value);
+                        $modeParameters = GeneralUtility::trimExplode(':', $value, true);
                     } else {
                         $modeParameters = [];
                     }
