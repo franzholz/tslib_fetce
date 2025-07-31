@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2">
+  <file source-language="en" datatype="plaintext" original="EXT:tslib_fetce/Resources/Private/Language/locallang.xlf" date="2015-10-29T17:46:32Z" product-name="tslib_fetce" target-language="no">
+    <header/>
+    <body>
+      <trans-unit id="forms_mail_title">
+        <source>Mail Form</source>
+        <target state="needs-translation">Mail Form</target>
+      </trans-unit>
+      <trans-unit id="forms_mail_description">
+        <source>A mail form allowing website users to submit responses.</source>
+        <target state="needs-translation">A mail form allowing website users to submit responses.</target>
+      </trans-unit>
+      <trans-unit id="forms_search_title">
+        <source>Search Form</source>
+        <target state="needs-translation">Search Form</target>
+      </trans-unit>
+      <trans-unit id="forms_search_description">
+        <source>Draws a search form and the search result if a search is performed.</source>
+        <target state="needs-translation">Draws a search form and the search result if a search is performed.</target>
+      </trans-unit>
+      <trans-unit id="closeDoc">
+        <source>Close</source>
+        <target state="needs-translation">Close</target>
+      </trans-unit>
+      <trans-unit id="saveDoc">
+        <source>Save</source>
+        <target state="needs-translation">Save</target>
+      </trans-unit>
+      <trans-unit id="saveCloseDoc">
+        <source>Save and close</source>
+        <target state="needs-translation">Save and close</target>
+      </trans-unit>
+      <trans-unit id="labels.changeInOrig">
+        <source>Changed in original translation</source>
+        <target state="needs-translation">Changed in original translation</target>
+      </trans-unit>
+      <trans-unit id="storage_pid">
+        <source>General Record Storage page:</source>
+        <target state="needs-translation">General Record Storage page:</target>
+      </trans-unit>
+      <trans-unit id="pages.storage_pid_formlabel" xml:space="preserve">
+				<source>Page</source>
+			<target state="needs-translation">Page</target></trans-unit>
+      <trans-unit id="pages.palettes.storage" xml:space="preserve">
+				<source>General Record Storage Page</source>
+			<target state="needs-translation">General Record Storage Page</target></trans-unit>
+      <trans-unit id="LGL.default_value">
+        <source>Default</source>
+        <target state="needs-translation">Default</target>
+      </trans-unit>
+      <trans-unit id="LGL.caption">
+        <source>Caption:</source>
+        <target state="needs-translation">Caption:</target>
+      </trans-unit>
+      <trans-unit id="eIcon.form">
+        <source>Edit email form</source>
+        <target state="needs-translation">Edit email form</target>
+      </trans-unit>
+      <trans-unit id="eIcon.search">
+        <source>Edit search element</source>
+        <target state="needs-translation">Edit search element</target>
+      </trans-unit>
+      <trans-unit id="search.resultRange">
+        <source>Searchresult: ###RANGELOW###-###RANGEHIGH### of ###TOTAL###</source>
+        <target state="needs-translation">Searchresult: ###RANGELOW###-###RANGEHIGH### of ###TOTAL###</target>
+      </trans-unit>
+      <trans-unit id="search.emptySearch">
+        <source>Sorry, your search was empty!</source>
+        <target state="needs-translation">Sorry, your search was empty!</target>
+      </trans-unit>
+      <trans-unit id="search.searchResultNext">
+        <source>Next</source>
+        <target state="needs-translation">Next</target>
+      </trans-unit>
+      <trans-unit id="search.searchResultPrev">
+        <source>Prev</source>
+        <target state="needs-translation">Prev</target>
+      </trans-unit>
+      <trans-unit id="search.searchWord">
+        <source>Searchword:</source>
+        <target state="needs-translation">Searchword:</target>
+      </trans-unit>
+      <trans-unit id="search.searchIn">
+        <source>Search in:</source>
+        <target state="needs-translation">Search in:</target>
+      </trans-unit>
+      <trans-unit id="search.headersKeywords">
+        <source>Headers and keywords</source>
+        <target state="needs-translation">Headers and keywords</target>
+      </trans-unit>
+      <trans-unit id="search.pageContent">
+        <source>Page content</source>
+        <target state="needs-translation">Page content</target>
+      </trans-unit>
+      <trans-unit id="search.searchButton">
+        <source>Search now!</source>
+        <target state="needs-translation">Search now!</target>
+      </trans-unit>
+    </body>
+  </file>
+</xliff>
