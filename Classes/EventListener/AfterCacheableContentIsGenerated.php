@@ -31,7 +31,7 @@ class AfterCacheableContentIsGenerated implements SingletonInterface
         // XHTML-clean the code, if flag set
         if ($this->doXHTML_cleaning($tsfe) != 'none') {
             $XHTML_clean = GeneralUtility::makeInstance(HtmlUtility::class);
-            $event->content = $XHTML_clean->XHTML_clean($event->content);
+            $tsfe->content = $XHTML_clean->XHTML_clean($tsfe->content);
         }
     }
 
