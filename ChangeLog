@@ -1,3 +1,6 @@
+2025-08-12 Franz Holzinger  <franz@ttproducts.de>
+    * bugfix: AfterCacheableContentIsGenerated output
+
 2025-07-15 Franz Holzinger  <franz@ttproducts.de>
     * bugfix: The request object must be changable by the executed methods.
 
