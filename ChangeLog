@@ -1,3 +1,7 @@
+2025-08-24 Franz Holzinger  <franz@ttproducts.de>
+    * only TYPO3 13 support
+    * move TypoScript into Sets
+
 2025-08-12 Franz Holzinger  <franz@ttproducts.de>
     * bugfix: AfterCacheableContentIsGenerated output
 
