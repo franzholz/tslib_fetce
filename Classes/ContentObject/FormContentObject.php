@@ -27,7 +27,6 @@ use TYPO3\CMS\Frontend\Typolink\LinkResult;
 use TYPO3\CMS\Frontend\Typolink\LinkResultInterface;
 use TYPO3\CMS\Frontend\Typolink\PageLinkBuilder;
 
-use JambageCom\Div2007\Security\TransmissionSecurity;
 use JambageCom\Div2007\Utility\HtmlUtility;
 
 use JambageCom\TslibFetce\Utility\FormUtility;
@@ -61,7 +60,6 @@ class FormContentObject extends AbstractContentObject
             $url = $theRedirect;
         }
         // previously: list($LD['totalURL'], $LD['linkText'], $LD['target']) instead of $linkedResult
-
         return $linkedResult;
     }
 
@@ -126,30 +124,6 @@ class FormContentObject extends AbstractContentObject
     {
         $content = '';
         $xhtmlFix = HtmlUtility::determineXhtmlFix();
-        $security = GeneralUtility::makeInstance(TransmissionSecurity::class);
-        $encryptionFix = '';
-        $useRsa = false;
-        $rsaArray = [];
-
-        if (
-            isset($conf['rsa']) &&
-            $conf['rsa'] == '1' &&
-            $security->getTransmissionSecurityLevel() == 'rsa'
-        ) {
-            $requiredExtensions = $security->getRequiredExtensions('rsa');
-            foreach ($requiredExtensions as $extension) {
-                if (!ExtensionManagementUtility::isLoaded($extension)) {
-                    $messageMask =
-                        $this->getTypoScriptFrontendController()->sL(
-                            'LLL:EXT:div2007/Resources/Private/Language/locallang.xlf:error.internal_required_extension_missing'
-                        );
-                    $message = sprintf($messageMask, $extension);
-                    return $message;
-                }
-            }
-            $encryptionFix = $security->getEncryptionAttribute();
-            $useRsa = true;
-        }
 
         if (is_array($formData)) {
             $dataArray = $formData;
@@ -186,11 +160,6 @@ class FormContentObject extends AbstractContentObject
                             $label = isset($singleKeyArray['label.']) ? $this->cObj->stdWrap($singleKeyArray['label'], $singleKeyArray['label.']) : $singleKeyArray['label'];
                         }
                         [$temp[0]] = explode('|', $label);
-                        $rsa = '';
-                        if (isset($singleKeyArray['rsa'])) {
-                            $rsa = intval($singleKeyArray['rsa']);
-                            $rsaArray[$dataKey] = $rsa;
-                        }
                         $type = '';
                         if (isset($singleKeyArray['type'])) {
                             $type = isset($singleKeyArray['type.']) ? $this->cObj->stdWrap($singleKeyArray['type'], $singleKeyArray['type.']) : $singleKeyArray['type'];
@@ -432,11 +401,6 @@ class FormContentObject extends AbstractContentObject
 
                     case 'password':
                         $useFix = '';
-                        if (
-                            !empty($rsaArray[$dataKey])
-                        ) {
-                            $useFix = ' ' . $encryptionFix . ' ';
-                        }
                         $size = isset($fParts[1]) && trim($fParts[1]) ? (int)$fParts[1] : 20;
                         $size = MathUtility::forceIntegerInRange($size, 1, 120);
                         $noValueInsert = 0;
@@ -921,7 +885,6 @@ class FormContentObject extends AbstractContentObject
                 $hiddenfields . $content,
             '</form>'
         ];
-
         return implode('', $content);
     }
 

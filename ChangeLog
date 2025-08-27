@@ -2,6 +2,7 @@
 2025-08-24 Franz Holzinger  <franz@ttproducts.de>
     * since TYPO3 12: remove FormContentObject::buildActionLink legacy layer
     * since TYPO3 12: remove FormContentObject::buildLinks legacy layer
+    * removed feature: no support for RSA encryption as it has been removed from TYPO3
 
 2025-08-24 Franz Holzinger  <franz@ttproducts.de>
     * only TYPO3 13 support
