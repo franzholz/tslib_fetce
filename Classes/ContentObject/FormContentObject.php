@@ -62,22 +62,6 @@ class FormContentObject extends AbstractContentObject
         }
         // previously: list($LD['totalURL'], $LD['linkText'], $LD['target']) instead of $linkedResult
 
-        // Legacy layer, can be removed in TYPO3 v12.0.
-        if (!($linkedResult instanceof LinkResultInterface)) {
-            if (is_array($linkedResult)) {
-                $storeUrl = $url;
-                [$url, $linkText, $linkTarget] = $linkedResult;
-                if (!empty($storeUrl)) {
-                    $url = $storeUrl;
-                }
-            } else {
-                $url = '';
-            }
-            $linkedResult = new LinkResult('', $url);
-            $linkedResult = $linkedResult
-                ->withTarget($linkTarget)
-                ->withLinkText($linkText);
-        }
         return $linkedResult;
     }
 
