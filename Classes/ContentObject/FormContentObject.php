@@ -109,25 +109,6 @@ class FormContentObject extends AbstractContentObject
             $linkedResult = $pageLinkBuilder->build($page, '', $target, []);
         }
         // previously: list($LD_A['totalURL'], $LD_A['linkText'], $LD_A['target']) instead of $linkedResult
-        // Legacy layer, can be removed in TYPO3 v12.0.
-        if (
-            !empty($linkedResult) &&
-            !($linkedResult instanceof LinkResultInterface)
-        ) {
-            if (is_array($linkedResult)) {
-                $storeAction = $action;
-                [$action, $actionText, $actionTarget] = $linkedResult;
-                if (!empty($storeAction)) {
-                    $action = $storeAction;
-                }
-            } else {
-                $action = '';
-            }
-            $linkedResult = new LinkResult('', $action);
-            $linkedResult = $linkedResult
-                ->withTarget($actionTarget)
-                ->withLinkText($actionText);
-        }
 
         if (!empty($linkedResult)) {
             $action = $linkedResult->getUrl();

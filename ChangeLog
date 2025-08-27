@@ -1,3 +1,7 @@
+
+2025-08-24 Franz Holzinger  <franz@ttproducts.de>
+    * since TYPO3 12: remove FormContentObject::buildActionLink legacy layer
+
 2025-08-24 Franz Holzinger  <franz@ttproducts.de>
     * only TYPO3 13 support
     * move TypoScript into Sets
