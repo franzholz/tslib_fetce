@@ -341,8 +341,6 @@ class TypoScriptFrontendDataController
     public function clear_cacheCmd($cacheCmd): void
     {
         $cacheCmd = intval($cacheCmd);
-        $typo3Version = GeneralUtility::makeInstance(Typo3Version::class);
-        $version = $typo3Version->getVersion();
 
         if ($cacheCmd) {
             $connectionPool = GeneralUtility::makeInstance(ConnectionPool::class);
@@ -350,17 +348,10 @@ class TypoScriptFrontendDataController
             $configurationManager = GeneralUtility::getContainer()->get(ConfigurationManager::class);
 
             $this->cacheService =
-                (
-                    version_compare($version, '13.0.0', '>=') ?
-                        new CacheService(
-                            $configurationManager,
-                            $cacheManager,
-                            $connectionPool,
-                        ) :
-                        new CacheService(
-                            $configurationManager,
-                            $cacheManager,
-                        )
+                new CacheService(
+                    $configurationManager,
+                    $cacheManager,
+                    $connectionPool,
                 );
 
             $this->cacheService->clearPageCache($cacheCmd);
