@@ -14,6 +14,8 @@ namespace JambageCom\TslibFetce\ContentObject;
  *
  * The TYPO3 project - inspiring people to share!
  */
+use TYPO3\CMS\Core\Context\Context;
+use TYPO3\CMS\Core\Domain\Repository\PageRepository;
 use TYPO3\CMS\Core\Page\PageRenderer;
 use TYPO3\CMS\Core\Type\DocType;
 use TYPO3\CMS\Core\Utility\ArrayUtility;
@@ -27,6 +29,7 @@ use TYPO3\CMS\Frontend\Typolink\LinkResult;
 use TYPO3\CMS\Frontend\Typolink\LinkResultInterface;
 use TYPO3\CMS\Frontend\Typolink\PageLinkBuilder;
 
+
 use JambageCom\Div2007\Utility\HtmlUtility;
 
 use JambageCom\TslibFetce\Utility\FormUtility;
@@ -36,6 +39,10 @@ use JambageCom\TslibFetce\Utility\FormUtility;
  */
 class FormContentObject extends AbstractContentObject
 {
+    public function __construct(
+        private readonly Context $context,
+    ) {}
+
     /**
     * Builds a TypoLink to a certain page
     */
@@ -45,14 +52,15 @@ class FormContentObject extends AbstractContentObject
         $url = '';
         $linkText = '';
         $linkTarget = '';
-        $pageLinkBuilder = GeneralUtility::makeInstance(PageLinkBuilder::class, $this->cObj, $this->getTypoScriptFrontendController());
+        $pageLinkBuilder = GeneralUtility::makeInstance(PageLinkBuilder::class, $this->cObj);
 
         // Internal: Just submit to current page
         if (!$theRedirect) {
             $linkedResult = $pageLinkBuilder->build($page, '', $target, []);
         } elseif (MathUtility::canBeInterpretedAsInteger($theRedirect)) {
             // Internal: Submit to page with ID $theRedirect
-            $page = $this->getTypoScriptFrontendController()->sys_page->getPage_noCheck($theRedirect);
+            $pageRepository = GeneralUtility::makeInstance(PageRepository::class, $this->context);
+            $page = $pageRepository->getPage_noCheck((int) $theRedirect);
             $linkedResult = $pageLinkBuilder->build($page, '', $target, []);
         } else {
             // External URL, redirect-hidden field is rendered!
@@ -73,11 +81,12 @@ class FormContentObject extends AbstractContentObject
         $action = '';
         $actionText = '';
         $actionTarget = '';
-        $pageLinkBuilder = GeneralUtility::makeInstance(PageLinkBuilder::class, $this->cObj, $this->getTypoScriptFrontendController());
+        $pageLinkBuilder = GeneralUtility::makeInstance(PageLinkBuilder::class, $this->cObj);
 
         // Submit to a specific page
         if (MathUtility::canBeInterpretedAsInteger($formtype)) {
-            $page = $this->getTypoScriptFrontendController()->sys_page->getPage_noCheck($formtype);
+            $pageRepository = GeneralUtility::makeInstance(PageRepository::class, $this->context);
+            $page = $pageRepository->getPage_noCheck((int) $formtype);
             $page['pagetype'] = '';
             $linkedResult =  $pageLinkBuilder->build($page, '', $target, []);
         } elseif ($formtype) {
@@ -124,6 +133,8 @@ class FormContentObject extends AbstractContentObject
     {
         $content = '';
         $xhtmlFix = HtmlUtility::determineXhtmlFix();
+        $request = $this->cObj->getRequest();
+        $pageInformation = $request->getAttribute('frontend.page.information');
 
         if (is_array($formData)) {
             $dataArray = $formData;
@@ -774,7 +785,8 @@ class FormContentObject extends AbstractContentObject
         }
 
         // redirect should be set to the page to redirect to after an external script has been used. If internal scripts is used, and if no 'type' is set that dictates otherwise, redirect is used as the url to jump to as long as it's an integer (page)
-        $page = $this->getTypoScriptFrontendController()->page;
+
+        $page = $pageInformation->getPageRecord();
         $linkedResult = $this->buildLinks($theRedirect, $page, $target);
 
         if ($theRedirect && !MathUtility::canBeInterpretedAsInteger($theRedirect)) {
@@ -816,9 +828,9 @@ class FormContentObject extends AbstractContentObject
             } else {
                 // locationData is [the page id]:[tablename]:[uid of record]. Indicates on which page the record (from tablename with uid) is shown. Used to check access.
                 if (isset($this->data['_LOCALIZED_UID'])) {
-                    $locationData = $this->getTypoScriptFrontendController()->id . ':' . str_replace($this->data['uid'], $this->data['_LOCALIZED_UID'], $this->cObj->currentRecord);
+                    $locationData = $pageInformation->getId() . ':' . str_replace($this->data['uid'], $this->data['_LOCALIZED_UID'], $this->cObj->currentRecord);
                 } else {
-                    $locationData = $this->getTypoScriptFrontendController()->id . ':' . $this->cObj->currentRecord;
+                    $locationData = $pageInformation->getId() . ':' . $this->cObj->currentRecord;
                 }
             }
             $hiddenfields .= '<input type="hidden" name="locationData" value="' . htmlspecialchars($locationData) . '"' . $xhtmlFix . '>' . PHP_EOL;
