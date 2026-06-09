@@ -16,6 +16,7 @@ namespace JambageCom\TslibFetce\ContentObject;
  */
 use TYPO3\CMS\Core\Context\Context;
 use TYPO3\CMS\Core\Domain\Repository\PageRepository;
+use TYPO3\CMS\Core\Information\Typo3Version;
 use TYPO3\CMS\Core\Page\PageRenderer;
 use TYPO3\CMS\Core\Type\DocType;
 use TYPO3\CMS\Core\Utility\ArrayUtility;
@@ -52,19 +53,43 @@ class FormContentObject extends AbstractContentObject
         $url = '';
         $linkText = '';
         $linkTarget = '';
-        $pageLinkBuilder = GeneralUtility::makeInstance(PageLinkBuilder::class, $this->cObj);
+        $request = $this->cObj->getRequest();
+
+        $versionService = GeneralUtility::makeInstance(Typo3Version::class);
+        $majorVersion = $versionService->getMajorVersion();
+
+        if ($majorVersion >= 14) {
+            $pageLinkBuilder = GeneralUtility::makeInstance(PageLinkBuilder::class);
+        } else {
+            $pageLinkBuilder = GeneralUtility::makeInstance(PageLinkBuilder::class, $this->cObj);
+        }
 
         // Internal: Just submit to current page
         if (!$theRedirect) {
-            $linkedResult = $pageLinkBuilder->build($page, '', $target, []);
+            if ($majorVersion >= 14) {
+                $linkedResult =
+                    $pageLinkBuilder->buildLink($page, [], $request,  '');
+            } else {
+                $linkedResult = $pageLinkBuilder->build($page, '', $target, []);
+            }
         } elseif (MathUtility::canBeInterpretedAsInteger($theRedirect)) {
             // Internal: Submit to page with ID $theRedirect
             $pageRepository = GeneralUtility::makeInstance(PageRepository::class, $this->context);
             $page = $pageRepository->getPage_noCheck((int) $theRedirect);
-            $linkedResult = $pageLinkBuilder->build($page, '', $target, []);
+            if ($majorVersion >= 14) {
+                $linkedResult =
+                    $pageLinkBuilder->buildLink($page, [], $request,  '');
+            } else {
+                $linkedResult = $pageLinkBuilder->build($page, '', $target, []);
+            }
         } else {
-            // External URL, redirect-hidden field is rendered!
-            $linkedResult = $pageLinkBuilder->build($page, '', $target, []);
+            if ($majorVersion >= 14) {
+                $linkedResult =
+                    $pageLinkBuilder->buildLink($page, [], $request,  '');
+            } else {
+                    // External URL, redirect-hidden field is rendered!
+                $linkedResult = $pageLinkBuilder->build($page, '', $target, []);
+            }
             $url = $theRedirect;
         }
         // previously: list($LD['totalURL'], $LD['linkText'], $LD['target']) instead of $linkedResult
@@ -81,14 +106,28 @@ class FormContentObject extends AbstractContentObject
         $action = '';
         $actionText = '';
         $actionTarget = '';
-        $pageLinkBuilder = GeneralUtility::makeInstance(PageLinkBuilder::class, $this->cObj);
+        $request = $this->cObj->getRequest();
+        $versionService = GeneralUtility::makeInstance(Typo3Version::class);
+        $majorVersion = $versionService->getMajorVersion();
+
+        if ($majorVersion >= 14) {
+            $pageLinkBuilder = GeneralUtility::makeInstance(PageLinkBuilder::class);
+        } else {
+            $pageLinkBuilder = GeneralUtility::makeInstance(PageLinkBuilder::class, $this->cObj);
+        }
 
         // Submit to a specific page
         if (MathUtility::canBeInterpretedAsInteger($formtype)) {
             $pageRepository = GeneralUtility::makeInstance(PageRepository::class, $this->context);
             $page = $pageRepository->getPage_noCheck((int) $formtype);
             $page['pagetype'] = '';
-            $linkedResult =  $pageLinkBuilder->build($page, '', $target, []);
+
+            if ($majorVersion >= 14) {
+                $linkedResult =
+                    $pageLinkBuilder->buildLink($page, [], $request,  '');
+            } else {
+                $linkedResult =  $pageLinkBuilder->build($page, '', $target, []);
+            }
         } elseif ($formtype) {
             // Submit to external script
             $action = $formtype;
@@ -97,7 +136,12 @@ class FormContentObject extends AbstractContentObject
         } else {
             // Submit to "nothing" - which is current page
             $page['pagetype'] = '';
-            $linkedResult = $pageLinkBuilder->build($page, '', $target, []);
+            if ($majorVersion >= 14) {
+                $linkedResult =
+                    $pageLinkBuilder->buildLink($page, [], $request,  '');
+            } else {
+                $linkedResult = $pageLinkBuilder->build($page, '', $target, []);
+            }
         }
         // previously: list($LD_A['totalURL'], $LD_A['linkText'], $LD_A['target']) instead of $linkedResult
 
@@ -135,6 +179,7 @@ class FormContentObject extends AbstractContentObject
         $xhtmlFix = HtmlUtility::determineXhtmlFix();
         $request = $this->cObj->getRequest();
         $pageInformation = $request->getAttribute('frontend.page.information');
+        $pageRenderer = GeneralUtility::makeInstance(PageRenderer::class);
 
         if (is_array($formData)) {
             $dataArray = $formData;
@@ -142,7 +187,9 @@ class FormContentObject extends AbstractContentObject
         } else {
             $data = '';
             if (isset($conf['data'])) {
-                $data = isset($conf['data.']) ? $this->cObj->stdWrap($conf['data'], $conf['data.']) : $conf['data'];
+                $data = isset($conf['data.']) ?
+                    $this->cObj->stdWrap($conf['data'], $conf['data.']) :
+                    $conf['data'];
             }
             // Clearing dataArr
             $dataArray = [];
@@ -185,7 +232,10 @@ class FormContentObject extends AbstractContentObject
                         }
                         $singleValue = '';
                         if (isset($singleKeyArray['value'])) {
-                            $singleValue = isset($singleKeyArray['value.']) ? $this->cObj->stdWrap($singleKeyArray['value'], $singleKeyArray['value.']) : $singleKeyArray['value'];
+                            $singleValue =
+                                isset($singleKeyArray['value.']) ?
+                                    $this->cObj->stdWrap($singleKeyArray['value'], $singleKeyArray['value.']) :
+                                    $singleKeyArray['value'];
                         }
                         [$temp[2]] = explode('|', $singleValue);
                         // If value array is set, then implode those values.
@@ -246,7 +296,7 @@ class FormContentObject extends AbstractContentObject
         $propertyOverride = [];
         $fieldname_hashArray = [];
         $counter = 0;
-        $docType = GeneralUtility::makeInstance(PageRenderer::class)->getDocType();
+        $docType = $pageRenderer->getDocType();
         $xhtmlStrict = in_array($docType, [DocType::xhtmlStrict, DocType::xhtml11, DocType::xhtmlRdfa10]);
         // Formname
         $formName = isset($conf['formName.']) ? $this->cObj->stdWrap($conf['formName'], $conf['formName.']) : $conf['formName'];
@@ -803,9 +853,9 @@ class FormContentObject extends AbstractContentObject
 
         $actionTarget = '';
         $action = $this->buildActionLink($actionTarget, $theRedirect, $page, $target, $formtype, $linkedResult);
-
         // Recipient:
         $theEmail = '';
+
         if (isset($conf['recipient'])) {
             $theEmail = isset($conf['recipient.']) ? $this->cObj->stdWrap($conf['recipient'], $conf['recipient.']) : $conf['recipient'];
         }
@@ -816,7 +866,10 @@ class FormContentObject extends AbstractContentObject
         // location data:
         $location = '';
         if (isset($conf['locationData'])) {
-            $location = isset($conf['locationData.']) ? $this->cObj->stdWrap($conf['locationData'], $conf['locationData.']) : $conf['locationData'];
+            $location =
+                isset($conf['locationData.']) ?
+                    $this->cObj->stdWrap($conf['locationData'], $conf['locationData.']) :
+                    $conf['locationData'];
         }
 
         if ($location) {
@@ -878,7 +931,15 @@ class FormContentObject extends AbstractContentObject
             $path = PathUtility::stripPathSitePrefix(
                 ExtensionManagementUtility::extPath('tslib_fetce')
             );
-            $this->getTypoScriptFrontendController()->additionalHeaderData['JSFormValidate'] = '<script type="text/javascript" src="' . GeneralUtility::createVersionNumberedFilename($this->getTypoScriptFrontendController()->absRefPrefix . $path . 'Resources/Public/JavaScript/jsfunc.validateform.js') . '"></script>';
+
+            $frontendTypoScriptConfigArray = $request->getAttribute('frontend.typoscript')?->getConfigArray();
+            $absRefPrefix = '';
+            if ($frontendTypoScriptConfigArray) {
+                $absRefPrefix = $frontendTypoScriptConfigArray['absRefPrefix'] ?? '';
+            }
+
+            $JSFormValidate = '<script type="text/javascript" src="' . GeneralUtility::createVersionNumberedFilename($absRefPrefix . $path . 'Resources/Public/JavaScript/jsfunc.validateform.js') . '"></script>';
+            $pageRenderer->addHeaderData($JSFormValidate);
         } else {
             $validateForm = '';
         }
@@ -897,6 +958,7 @@ class FormContentObject extends AbstractContentObject
                 $hiddenfields . $content,
             '</form>'
         ];
+
         return implode('', $content);
     }
 

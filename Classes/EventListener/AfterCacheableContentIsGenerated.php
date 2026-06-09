@@ -22,16 +22,32 @@ class AfterCacheableContentIsGenerated implements SingletonInterface
 
     public function __invoke(AfterCacheableContentIsGeneratedEvent $event): void
     {
-        $tsfe = $event->getController();
+        $config = [];
+        $tsfe = null;
+        if (method_exists($event, 'getController')) {
+            $tsfe = $event->getController();
+            $config = $tsfe->config['config'] ?? [];
+        } else {
+            $request = $event->getRequest();
+            $frontendTypoScript = $request->getAttribute('frontend.typoscript');
+            $typoScriptSetupArray = $frontendTypoScript->getSetupArray();
+            $config = $typoScriptSetupArray['config'] ?? [];
+        }
 
         // Fix local anchors in links, if flag set
-        if (!empty($this->doLocalAnchorFix($tsfe))) {
+        if (!empty($this->doLocalAnchorFix($config))) {
             $this->prefixLocalAnchorsWithScript($tsfe);
         }
         // XHTML-clean the code, if flag set
-        if ($this->doXHTML_cleaning($tsfe) != 'none') {
+        if ($this->doXHTML_cleaning($config) != 'none') {
             $XHTML_clean = GeneralUtility::makeInstance(HtmlUtility::class);
-            $tsfe->content = $XHTML_clean->XHTML_clean($tsfe->content);
+            if (is_object($tsfe)) {
+                $tsfe->content = $XHTML_clean->XHTML_clean($tsfe->content);
+            } else {
+                $content = $event->getContent();
+                $content = $XHTML_clean->XHTML_clean($content);
+                $event->setContent($content);
+            }
         }
     }
 
@@ -41,9 +57,9 @@ class AfterCacheableContentIsGenerated implements SingletonInterface
      * @param TypoScriptFrontendController $tsfe
      * @return string Keyword: "all", "cached" or "output"
      */
-    public function doLocalAnchorFix(TypoScriptFrontendController $tsfe)
+    public function doLocalAnchorFix(array $config)
     {
-        return ($tsfe->config['config']['prefixLocalAnchors'] ?? null);
+        return ($config['prefixLocalAnchors'] ?? null);
     }
 
     /**
@@ -77,17 +93,17 @@ class AfterCacheableContentIsGenerated implements SingletonInterface
     /**
      * Returns the mode of XHTML cleaning
      *
-     * @param \TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController $tsfe
+     * @param array $config
      * @return string Keyword: "all", "cached", "none" or "output"
      */
-    protected function doXHTML_cleaning(TypoScriptFrontendController $tsfe)
+    protected function doXHTML_cleaning(array $config)
     {
         $result = 'none';
         if (
-            !isset($tsfe->config['config']['xmlprologue']) ||
-            $tsfe->config['config']['xmlprologue'] != 'none'
+            !isset($config['xmlprologue']) ||
+            $config['xmlprologue'] != 'none'
         ) {
-            $result = $tsfe->config['config']['xhtml_cleaning'] ?? 'none';
+            $result = $config['xhtml_cleaning'] ?? 'none';
         }
         return $result;
     }

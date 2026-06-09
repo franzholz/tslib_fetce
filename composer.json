@@ -23,7 +23,7 @@
   ],
   "require": {
     "typo3/cms-core": "^13 || ^14",
-    "jambagecom/div2007": "^2.3"
+    "jambagecom/div2007": "^2.4.2"
   },
   "autoload": {
     "psr-4": {

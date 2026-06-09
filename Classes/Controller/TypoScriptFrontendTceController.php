@@ -53,7 +53,6 @@ class TypoScriptFrontendTceController
     */
     public function checkDataSubmission()
     {
-        $this->frontendController = $frontendController;
         $result = '';
         // Checks if any FORM submissions
         $formtype_db = isset($_POST['formtype_db']) || isset($_POST['formtype_db_x']);
@@ -107,7 +106,7 @@ class TypoScriptFrontendTceController
             $pageRepository->checkRecord($locData[1], $locData[2], 1)
         ) {
             // $locData[1] -check means that a record is checked only if the locationData has a value for a record else than the page.
-            if (count($pageRepository($locData[0]))) {
+            if (count($pageRepository->getPage($locData[0]))) {
                 return 1;
             } else {
                 if (

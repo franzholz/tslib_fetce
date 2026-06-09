@@ -42,7 +42,7 @@ class FrontendTce implements MiddlewareInterface
         if ($frontendTypoScript->hasSetup()) {
             $tsfetce = GeneralUtility::makeInstance(TypoScriptFrontendTceController::class);
             $tsfetce->setRequest($request);
-            $dataProcessed = $tsfetce->checkDataSubmission($tsfe);
+            $dataProcessed = $tsfetce->checkDataSubmission();
             $request = $tsfetce->getRequest();
         }
         return $handler->handle($request);
