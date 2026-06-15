@@ -23,7 +23,7 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 /**
  * Contains some functions that were been previously found
  * inside TypoScriptFrontendController
- * but are shared between FormContentObject and TypoScriptFrontendController
+ * but are split into FormContentObject and TypoScriptFrontendController
  *
  */
 class FormUtility

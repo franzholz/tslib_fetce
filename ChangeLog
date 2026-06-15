@@ -1,3 +1,5 @@
+2026-05-15 Franz Holzinger  <franz@ttproducts.de>
+    * support for TYPO3 14.3
 
 2025-08-24 Franz Holzinger  <franz@ttproducts.de>
     * since TYPO3 12: remove FormContentObject::buildActionLink legacy layer

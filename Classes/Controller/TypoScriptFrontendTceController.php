@@ -5,7 +5,7 @@ namespace JambageCom\TslibFetce\Controller;
 /***************************************************************
 *  Copyright notice
 *
-*  (c) 1999-2021 Kasper Skårhøj (kasperYYYY@typo3.com)
+*  (c) 1999-2026 Kasper Skårhøj (kasperYYYY@typo3.com)
 *  All rights reserved
 *
 *  This script is part of the TYPO3 project. The TYPO3 project is
@@ -26,6 +26,7 @@ namespace JambageCom\TslibFetce\Controller;
 ***************************************************************/
 use Psr\Http\Message\ServerRequestInterface;
 
+use TYPO3\CMS\Core\Domain\Repository\PageRepository;
 use TYPO3\CMS\Core\Log\LogManager;
 use TYPO3\CMS\Core\Log\LogLevel;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
@@ -41,11 +42,6 @@ use JambageCom\TslibFetce\Controller\TypoScriptFrontendDataController;
 class TypoScriptFrontendTceController
 {
     /**
-    * @var \TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController
-    */
-    protected $frontendController = null;
-
-    /**
      * Always set via setRequest() after instantiation
      */
     protected ?ServerRequestInterface $request = null;
@@ -53,12 +49,10 @@ class TypoScriptFrontendTceController
     /**
     * hook to be executed by TypoScriptFrontendController
     *
-    * @param	$frontendController: The current \TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController
     * @return string "fe_tce" if TCE FE data have been processed "" if none.
     */
-    public function checkDataSubmission($frontendController)
+    public function checkDataSubmission()
     {
-        $this->frontendController = $frontendController;
         $result = '';
         // Checks if any FORM submissions
         $formtype_db = isset($_POST['formtype_db']) || isset($_POST['formtype_db_x']);
@@ -105,13 +99,14 @@ class TypoScriptFrontendTceController
     */
     public function locDataCheck($locationData)
     {
+        $pageRepository = GeneralUtility::makeInstance(PageRepository::class);
         $locData = explode(':', $locationData);
         if (
-            !$locData['1'] ||
-            $this->frontendController->sys_page->checkRecord($locData['1'], $locData['2'], 1)
+            !$locData[1] ||
+            $pageRepository->checkRecord($locData[1], $locData[2], 1)
         ) {
             // $locData[1] -check means that a record is checked only if the locationData has a value for a record else than the page.
-            if (count($this->frontendController->sys_page->getPage($locData['0']))) {
+            if (count($pageRepository->getPage($locData[0]))) {
                 return 1;
             } else {
                 if (
@@ -149,11 +144,15 @@ class TypoScriptFrontendTceController
     */
     protected function fe_tce()
     {
+        $request = $this->getRequest();
+        $frontendTypoScript = $request->getAttribute('frontend.typoscript');
+        $typoScriptSetupArray = $frontendTypoScript->getSetupArray();
+
         $fe_tce = GeneralUtility::makeInstance(TypoScriptFrontendDataController::class);
         $fe_tce->setRequest($this->request);
         $fe_tce->start(
             $this->getRequest()->getParsedBody()['data'],
-            $this->frontendController->config['FEData.'] ?? []
+            $typoScriptSetupArray['FEData.'] ?? []
         );
         $fe_tce->includeScripts();
 

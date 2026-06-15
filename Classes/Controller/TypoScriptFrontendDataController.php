@@ -18,7 +18,7 @@ namespace JambageCom\TslibFetce\Controller;
  * Class for the built TypoScript based Front End
  *
  * This class has a lot of functions and internal variable which are use from index_ts.php.
- * The class is instantiated as $GLOBALS['TSFE'] in index_ts.php.
+ * The class has formerly been instantiated as $GLOBALS['TSFE'] in index_ts.php.
  * The use of this class should be inspired by the order of function calls as found in index_ts.php.
  *
  * Revised for TYPO3 3.6 June/2003 by Kasper Skårhøj
@@ -33,7 +33,6 @@ use TYPO3\CMS\Core\Cache\CacheManager;
 use TYPO3\CMS\Core\Context\Context;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Information\Typo3Version;
-use TYPO3\CMS\Core\Log\LogManager;
 use TYPO3\CMS\Core\Log\LogLevel;
 use TYPO3\CMS\Core\Resource\Exception\InvalidFileNameException;
 use TYPO3\CMS\Core\Resource\Exception\InvalidPathException;
@@ -58,7 +57,6 @@ use JambageCom\TslibFetce\Utility\FormUtility;
  */
 class TypoScriptFrontendDataController
 {
-    private LoggerInterface $logger;
     public $extScripts = [];
     public $extScriptsConf = [];
     public $extUserFuncs = [];
@@ -67,14 +65,22 @@ class TypoScriptFrontendDataController
     public $extraList = 'pid';
 
     /**
+     * If set, the global tt-timeobject is used to log the performance.
+     *
+     * @var bool
+     */
+    public $tt_track = true;
+
+    /**
      * Always set via setRequest() after instantiation
      */
     protected ?ServerRequestInterface $request = null;
 
-    public function __construct(LoggerInterface $logger)
-    {
-        $this->logger = $logger;
-    }
+
+    public function __construct(
+        private readonly Context $context,
+        private readonly LoggerInterface $logger,
+    ) {}
 
     /**
     * @var \TYPO3\CMS\Extbase\Service\CacheService
@@ -94,6 +100,8 @@ class TypoScriptFrontendDataController
     */
     public function start($data, $FEData): void
     {
+        $request = $this->getRequest();
+        $pageInformation = $request->getAttribute('frontend.page.information');
         $formUtility = GeneralUtility::makeInstance(FormUtility::class);
         foreach ($data as $table => $id_arr) {
             if (
@@ -110,7 +118,7 @@ class TypoScriptFrontendDataController
                             $this->newData[$table][$id] = $FEData[$table . '.']['default.'];
                         }
                         if (!empty($FEData[$table . '.']['autoInsertPID'])) {
-                            $this->newData[$table][$id]['pid'] = intval($GLOBALS['TSFE']->page['uid']);
+                            $this->newData[$table][$id]['pid'] = $pageInformation->getId();
                         }
                         // Insert external data:
                         if (is_array($field_arr)) {
@@ -156,7 +164,7 @@ class TypoScriptFrontendDataController
                                     defined('TYPO3_DLOG') && TYPO3_DLOG ||
                                     isset($GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['t3lib/class.t3lib_div.php']['devLog'])
                                 ) {
-                                    GeneralUtility::makeInstance(LogManager::class)->getLogger(__CLASS__)->log(LogLevel::INFO, '"FEData": Submitted record to table ' .  $table . ' was doublePosted (key: ' . $doublePostCheckKey . '). Nothing saved.', '');
+                                    $this->logger->log(LogLevel::INFO, '"FEData": Submitted record to table ' .  $table . ' was doublePosted (key: ' . $doublePostCheckKey . '). Nothing saved.', '');
                                 }
                             } else {
                                 $this->newData[$table][$id][$dPC_field] = $doublePostCheckKey;	// Setting key value
@@ -185,7 +193,12 @@ class TypoScriptFrontendDataController
                     }
 
                     if (!empty($FEData[$table . '.']['userIdColumn'])) {
-                        $this->newData[$table][$id][$FEData[$table . '.']['userIdColumn']] = intval($GLOBALS['TSFE']->fe_user->user['uid']);
+                        $this->newData[$table][$id][$FEData[$table . '.']['userIdColumn']] =
+                            $this->context->getPropertyFromAspect(
+                                'frontend.user',
+                                'uid',
+                                '',
+                            );
                     }
                 }
 
@@ -201,7 +214,7 @@ class TypoScriptFrontendDataController
                             $incFile = null;
                         } catch (InvalidPathException|FileDoesNotExistException|InvalidFileException $e) {
                             $incFile = null;
-                            if ($GLOBALS['TSFE']->tmpl->tt_track) {
+                            if ($this->tt_track) {
                                 GeneralUtility::makeInstance(TimeTracker::class)->setTSlogMessage($e->getMessage(), 3);
                             }
                         }
@@ -223,7 +236,7 @@ class TypoScriptFrontendDataController
     * Includes the submit scripts found in ->extScripts (filled in by the start() function)
     *
     * @return	void
-    * @see tslib_fe::fe_tce(), includeScripts()
+    * @see TYPO3 4.5 tslib_fe::fe_tce(), includeScripts()
     */
     public function includeScripts(): void
     {
@@ -241,7 +254,7 @@ class TypoScriptFrontendDataController
     * Executes the submit user functions found in ->extUserFuncs (filled in by the start() function)
     *
     * @return   void
-    * @see tslib_fe::fe_tce(), executeFunctions()
+    * @see TYPO3 4.5 tslib_fe::fe_tce(), executeFunctions()
     */
     public function executeFunctions(): void
     {
@@ -287,12 +300,12 @@ class TypoScriptFrontendDataController
         $extraList = $this->extraList;
         if (!empty($GLOBALS['TCA'][$table]['ctrl']['tstamp'])) {
             $field = $GLOBALS['TCA'][$table]['ctrl']['tstamp'];
-            $dataArray[$field] = GeneralUtility::makeInstance(Context::class)->getPropertyFromAspect('date', 'timestamp');
+            $dataArray[$field] = $this->context->getPropertyFromAspect('date', 'timestamp');
             $extraList .= ',' . $field;
         }
         if (!empty($GLOBALS['TCA'][$table]['ctrl']['crdate'])) {
             $field = $GLOBALS['TCA'][$table]['ctrl']['crdate'];
-            $dataArray[$field] = GeneralUtility::makeInstance(Context::class)->getPropertyFromAspect('date', 'timestamp');
+            $dataArray[$field] = $this->context->getPropertyFromAspect('date', 'timestamp');
             $extraList .= ',' . $field;
         }
         if (!empty($GLOBALS['TCA'][$table]['ctrl']['cruser_id'])) {
