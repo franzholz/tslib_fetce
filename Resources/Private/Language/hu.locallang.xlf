@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2">
+  <file source-language="en" datatype="plaintext" original="EXT:tslib_fetce/Resources/Private/Language/locallang.xlf" date="2015-10-29T17:46:32Z" product-name="tslib_fetce" target-language="hu">
+    <header/>
+    <body>
+      <trans-unit id="forms_mail_title">
+        <source>Mail Form</source>
+        <target state="translated">E-mail űrlap</target>
+      </trans-unit>
+      <trans-unit id="forms_mail_description">
+        <source>A mail form allowing website users to submit responses.</source>
+        <target state="translated">E-mail űrlap, amellyel a weboldal látogatói válaszokat küldhetnek be.</target>
+      </trans-unit>
+      <trans-unit id="forms_search_title">
+        <source>Search Form</source>
+        <target state="translated">Kereső űrlap</target>
+      </trans-unit>
+      <trans-unit id="forms_search_description">
+        <source>Draws a search form and the search result if a search is performed.</source>
+        <target state="translated">Kereső űrlapot, és keresés esetén az eredményt is megjeleníti.</target>
+      </trans-unit>
+      <trans-unit id="closeDoc">
+        <source>Close</source>
+        <target state="translated">Bezárás</target>
+      </trans-unit>
+      <trans-unit id="saveDoc">
+        <source>Save</source>
+        <target state="translated">Mentés</target>
+      </trans-unit>
+      <trans-unit id="saveCloseDoc">
+        <source>Save and close</source>
+        <target state="translated">Mentés és bezárás</target>
+      </trans-unit>
+      <trans-unit id="labels.changeInOrig">
+        <source>Changed in original translation</source>
+        <target state="translated">Módosítva az eredeti fordításban</target>
+      </trans-unit>
+      <trans-unit id="storage_pid">
+        <source>General Record Storage page:</source>
+        <target state="translated">Általános rekordtárolási oldal:</target>
+      </trans-unit>
+      <trans-unit id="pages.storage_pid_formlabel" xml:space="preserve">
+				<source>Page</source>
+			<target state="translated">Oldal</target></trans-unit>
+      <trans-unit id="pages.palettes.storage" xml:space="preserve">
+				<source>General Record Storage Page</source>
+			<target state="translated">Általános rekordtárolási oldal</target></trans-unit>
+      <trans-unit id="LGL.default_value">
+        <source>Default</source>
+        <target state="translated">Alapértelmezett</target>
+      </trans-unit>
+      <trans-unit id="LGL.caption">
+        <source>Caption:</source>
+        <target state="translated">Felirat:</target>
+      </trans-unit>
+      <trans-unit id="eIcon.form">
+        <source>Edit email form</source>
+        <target state="translated">E-mail űrlap szerkesztése</target>
+      </trans-unit>
+      <trans-unit id="eIcon.search">
+        <source>Edit search element</source>
+        <target state="translated">Keresőelem szerkesztése</target>
+      </trans-unit>
+      <trans-unit id="search.resultRange">
+        <source>Searchresult: ###RANGELOW###-###RANGEHIGH### of ###TOTAL###</source>
+        <target state="translated">Keresési eredmény: ###RANGELOW###-###RANGEHIGH###, összesen ###TOTAL###</target>
+      </trans-unit>
+      <trans-unit id="search.emptySearch">
+        <source>Sorry, your search was empty!</source>
+        <target state="translated">Sajnáljuk, a keresés nem adott eredményt!</target>
+      </trans-unit>
+      <trans-unit id="search.searchResultNext">
+        <source>Next</source>
+        <target state="translated">Következő</target>
+      </trans-unit>
+      <trans-unit id="search.searchResultPrev">
+        <source>Prev</source>
+        <target state="translated">Előző</target>
+      </trans-unit>
+      <trans-unit id="search.searchWord">
+        <source>Searchword:</source>
+        <target state="translated">Keresőszó:</target>
+      </trans-unit>
+      <trans-unit id="search.searchIn">
+        <source>Search in:</source>
+        <target state="translated">Keresés ebben:</target>
+      </trans-unit>
+      <trans-unit id="search.headersKeywords">
+        <source>Headers and keywords</source>
+        <target state="translated">Fejlécek és kulcsszavak</target>
+      </trans-unit>
+      <trans-unit id="search.pageContent">
+        <source>Page content</source>
+        <target state="translated">Oldaltartalom</target>
+      </trans-unit>
+      <trans-unit id="search.searchButton">
+        <source>Search now!</source>
+        <target state="translated">Keresés indítása!</target>
+      </trans-unit>
+    </body>
+  </file>
+</xliff>
