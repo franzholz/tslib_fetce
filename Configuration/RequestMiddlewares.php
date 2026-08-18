@@ -6,7 +6,7 @@ return [
     'frontend' => [
         'jambagecom/tslib-fetce/preprocessing' => [
             'target' => FrontendTce::class,
-            'description' => 'Frontend TCE. Backwards compatibility to deprecated TYPO3 4.x class tslib_feTCE.',
+            'description' => 'Frontend TCE. Backwards compatibility to removed TYPO3 4.x class tslib_feTCE.',
             'after' => [
                 'typo3/cms-frontend/prepare-tsfe-rendering'
             ]
